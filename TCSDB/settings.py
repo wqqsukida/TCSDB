@@ -25,7 +25,7 @@ SECRET_KEY = 'w!xmoe0)0jd=y&wqt%ax76u)mlce8^f$7ku$w%&f7kpvu6!+&c'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'monitor.apps.MonitorConfig',
+    'testcase.apps.TestcaseConfig',
+    'rbac.apps.RbacConfig'
 ]
 
 MIDDLEWARE = [
@@ -47,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'rbac.middlewares.rbac.RbacMiddleware',  # 权限中间件
 ]
 
 ROOT_URLCONF = 'TCSDB.urls'
@@ -76,8 +80,12 @@ WSGI_APPLICATION = 'TCSDB.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME':'tcsdb',
+    'USER': 'root',
+    'PASSWORD': '',
+    'HOST': 'localhost',
+    'PORT': '3306',
     }
 }
 
@@ -106,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -119,3 +127,42 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+# STATIC_ROOT = os.path.join(BASE_DIR,'static')
+
+API_TOKEN = "7d6766a6s5f76safas657889hj78kf90"
+############################ 权限管理相关 ################################
+PERMISSION_MENU_KEY = "%&^%hdgddadsa&^ddadasd"
+PERMISSION_URL_DICT_KEY = "lgdjfsjsgvsctewtg"
+# 不用登陆可访问页面
+VALID_URL= [
+    '^/login/',
+    '^/get_code/',
+    # '^/index/',
+    # '^/index_v3/',
+    '^/403/',
+    '^/logout/',
+    '^/monitor/api/',
+    '^/testcase/api/',
+]
+###############################其它设置##################################
+SERVER_IP = ''
+CODE_FONT_FILE = '/usr/share/fonts/wqy-microhei/wqy-microhei.ttc'  #设置验证码字体文件
+
+##################### 分页器设置 ########################################
+
+PER_PAGE = 20    #每页显示数据数
+PAGER_PAGE_COUNT = 11    #页面上最多显示页码数
+
+##################### session配置 ######################################
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 引擎（默认）
+SESSION_COOKIE_NAME = "sessionid"  # Session的cookie保存在浏览器上时的key，即：sessionid=随机字符串（默认）
+SESSION_COOKIE_PATH = "/"  # Session的cookie保存的路径（默认）
+SESSION_COOKIE_DOMAIN = None  # Session的cookie保存的域名（默认）
+SESSION_COOKIE_SECURE = False  # 是否Https传输cookie（默认）
+SESSION_COOKIE_HTTPONLY = True  # 是否Session的cookie只支持http传输（默认）
+# SESSION_COOKIE_AGE = 3600  # Session的cookie失效日期（1小时）（默认1209600 2周）
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 是否关闭浏览器使得Session过期（默认False）
+SESSION_SAVE_EVERY_REQUEST = True  # 是否每次请求都保存Session，默认修改之后才保存（默认False）
