@@ -132,10 +132,9 @@ STATICFILES_DIRS = (
 )
 # STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
-API_TOKEN = "7d6766a6s5f76safas657889hj78kf90"
+API_TOKEN = "7d6766a6s5f76safas657889hj78kf91"
 ############################ 权限管理相关 ################################
-PERMISSION_MENU_KEY = "%&^%hdgddadsa&^ddadasd"
-PERMISSION_URL_DICT_KEY = "lgdjfsjsgvsctewtg"
+PERMISSION_MENU_KEY = "w*d6v&ns8qq_y#1f"
 # 不用登陆可访问页面
 VALID_URL= [
     '^/login/',
@@ -149,7 +148,7 @@ VALID_URL= [
 ]
 ###############################其它设置##################################
 SERVER_IP = ''
-CODE_FONT_FILE = '/usr/share/fonts/wqy-microhei/wqy-microhei.ttc'  #设置验证码字体文件
+CODE_FONT_FILE = os.path.join(BASE_DIR,'static/fonts/wqy-microhei.ttc')  #设置验证码字体文件
 
 ##################### 分页器设置 ########################################
 
@@ -166,3 +165,8 @@ SESSION_COOKIE_HTTPONLY = True  # 是否Session的cookie只支持http传输（�
 # SESSION_COOKIE_AGE = 3600  # Session的cookie失效日期（1小时）（默认1209600 2周）
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 是否关闭浏览器使得Session过期（默认False）
 SESSION_SAVE_EVERY_REQUEST = True  # 是否每次请求都保存Session，默认修改之后才保存（默认False）
+
+########################### 日志文件配置 ########################################
+LOG_FILE_PATH = os.path.join(BASE_DIR,'log')
+LOG_BACKUP_COUNT = 5
+LOG_MAX_BYTES = 1024*1024*5

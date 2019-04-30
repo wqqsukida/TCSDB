@@ -58,20 +58,5 @@ class RbacMiddleware(MiddlewareMixin):
                 break
 
         if not flag:
-            return redirect('/403/')
-
-        # flag = False
-        # for group_id,code_url in permission_dict.items():
-        #     for db_url in code_url['urls']:
-        #         regax = "^{0}$".format(db_url)
-        #         # 用当前访问url匹配permission_dict中对应url的,，获取code list
-        #         if re.match(regax, current_url):
-        #             # 获取当前用户对当前组内的所有code，并赋值给request
-        #             request.permission_code_list = code_url['codes']
-        #             flag = True
-        #             break
-        #     if flag:
-        #         break
-        #
-        # if not flag:
-        #     return redirect('/403/')
+            # return redirect('/403/')
+            return None # 暂时不开启页面权限验证

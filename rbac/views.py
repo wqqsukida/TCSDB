@@ -3,8 +3,22 @@ from rbac.models import *
 from django.db import transaction
 from utils import md5
 import json
+import copy
+from utils.pagination import Pagination
 
-# Create your views here.
+def init_paginaion(request,queryset):
+    # 初始化分页器
+    query_params = copy.deepcopy(request.GET)  # QueryDict
+    current_page = request.GET.get('page', 1)
+    # per_page = config.per_page
+    # pager_page_count = config.pager_page_count
+    all_count = queryset.count()
+    base_url = request.path_info
+    page_obj = Pagination(current_page, all_count, base_url, query_params)
+    query_set = queryset[page_obj.start:page_obj.end]
+    page_html = page_obj.page_html()
+
+    return query_set,page_html
 
 def users_list(request):
     if request.method == "GET":
@@ -12,13 +26,14 @@ def users_list(request):
         message = request.GET.get("message", "")
         if status.isdigit():
             result = {"code":int(status),"message":message}
-        search_q = request.GET.get('q', '')
+        search_q = request.GET.get('q', '').strip()
 
-
-        query = UserProfile.objects.filter(name__contains=search_q)
+        queryset = UserProfile.objects.filter(name__contains=search_q)
         role_list = Role.objects.all()
 
-        return render(request,'users.html',locals())
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'rbac/users.html',locals())
 
 def users_add(request):
     result = {}
@@ -155,12 +170,13 @@ def roles_list(request):
         message = request.GET.get("message", "")
         if status.isdigit():
             result = {"code": int(status), "message": message}
-        search_q = request.GET.get('q', '')
+        search_q = request.GET.get('q', '').strip()
 
         query = Role.objects.filter(title__contains=search_q)
         permission_list = Permission.objects.all()
+        queryset, page_html = init_paginaion(request, query)
 
-        return render(request, 'roles.html', locals())
+        return render(request, 'rbac/roles.html', locals())
 
 
 def roles_add(request):
@@ -252,11 +268,11 @@ def permissions_list(request):
         message = request.GET.get("message", "")
         if status.isdigit():
             result = {"code": int(status), "message": message}
-        search_q = request.GET.get('q', '')
+        search_q = request.GET.get('q', '').strip()
 
         query = Permission.objects.filter(title__contains=search_q)
-
-        return render(request, 'permissions.html', locals())
+        queryset, page_html = init_paginaion(request, query)
+        return render(request, 'rbac/permissions.html', locals())
 
 
 def permissions_add(request):
@@ -318,13 +334,13 @@ def business_list(request):
         message = request.GET.get("message", "")
         if status.isdigit():
             result = {"code":int(status),"message":message}
-        search_q = request.GET.get('q', '')
+        search_q = request.GET.get('q', '').strip()
 
 
         query = BusinessUnit.objects.filter(name__contains=search_q)
         role_list = Role.objects.all()
-
-        return render(request,'business.html',locals())
+        queryset, page_html = init_paginaion(request, query)
+        return render(request,'rbac/business.html',locals())
 
 
 def business_add(request):

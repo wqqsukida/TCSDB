@@ -19,4 +19,5 @@ from . import views
 
 urlpatterns = [
     re_path(r'^api/list/$', views.ApiList.as_view()),
+    re_path(r'^test_cases', views.test_cases),
 ]

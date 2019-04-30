@@ -24,6 +24,7 @@ from django.http.request import QueryDict
 from django.conf import settings
 from utils.filter_row import Row
 from django.forms.models import model_to_dict
+from utils.log import logger
 #========================================================================#
 def init_paginaion(request,queryset):
     # 初始化分页器
@@ -103,6 +104,7 @@ def login(request):
                     request.session['is_login'] = {'user': user_obj.user.name, 'role': role}  # 仅作为登录后用户名和身份显示session
                     init_permission(user_obj, request)
                     response['data'] = {}
+                    logger.info('user [{0}] login success.'.format(user_obj.user.name))
                 else:
                     response['status'] = False
                     response['msg'] = {'password': ['*用户名或者密码错误']}
@@ -119,6 +121,9 @@ def logout(request):
     '''
     logout删除session函数
     '''
+    user = request.session.get("is_login")
+    if user:
+        logger.info('user [{0}] logout.'.format(user['user']))
     request.session.clear() #删除session
     return HttpResponseRedirect('/login/')
 
