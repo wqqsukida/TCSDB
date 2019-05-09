@@ -146,6 +146,8 @@ VALID_URL= [
     '^/monitor/api/',
     '^/testcase/api/',
 ]
+
+APPEND_SLASH=False
 ###############################其它设置##################################
 SERVER_IP = ''
 CODE_FONT_FILE = os.path.join(BASE_DIR,'static/fonts/wqy-microhei.ttc')  #设置验证码字体文件
