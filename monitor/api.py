@@ -4,636 +4,635 @@
 # Data    : 5/8/19 2:41 PM
 # FileName: api.py
 from django.utils.decorators import method_decorator
-from django.views import View
-from utils.auth_token import api_auth
+from utils.auth_token import APIAuthView
 from django.shortcuts import HttpResponse
 import json
 from monitor.models import *
 
-class AddDUTNodes(View):
+class AddDUTNodes(APIAuthView):
     '''
     增加一个DUT信息
     '''
-    @method_decorator(api_auth)
+
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeDUTFW(View):
+class ChangeDUTFW(APIAuthView):
     '''
     更新DUT FW信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeDUTHost(View):
+class ChangeDUTHost(APIAuthView):
     '''
     更新DUT Host信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class AddDUTMonitorRec(View):
+class AddDUTMonitorRec(APIAuthView):
     '''
     增加一次DUT健康监控记录
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class GetDUTBasicInfo(View):
+class GetDUTBasicInfo(APIAuthView):
     '''
     获得DUT基本信息（包含FW版本和Host信息）
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetDUTHealthInfo(View):
+class GetDUTHealthInfo(APIAuthView):
     '''
     获得DUT健康信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetAllDUTByHostName(View):
+class GetAllDUTByHostName(APIAuthView):
     '''
     获得主机上所有DUT的SN
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetAllDUTByGroupID(View):
+class GetAllDUTByGroupID(APIAuthView):
     '''
     获得同组的所有DUT的SN
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetAllDUTByTag(View):
+class GetAllDUTByTag(APIAuthView):
     '''
     获得相同标签的所有DUT的SN
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class FindDuts(View):
+class FindDuts(APIAuthView):
     '''
     查询所有符合条件的DUT的SN
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class ChangeDUTGroupID(View):
+class ChangeDUTGroupID(APIAuthView):
     '''
     更新DUT的GroupID信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeDUTTags(View):
+class ChangeDUTTags(APIAuthView):
     '''
     更新DUT的Tag信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeDUTStatus(View):
+class ChangeDUTStatus(APIAuthView):
     '''
     更新DUT的状态
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class GetDUTStatus(View):
+class GetDUTStatus(APIAuthView):
     '''
     获得DUT的状态
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetDUTTags(View):
+class GetDUTTags(APIAuthView):
     '''
     获得DUT的Tags
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetDUTGroupID(View):
+class GetDUTGroupID(APIAuthView):
     '''
     获得DUT的GroupID
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
 ########################################################################################################################
-class AddHostInfo(View):
+class AddHostInfo(APIAuthView):
     '''
     新增Host机器信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeHostHWInfo(View):
+class ChangeHostHWInfo(APIAuthView):
     '''
     更新Host机器硬件配置信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeHostNetInfo(View):
+class ChangeHostNetInfo(APIAuthView):
     '''
     更新Host机器网络配置信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeSlotDUTInfo(View):
+class ChangeSlotDUTInfo(APIAuthView):
     '''
     新增/更新Slot上DUT的信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeHostOSInfo(View):
+class ChangeHostOSInfo(APIAuthView):
     '''
     更新Host机器OS信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeHostDriverInfo(View):
+class ChangeHostDriverInfo(APIAuthView):
     '''
     新增/更新Host机器驱动信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class AddHostMonitorRec(View):
+class AddHostMonitorRec(APIAuthView):
     '''
     新增一条Host机器的健康状态监控记录
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class ChangeHostSWInfo(View):
+class ChangeHostSWInfo(APIAuthView):
     '''
     新增/更新Host机器上测试软件安装信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
+        response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
         print(request.POST)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
 
         return HttpResponse(json.dumps(response))
 
-class GetHostBasicInfo(View):
+class GetHostBasicInfo(APIAuthView):
     '''
     获得Host机器的基本信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetHostHWInfo(View):
+class GetHostHWInfo(APIAuthView):
     '''
     获得Host机器的硬件信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetHostNetInfo(View):
+class GetHostNetInfo(APIAuthView):
     '''
     获得Host机器的网络配置信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetHostOSInfo(View):
+class GetHostOSInfo(APIAuthView):
     '''
     获得Host机器的OS信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetHostDriverInfo(View):
+class GetHostDriverInfo(APIAuthView):
     '''
     获得Host机器的驱动信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetHostToolsInfo(View):
+class GetHostToolsInfo(APIAuthView):
     '''
     获得Host机器的工具版本信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetHostCurStatus(View):
+class GetHostCurStatus(APIAuthView):
     '''
     获得Host机器当前的硬件使用状态
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetAllSlotsByHostName(View):
+class GetAllSlotsByHostName(APIAuthView):
     '''
     获得Host机器上所有Slot的信息
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class FindHosts(View):
+class FindHosts(APIAuthView):
     '''
     获得符合条件的Host机器列表
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
 
-class GetDisconnectedHost(View):
+class GetDisconnectedHost(APIAuthView):
     '''
     获得掉线的Host机器清单
     '''
-    @method_decorator(api_auth)
+    
     def get(self,request,*args,**kwargs):
         print(request.GET)
         '''
         query...
         '''
-        response = {'code':0,'msg':'success!','data':{}}
+        response = {'code':0,'msg':'Success!','data':{}}
         return HttpResponse(json.dumps(response))
 
-    @method_decorator(api_auth)
+    
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'only get method!'}
+        response = {'code': 1, 'msg': 'Request method error!'}
         return HttpResponse(json.dumps(response))
