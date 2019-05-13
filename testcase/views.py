@@ -1,7 +1,4 @@
 from django.shortcuts import render,HttpResponse
-from utils.auth_token import APIAuthView
-from django.utils.decorators import method_decorator
-from django.views import View
 import json
 import copy
 from utils.pagination import Pagination
@@ -19,24 +16,6 @@ def init_paginaion(request,queryset):
     page_html = page_obj.page_html()
 
     return query_set,page_html
-
-def api_list(request):
-    return HttpResponse("api_list")
-
-class ApiList(APIAuthView):
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'only post method!'}
-        return HttpResponse(response)
-
-    def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
-
 
 def test_cases(request):
     '''

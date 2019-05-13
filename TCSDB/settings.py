@@ -138,7 +138,7 @@ PERMISSION_MENU_KEY = "w*d6v&ns8qq_y#1f"
 # 不用登陆可访问页面
 VALID_URL= [
     '^/login/',
-    # '^/api/auth/',
+    '^/api/auth/',
     '^/get_code/',
     # '^/index/',
     # '^/index_v3/',

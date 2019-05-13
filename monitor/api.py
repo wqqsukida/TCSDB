@@ -3,7 +3,6 @@
 # Author  : wuyifei
 # Data    : 5/8/19 2:41 PM
 # FileName: api.py
-from django.utils.decorators import method_decorator
 from utils.auth_token import APIAuthView
 from django.shortcuts import HttpResponse
 import json
