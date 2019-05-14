@@ -145,7 +145,7 @@ PERMISSION_MENU_KEY = "w*d6v&ns8qq_y#1f"
 # 涓嶇敤鐧婚檰鍙闂〉闈�
 VALID_URL= [
     '^/login/',
-    # '^/api/auth/',
+    '^/api/auth/',
     '^/get_code/',
     # '^/index/',
     # '^/index_v3/',

@@ -16,9 +16,15 @@ Including another URLconf
 
 from django.urls import path,re_path
 from . import views
+from . import api
 
 urlpatterns = [
-    re_path(r'^api/list/$', views.ApiList.as_view()),
+    re_path(r'^api/func_test/add_refspec/$',api.AddRefSpec.as_view()),
+
+    re_path(r'^api/perf_test/add_item/$',api.AddPerfTestItem.as_view()),
+
+    re_path(r'^api/comp_test/add_item/$',api.AddToolTestItem.as_view()),
+
     re_path(r'^test_cases', views.test_cases),
     re_path(r'^test_specs', views.GetRefSpec),
     re_path(r'^add_spec', views.AddRefSpec),
