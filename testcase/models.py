@@ -14,17 +14,7 @@ class ReferSpec(models.Model):
 
     def __str__(self):
         return self.FileName
-
-class SpecAndTestPoint(models.Model):
-    """
-    refer spec and test point relationship
-    """
-    TPID       = models.IntegerField()
-    SpecID     = models.ForeignKey(ReferSpec, related_name="spec_content", verbose_name="spec_id", on_delete=models.CASCADE)
     
-    class Meta:
-        verbose_name_plural = "test point and spec relationship"
-
 class TestPoint(models.Model):
     """
     test point information
@@ -32,7 +22,6 @@ class TestPoint(models.Model):
     TestDesc    = models.CharField(max_length=80)
     SelectFrom  = models.TextField(max_length=200)
     PageNo      = models.IntegerField()
-    tpid        = models.OneToOneField(SpecAndTestPoint, related_name="point_content", verbose_name="point_id",  on_delete=models.CASCADE)
     
     class Meta:
         verbose_name_plural = "test point"
@@ -40,5 +29,12 @@ class TestPoint(models.Model):
     def __str__(self):
         return self.TestDesc
 
-
-
+class SpecAndTestPoint(models.Model):
+    """
+    refer spec and test point relationship
+    """
+    TPID       = models.ForeignKey(TestPoint, related_name="point_content", verbose_name="point_id",  on_delete=models.CASCADE)
+    SpecID     = models.ManyToManyField(ReferSpec, related_name="spec_content", verbose_name="spec_id")
+    
+    class Meta:
+        verbose_name_plural = "test point and spec relationship"
