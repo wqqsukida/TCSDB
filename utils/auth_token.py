@@ -45,5 +45,9 @@ class APIAuthView(APIView):
             res = {'code': 7, 'msg': 'API validtation failed!'}
             print('[{0}]:{1}'.format(clien_ip, res))
             return HttpResponse(json.dumps(res))
+        if not request.body:
+            res = {'code': 6, 'msg': 'The request body can not be null!'}
+            print('[{0}]:{1}'.format(clien_ip, res))
+            return HttpResponse(json.dumps(res))
 
         return super().dispatch(request, *args, **kwargs)

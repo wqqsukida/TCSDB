@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'monitor.apps.MonitorConfig',
     'testcase.apps.TestcaseConfig',
-    'rbac.apps.RbacConfig'
+    'rbac.apps.RbacConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -80,12 +81,12 @@ WSGI_APPLICATION = 'TCSDB.wsgi.application'
 
 DATABASES = {
     'default': {
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME':'tcsdb',
-    'USER': 'root',
-    'PASSWORD': '',
-    'HOST': 'localhost',
-    'PORT': '3306',
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME':'tcsdb_test',
+    'USER': 'postgres',
+    'PASSWORD': 'dera1234',
+    'HOST': '10.0.4.118',
+    'PORT': '5432',
     }
 }
 
@@ -173,3 +174,7 @@ SESSION_SAVE_EVERY_REQUEST = True  # 是否每次请求都保存Session，默认
 LOG_FILE_PATH = os.path.join(BASE_DIR,'log')
 LOG_BACKUP_COUNT = 5
 LOG_MAX_BYTES = 1024*1024*5
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'utils.custom_exception.custom_exception_handler'
+}
