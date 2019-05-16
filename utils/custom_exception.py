@@ -15,26 +15,26 @@ def custom_exception_handler(exc, context):
         # print(response.data)
         response.data.clear()
         response.data['code'] = response.status_code
-        response.data['data'] = []
+        response.data['data'] = None
 
         if response.status_code == 404:
             try:
-                response.data['message'] = response.data.pop('detail')
-                response.data['message'] = "Not found"
+                response.data['msg'] = response.data.pop('detail')
+                response.data['msg'] = "Not found"
             except KeyError:
-                response.data['message'] = "Not found"
+                response.data['msg'] = "Not found"
 
         if response.status_code == 400:
-            response.data['message'] = 'Input error'
+            response.data['msg'] = 'Input error'
 
         elif response.status_code == 401:
-            response.data['message'] = "Auth failed"
+            response.data['msg'] = "Auth failed"
 
         elif response.status_code >= 500:
-            response.data['message'] =  "Internal service errors"
+            response.data['msg'] =  "Internal service errors"
 
         elif response.status_code == 403:
-            response.data['message'] = "Access denied"
+            response.data['msg'] = "Access denied"
 
         elif response.status_code == 405:
             response.data['msg'] = 'Request method error !'

@@ -55,5 +55,6 @@ urlpatterns = [
     re_path(r'^api/host/find/$', api.FindHosts.as_view()),
     re_path(r'^api/host/disconnections/$', api.GetDisconnectedHost.as_view()),
 
-    re_path(r'^hosts$', views.host_list),
+    re_path(r'^duts$', views.duts),
+    re_path(r'^dut_update$', views.dut_update),
 ]

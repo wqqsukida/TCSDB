@@ -8,6 +8,7 @@ from django.shortcuts import HttpResponse
 from django.db import transaction
 import json,traceback
 from monitor.models import *
+from django.db.models import Q
 
 class AddDUTNodes(APIAuthView):
     '''
@@ -16,12 +17,10 @@ class AddDUTNodes(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = request.data.get("data")
         try:
-            # res = dict(res)
             DUTInfo.objects.create(**res)
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-
         return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeDUTFW(APIAuthView):
@@ -31,7 +30,6 @@ class ChangeDUTFW(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = request.data.get("data")
         try:
-            # res = dict(res)
             with transaction.atomic():
                 sn = res.pop('SerialNum')
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
@@ -42,8 +40,7 @@ class ChangeDUTFW(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-
-        return HttpResponse(json.dumps(response))
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeDUTHost(APIAuthView):
     '''
@@ -52,7 +49,6 @@ class ChangeDUTHost(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = request.data.get("data")
         try:
-            # res = dict(res)
             with transaction.atomic():
                 sn = res.pop('SerialNum')
                 slot = res.get('SlotID')
@@ -66,8 +62,7 @@ class ChangeDUTHost(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-
-        return HttpResponse(json.dumps(response))
+        return HttpResponse(json.dumps(response,indent=4))
 
 class AddDUTMonitorRec(APIAuthView):
     '''
@@ -76,7 +71,6 @@ class AddDUTMonitorRec(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = request.data.get("data")
         try:
-            # res = dict(res)
             with transaction.atomic():
                 sn = res.pop('SerialNum')
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
@@ -86,8 +80,7 @@ class AddDUTMonitorRec(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-
-        return HttpResponse(json.dumps(response))
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetDUTBasicInfo(APIAuthView):
     '''
@@ -107,7 +100,6 @@ class GetDUTBasicInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-
         return HttpResponse(json.dumps(response,indent=4))
 
 class GetDUTHealthInfo(APIAuthView):
@@ -151,173 +143,172 @@ class GetAllDUTByGroupID(APIAuthView):
     '''
     获得同组的所有DUT的SN
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            gid = res.get("GroupID")
+            data = DUTInfo.objects.filter(GroupID=gid).values("SerialNum")
+            data = [i.get("SerialNum") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetAllDUTByTag(APIAuthView):
     '''
     获得相同标签的所有DUT的SN
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            tags = res.get("Tags")
+            data = DUTInfo.objects.filter(Tags=tags).values("SerialNum")
+            data = [i.get("SerialNum") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class FindDuts(APIAuthView):
     '''
     查询所有符合条件的DUT的SN
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            product_name = res.get("ProductName")
+            hostname = res.get("HostName")
+            interface = res.get("Interface")
+            raw_capacity = res.get("RawCapacity")
+            user_capacity = res.get("UserCapacity")
+            parms_dict = {}
+            if product_name and product_name != "ALL":
+                parms_dict["ProductName"] = product_name
+            if hostname and hostname != "ALL":
+                parms_dict["HostName"] = hostname
+            if interface and interface != "ALL":
+                parms_dict["Interface"] = interface
+            if raw_capacity and raw_capacity != 0:
+                parms_dict["RawCapacity"] = raw_capacity
+            if user_capacity and user_capacity != 0:
+                parms_dict["UserCapacity"] = user_capacity
+            data = DUTInfo.objects.filter(**parms_dict).values("SerialNum")
+            data = [i.get("SerialNum") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeDUTGroupID(APIAuthView):
     '''
     更新DUT的GroupID信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            with transaction.atomic():
+                sn = res.get('SerialNum')
+                gid = res.get('GroupID')
+                dut_obj = DUTInfo.objects.filter(SerialNum=sn)
+                dut_obj.update(GroupID=gid)
+                operator = request.session['api_auth'].get("user")
+                DUTGrp.objects.create(GroupID=gid, Operator=operator,DUTID=dut_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeDUTTags(APIAuthView):
     '''
     更新DUT的Tag信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            with transaction.atomic():
+                sn = res.get('SerialNum')
+                tags = res.get('Tags')
+                dut_obj = DUTInfo.objects.filter(SerialNum=sn)
+                dut_obj.update(Tags=tags)
+                operator = request.session['api_auth'].get("user")
+                DUTGrp.objects.create(Tags=tags, Operator=operator,DUTID=dut_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeDUTStatus(APIAuthView):
     '''
     更新DUT的状态
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            sn = res.get('SerialNum')
+            status = res.get("Status")
+            dut_obj = DUTInfo.objects.filter(SerialNum=sn)
+            dut_obj.update(Status=status)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetDUTStatus(APIAuthView):
     '''
     获得DUT的状态
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            sn = res.get('SerialNum')
+            status = DUTInfo.objects.get(SerialNum=sn).Status
+            response = {'code':0,'msg':'Success!','data':{"Status":status}}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetDUTTags(APIAuthView):
     '''
     获得DUT的Tags
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            sn = res.get('SerialNum')
+            tags = DUTInfo.objects.get(SerialNum=sn).Tags
+            response = {'code':0,'msg':'Success!','data':{"Tags":tags}}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetDUTGroupID(APIAuthView):
     '''
     获得DUT的GroupID
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            sn = res.get('SerialNum')
+            gid = DUTInfo.objects.get(SerialNum=sn).GroupID
+            response = {'code':0,'msg':'Success!','data':{"GroupID":gid}}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 ########################################################################################################################
 class AddHostInfo(APIAuthView):
     '''
     新增Host机器信息
     '''
-    
     def get(self,request,*args,**kwargs):
         response = {'code':1,'msg':'Request method error!'}
         return HttpResponse(json.dumps(response))
