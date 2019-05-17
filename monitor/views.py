@@ -34,12 +34,13 @@ def duts(request):
             result = {"code":int(status),"message":message}
         search_q = request.GET.get('q','')
 
-        queryset = DUTInfo.objects.filter(Q(Q(HostName__contains=search_q) |
+        queryset = DUTInfo.objects.filter(Q(Q(SerialNum__contains=search_q) |
+                                           Q(HostName__contains=search_q) |
                                            Q(ProductName__contains=search_q) |
                                            Q(Interface__contains=search_q) |
                                            Q(RawCapacity__contains=search_q) |
                                            Q(UserCapacity__contains=search_q))
-                                          ).distinct()
+                                          ).distinct().order_by('-id')
         queryset, page_html = init_paginaion(request, queryset)
 
         return render(request,'monitor/duts.html',locals())
@@ -59,6 +60,7 @@ def dut_update(request):
         dut_dict = dut_obj.values().first()
         if dut_dict:
             res = dict(dut_dict)
+            res.pop("Manufactured")
         return HttpResponse(json.dumps(res))
 
     elif request.method == "POST":
