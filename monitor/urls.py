@@ -39,7 +39,7 @@ urlpatterns = [
     re_path(r'^api/host/add/$', api.AddHostInfo.as_view()),
     re_path(r'^api/host/change_hw/$', api.ChangeHostHWInfo.as_view()),
     re_path(r'^api/host/change_net/$', api.ChangeHostNetInfo.as_view()),
-    re_path(r'^api/host/change_dut/$', api.ChangeSlotDUTInfo.as_view()),
+    re_path(r'^api/host/change_slot/$', api.ChangeSlotDUTInfo.as_view()),
     re_path(r'^api/host/change_os/$', api.ChangeHostOSInfo.as_view()),
     re_path(r'^api/host/change_driver/$', api.ChangeHostDriverInfo.as_view()),
     re_path(r'^api/host/add_monitor/$', api.AddHostMonitorRec.as_view()),
@@ -54,6 +54,8 @@ urlpatterns = [
     re_path(r'^api/host/get_slots/$', api.GetAllSlotsByHostName.as_view()),
     re_path(r'^api/host/find/$', api.FindHosts.as_view()),
     re_path(r'^api/host/disconnections/$', api.GetDisconnectedHost.as_view()),
+    re_path(r'^api/host/get_status/$', api.GetHostStatus.as_view()),
+    re_path(r'^api/host/change_status/$', api.ChangHostStatus.as_view()),
 
     re_path(r'^duts$', views.duts),
     re_path(r'^dut_update$', views.dut_update),

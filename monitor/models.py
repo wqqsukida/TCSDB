@@ -132,6 +132,9 @@ class SlotInfo(models.Model):
     def __str__(self):
         return self.SlotID
 
+    class Meta:
+        unique_together = ('SlotID', 'HostID',)
+
 class HostOS(models.Model):
     '''
     主机OS变更信息表
@@ -158,6 +161,9 @@ class HostDriver(models.Model):
 
     def __str__(self):
         return self.DriverName
+
+    # class Meta:
+    #     unique_together = ('OSID', 'Hardware',)
 
 class HostMonitor(models.Model):
     '''
@@ -186,3 +192,5 @@ class HostSoftware(models.Model):
     def __str__(self):
         return self.ToolName
 
+    # class Meta:
+    #     unique_together = ('OSID', 'ToolName',)

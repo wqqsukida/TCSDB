@@ -8,7 +8,7 @@ from django.shortcuts import HttpResponse
 from django.db import transaction
 import json,traceback
 from monitor.models import *
-from django.db.models import Q
+from django.db.models import Max
 
 class AddDUTNodes(APIAuthView):
     '''
@@ -90,12 +90,15 @@ class GetDUTBasicInfo(APIAuthView):
         res = request.data.get("data")
         try:
             sn = res.get('SerialNum')
+            print(sn)
             dut_obj = DUTInfo.objects.filter(SerialNum=sn)
             data = dut_obj.values('SerialNum','DeviceType','Manufacture','ModelNum','EUI',
                                    'Interface','ProductName','RawCapacity','UserCapacity',
                                    'Manufactured','Notes','FWLoaderRev','GoldenFWRev','FWRev',
                                    'HostName').first()
-            data['SlotID'] = DUTHost.objects.filter(DUTID=dut_obj.first()).last().SlotID
+            slot_num_obj = DUTHost.objects.filter(DUTID=dut_obj.first())
+            if slot_num_obj:
+                data['SlotID'] = slot_num_obj.order_by("Changed").last().SlotID
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
             print(traceback.format_exc())
@@ -309,329 +312,362 @@ class AddHostInfo(APIAuthView):
     '''
     新增Host机器信息
     '''
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            HostInfo.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeHostHWInfo(APIAuthView):
     '''
     更新Host机器硬件配置信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            host_obj.update(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeHostNetInfo(APIAuthView):
     '''
     更新Host机器网络配置信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            host_obj.update(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeSlotDUTInfo(APIAuthView):
     '''
-    新增/更新Slot上DUT的信息
+    新增/更新Slot信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop("HostName")
+            slot = res.get("SlotID")
+            host_obj = HostInfo.objects.filter(HostName=host_name).first()
+            # 如果存在HostID=host_obj,SlotID=slot的数据,则修改;不存在则添加
+            SlotInfo.objects.update_or_create(HostID=host_obj,SlotID=slot,defaults=res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeHostOSInfo(APIAuthView):
     '''
     更新Host机器OS信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop('HostName')
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            operator = request.session['api_auth'].get("user")
+            HostOS.objects.create(**res,Operator=operator,HostID=host_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeHostDriverInfo(APIAuthView):
     '''
     新增/更新Host机器驱动信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop("HostName")
+            hw = res.get("Hardware")
+            os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
+            operator = request.session['api_auth'].get("user")
+            res['Operator'] = operator
+            HostDriver.objects.create(OSID=os_obj,**res)
+            # 如果存在HostID=host_obj,Hardware=hw的数据,则修改;不存在则添加
+            # HostDriver.objects.update_or_create(OSID=os_obj,Hardware=hw,defaults=res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class AddHostMonitorRec(APIAuthView):
     '''
     新增一条Host机器的健康状态监控记录
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            operator = request.session['api_auth'].get("user")
+            res['Operator'] = operator
+            HostMonitor.objects.create(**res,HostID=host_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class ChangeHostSWInfo(APIAuthView):
     '''
     新增/更新Host机器上测试软件安装信息
     '''
-    
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
-
-    
     def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.pop("HostName")
+            tool_name = res.get("ToolName")
+            os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
+            operator = request.session['api_auth'].get("user")
+            res['Operator'] = operator
+            HostSoftware.objects.create(OSID=os_obj,**res)
+            # 如果存在HostID=host_obj,Hardware=hw的数据,则修改;不存在则添加
+            # HostSoftware.objects.update_or_create(OSID=os_obj,ToolName=tool_name,defaults=res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostBasicInfo(APIAuthView):
     '''
     获得Host机器的基本信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            data = host_obj.values("HostName","Manufacture","DeviceModel","DeviceType",
+                                   "IPV4Addr").first()
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostHWInfo(APIAuthView):
     '''
     获得Host机器的硬件信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            data = host_obj.values("HostName","MotherBoard","CPUType","NumOfCPU",
+                                   "MaxCPUNum","CPUCores","DRAMType","DRAMSize",
+                                   "MaxDRAMSize","MaxSATASlot","MaxAICSlot",
+                                   "MaxU2Slot").first()
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostNetInfo(APIAuthView):
     '''
     获得Host机器的网络配置信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            data = host_obj.values("HostName","MAC","IPV4Addr","NICType",
+                                   "WIFISupported","IPV4WIFI").first()
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostOSInfo(APIAuthView):
     '''
     获得Host机器的OS信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            data = HostOS.objects.filter(HostID__HostName=host_name).values(
+                "OSType","OSVersion"
+            ).order_by("Changed").last()
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostDriverInfo(APIAuthView):
     '''
     获得Host机器的驱动信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
+            # 分组获取当前os下，每个Hardware对应的dirver的最新时间max_time
+            data = HostDriver.objects.filter(OSID=os_obj).values("Hardware").annotate(max_time=Max("Changed"))
+            res = {}
+            for i in data:
+                val_obj = HostDriver.objects.get(Changed=i.get("max_time"), Hardware=i.get("Hardware"))
+                res[i.get("Hardware")] = [val_obj.DriverName,val_obj.DriverVersion]
+            response = {'code': 0, 'msg': 'Success!', 'data': res}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostToolsInfo(APIAuthView):
     '''
     获得Host机器的工具版本信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
+            # 分组获取当前os下，每个Hardware对应的dirver的最新时间max_time
+            data = HostSoftware.objects.filter(OSID=os_obj).values("ToolName").annotate(max_time=Max("Changed"))
+            res = {}
+            for i in data:
+                val_obj = HostSoftware.objects.get(Changed=i.get("max_time"), ToolName=i.get("ToolName"))
+                res[i.get("ToolName")] = val_obj.ToolVer
+            response = {'code': 0, 'msg': 'Success!', 'data': res}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetHostCurStatus(APIAuthView):
     '''
     获得Host机器当前的硬件使用状态
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            data = HostMonitor.objects.filter(HostID__HostName=host_name).values(
+                "CPUUsage","RAMUsage","DISKUsage","NetworkConnection",
+                "NetworkUsage","TotalProcesses"
+            ).order_by("Changed").last()
+            data["HostName"] = host_name
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetAllSlotsByHostName(APIAuthView):
     '''
     获得Host机器上所有Slot的信息
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
-
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            data = SlotInfo.objects.filter(HostID__HostName=host_name).values('id','SlotID')
+            res = {}
+            for i in data:
+                dut_obj = DUTInfo.objects.filter(SlotID=i.get("id"))
+                if dut_obj :
+                    res[i.get("SlotID")] = dut_obj.first().SerialNum
+                else:
+                    res[i.get("SlotID")] = None
+            response = {'code': 0, 'msg': 'Success!', 'data': res}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class FindHosts(APIAuthView):
     '''
     获得符合条件的Host机器列表
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            device_model = res.get("DeviceModel")
+            status = res.get("Status")
+            parms_dict = {}
+            if device_model and device_model != "ALL":
+                parms_dict["DeviceModel"] = device_model
+            if status and status != "ALL":
+                parms_dict["Status"] = status
 
-    
-    def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+            data = HostInfo.objects.filter(**parms_dict).values("HostName")
+            data = [i.get("HostName") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response,indent=4))
 
 class GetDisconnectedHost(APIAuthView):
     '''
     获得掉线的Host机器清单
     '''
-    
     def get(self,request,*args,**kwargs):
-        print(request.GET)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_obj = HostInfo.objects.filter(Status='BAD')
+            data = [i.get("HostName") for i in host_obj]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response,indent=4))
 
-    
+class GetHostStatus(APIAuthView):
+    '''
+    获取当前主机状态
+    '''
+    def get(self,request,*args,**kwargs):
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            data = {'Status':host_obj.first().Status}
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Service internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response, indent=4))
+
+class ChangHostStatus(APIAuthView):
+    '''
+    修改当前主机的状态
+    '''
     def post(self,request,*args,**kwargs):
-        response = {'code': 1, 'msg': 'Request method error!'}
-        return HttpResponse(json.dumps(response))
+        res = request.data.get("data")
+        try:
+            host_name = res.get("HostName")
+            status = res.get("Status")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            host_obj.update(Status=status)
+            response = {'code': 0, 'msg': 'Success!', 'data': True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Service internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response, indent=4))
