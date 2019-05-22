@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path,re_path
 from . import views
 from . import api
+# app_name = 'testcase'
 
 urlpatterns = [
     re_path(r'^api/func_test/add_refspec/$',api.AddRefSpec.as_view()),
@@ -24,8 +25,14 @@ urlpatterns = [
     re_path(r'^api/perf_test/add_item/$',api.AddPerfTestItem.as_view()),
 
     re_path(r'^api/comp_test/add_item/$',api.AddToolTestItem.as_view()),
-
-    re_path(r'^test_cases', views.test_cases),
+    re_path(r'^add_project/(\w+)/$', views.AddProject),
+    re_path(r'^test_project/(\w+)/$', views.GetProject),
+    re_path(r'^edit_project/(\w+)/$', views.UpdateProject),
+    re_path(r'^test_cases', views.GetTestCase),
+    re_path(r'^add_case', views.AddTestCase),
+    re_path(r'^edit_case', views.UpdateTestCase),
+    re_path(r'^del_case', views.DeleteTestCase),
+    re_path(r'^test_steps', views.GetTestStep),
     re_path(r'^test_specs', views.GetRefSpec),
     re_path(r'^add_spec', views.AddRefSpec),
     re_path(r'^edit_spec', views.UpdateRefSpec),
@@ -34,13 +41,4 @@ urlpatterns = [
     re_path(r'^add_point', views.AddTestPoint),
     re_path(r'^edit_point', views.UpdateTestPoint),
     re_path(r'^del_point', views.DeleteTestPoint),
-    re_path(r'^test_detail_cases', views.test_detail_cases),
-    re_path(r'^oc_test_cases', views.oc_test_cases),
-    re_path(r'^taiplus_test_cases', views.taiplus_test_cases),
-    re_path(r'^oc_perf_test_cases', views.oc_perf_test_cases),
-    re_path(r'^taiplus_perf_test_cases', views.taiplus_perf_test_cases),
-    re_path(r'^test_perf_detail_cases', views.test_perf_detail_cases),
-    re_path(r'^oc_com_test_cases', views.oc_com_test_cases),
-    re_path(r'^taiplus_com_test_cases', views.taiplus_com_test_cases),
-    re_path(r'^test_com_detail_cases', views.test_com_detail_cases),
 ]

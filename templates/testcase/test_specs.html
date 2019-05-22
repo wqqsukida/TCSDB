@@ -66,11 +66,7 @@
                                         <i class="fa fa-user-plus"></i> 添加
                                     </a>
                                 </div>
-                                <div class="col-sm-1"> <!--刷新index-->
-                                    <a class="btn btn-info" href="#" data-toggle="modal" data-target="#RefreshModal">
-                                        <i class="fa fa-refresh"></i> 更新索引
-                                    </a>
-                                </div>
+                                                                    
                                 <div class="col-sm-1">
                                     <a id="shownv"  type="button" class="btn btn-warning">显示更多</a>
                                 </div>
@@ -156,10 +152,10 @@
                             <div class="col-sm-8">
                                 <div class="radio">
                                 <label>
-                                    <input type="radio" checked="" value="True" id="mod_stdspec" name="stdspec">True
+                                    <input type="radio" checked="" value="True" id="stdspec" name="stdspec">True
                                 </label>
                                 <label>
-                                    <input type="radio" value="False" id="mod_stdspec" name="stdspec">False
+                                    <input type="radio" value="False" id="stdspec" name="stdspec">False
                                 </label>
                                 </div>
                             </div>
@@ -219,10 +215,10 @@
                             <div class="col-sm-8">
                                 <div class="radio">
                                 <label>
-                                    <input type="radio" value="True" checked="" id="mod_stdspec" name="stdspec">True
+                                    <input type="radio" value="True" id="mod_stdspec1" name="stdspec">True
                                 </label>
                                 <label>
-                                    <input type="radio" value="False" id="mod_stdspec" name="stdspec">False
+                                    <input type="radio" value="False" id="mod_stdspec2" name="stdspec">False
                                 </label>
                                 </div>
                             </div>
@@ -379,7 +375,7 @@
             mspecid = $(this).attr('specid');
             $("#mod_id").val("");
             $("#mod_specname").val("");
-            $("#mod_stdspec").val("");
+            $("#mod_stdspec").prop("checked",false);
             $("#mod_specver").val("");
             $("#mod_specpath").val("");
 
@@ -393,9 +389,14 @@
                         console.log(arg);
                         $("#mod_id").val(arg.id);
                         $("#mod_specname").val(arg.FileName);
-                        $("#mod_stdspec").val(arg.Standard);
+                        if(arg.Standard){
+                            $("#mod_stdspec1").attr('checked', 'checked');
+                            }else{
+　　                                                                            $("#mod_stdspec2").attr('checked', 'checked');
+                        }
                         $("#mod_specver").val(arg.Version);
                         $("#mod_specpath").val(arg.FilePath);
+                        
                     }
                 }
             })

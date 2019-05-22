@@ -25,12 +25,7 @@
     <link href="/static/css/animate.min.css" rel="stylesheet">
     <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
     <link href="/static/css/gstyle.css" rel="stylesheet">
-    <style>
-        .per-btn {
-            display: inline-block;
-            margin: 1px;
-        }
-    </style>
+    <link href="/static/css/plugins/switchery/switchery.css" rel="stylesheet">
 </head>
 
 <body class="gray-bg">
@@ -48,7 +43,7 @@
                 <div class="ibox">
                     <div class="ibox-title">
                         <ol class="breadcrumb">
-                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B> 测试用例 </h5>
+                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B>用例列表 </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -67,40 +62,115 @@
                         <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
                             <form method="get">
                                 <div class="col-sm-1"> <!--添加-->
-                                    <a class="btn btn-info" href="#" data-toggle="modal" data-target="#AddModal"><i class="fa fa-plus"></i> 添加</a>
+                                    <a class="btn btn-info" href="#" data-toggle="modal" data-target="#AddModal">
+                                        <i class="fa fa-user-plus"></i> 添加
+                                    </a>
                                 </div>
 
                                 <div class="col-sm-1">
                                     <a id="shownv"  type="button" class="btn btn-warning">显示更多</a>
                                 </div>
                                 <div class="col-sm-3"></div>
-                                <div class="col-sm-5 ">
-                                    <input type="text" name="q"  class="form-control"  placeholder="" />
-                                </div>
-                                <div class="col-sm-1">
-                                    <button type="submit" value="搜索" class="btn btn-primary" />
+                                <form role="form" class="form-inline">
+                                    <div class="form-group">
+                                        <label for="searchname" class="sr-only">脚本名称</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="searchname" placeholder="请输入脚本名称" id="searchname" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="searchcate" class="sr-only">归属类</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="searchcate" placeholder="请输入用例所属类别" id="searchcate" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="searchpt" class="sr-only">包含测试点</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="searchpt" placeholder="请输入用例包含的测试点，用，分隔" id="searchpt" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button type="submit" value="搜索" class="btn btn-primary" />
                                         <i class="fa fa-search"></i>&nbsp;&nbsp;搜索
-                                    </button>
-                                </div>
+                                        </button>
+                                    </div>
+                                </form>
                             </form>
                         </div>
-
 
                              <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
                                  <thead>
                                     <tr>
-                                        <th>1</th>
-                                        <th>2</th>
+                                        <th>用例索引</th>
+                                        <th>用例名称</th>
+                                        <th>用例描述</th>
+                                        <th>脚本名称</th>
+                                        <th>脚本路径</th>
+                                        <th>脚本参数</th>
+                                        <th>脚本版本</th>
+                                        <th>脚本作者</th>
+                                        <th>用例负责者</th>
+                                        <th>用例备份负责者</th>
+                                        <th>脚本自动化</th>
+                                        <th>脚本重要性</th>
+                                        <th>脚本等级</th>
+                                        <th>脚本归属类</th>
+                                        <th>脚本归属子类</th>
+                                        <th>脚本标签</th>
+                                        <th>用例硬件要求</th>
+                                        <th>用例软件要求</th>
+                                        <th>用例VS要求</th>
+                                        <th>用例设备支持</th>
+                                        <th>用例OS支持</th>
+                                        <th>用例OEM支持</th>
+                                        <th>用例SKU支持</th>
+                                        <th>相关测试点</th>
                                         <th>操作(更新/删除)</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for row in queryset %}
+                                    {% for tscase in queryset %}
                                         <tr>
-                                            <td>{{ row.title }}</td>
-                                            <td>
+                                            <td>{{ tscase.id}}</td>
+                                            <td>{{ tscase.CaseName}}</td>
+                                            <td>{{ tscase.Description}}</td>
+                                            <td>{{ tscase.ScriptName}}</td>
+                                            <td>{{ tscase.ScriptPath}}</td>
+                                            <td>{{ tscase.ScriptParams}}</td>
+                                            <td>{{ tscase.Version}}</td>
+                                            <td>{{ tscase.Author}}</td>
+                                            <td>{{ tscase.Owner}}</td>
+                                            <td>{{ tscase.BackupOwner}}</td>
+                                            <td>{{ tscase.Automated}}</td>
+                                            <td>{{ tscase.Importance}}</td>
+                                            <td>{{ tscase.Level}}</td>
+                                            <td>{{ tscase.Category}}</td>
+                                            <td>{{ tscase.Subcategory}}</td>
+                                            <td>{{ tscase.Labels}}</td>
+                                            <td>{{ tscase.HWRequired}}</td>
+                                            <td>{{ tscase.SWRequired}}</td>
+                                            <td>{{ tscase.VSRequired}}</td>
+                                            <td>{{ tscase.DrvSupported}}</td>
+                                            <td>{{ tscase.OSSupported}}</td>
+                                            <td>{{ tscase.OEMSupported}}</td>
+                                            <td>{{ tscase.SKUSupported}}</td>
+                                            <td> 
+                                                {% for tspoint in tscase.CaseAndPoint.values %}
+                                                    {{ tspoint.id }} {{ tspoint.TestDesc }}
+                                                </br>
+                                                {% endfor %}
                                             </td>
                                             <td style="font-size: 20px">
+                                                <a class="mod-user-btn2" title="详细步骤" href="/testcase/test_steps?id={{ tscase.id }}">
+                                                <i class="fa fa-book"></i>
+                                                </a>
+                                                <a class="mod-user-btn" title="修改用例信息" caseid="{{ tscase.id }}" data-toggle="modal" data-target="#UpdateModal">
+                                                    <i class="fa fa-cog"></i>
+                                                </a>
+                                                <a href="/testcase/del_case?id={{ tscase.id }}" title="删除协议" class="del_confirm" style="margin-left: 15px">
+                                                    <i class="fa fa-user-times"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -120,6 +190,372 @@
         </div>
     </div>
 
+    <div class="modal inmodal" id="AddModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">添加测试用例</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="caseForm" action="/testcase/add_case" role="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用例名称</label>
+                            <div class="col-sm-8">
+                                <input id="casename" name="casename" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用例描述</label>
+                            <div class="col-sm-8">
+                                <input id="casedesc" name="casedesc" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本名称</label>
+                            <div class="col-sm-8">
+                                <input id="scriptname" name="scriptname" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本路径</label>
+                            <div class="col-sm-8">
+                                <input id="scriptpath" name="scriptpath" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本参数</label>
+                            <div class="col-sm-8">
+                                <input id="scriptparams" name="scriptparams" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本版本</label>
+                            <div class="col-sm-8">
+                                <input id="scriptversion" name="scriptversion" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本作者</label>
+                            <div class="col-sm-8">
+                                <input id="caseauthor" name="caseauthor" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本负责者</label>
+                            <div class="col-sm-8">
+                                <input id="caseowner" name="caseowner" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本备份负责者</label>
+                            <div class="col-sm-8">
+                                <input id="casebkowner" name="casebkowner" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本自动化</label>
+                            <div class="col-sm-8">
+                                <div class="radio">
+                                <label>
+                                    <input type="radio" checked="" value="True" id="mod_stdspec" name="caseauto">True
+                                </label>
+                                <label>
+                                    <input type="radio" value="False" id="mod_stdspec" name="caseauto">False
+                                </label>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本重要性</label>
+                            <div class="col-sm-8">
+                                <input id="scriptratio" name="scriptratio" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本级别</label>
+                            <div class="col-sm-8">
+                                <input id="scriptlevel" name="scriptlevel" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本属类</label>
+                            <div class="col-sm-8">
+                                <input id="scriptcate" name="scriptcate" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本子类</label>
+                            <div class="col-sm-8">
+                                <input id="scriptsubcate" name="scriptsubcate" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本标签</label>
+                            <div class="col-sm-8">
+                                <input id="scriptlabel" name="scriptlabel" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">硬件要求</label>
+                            <div class="col-sm-8">
+                                <input id="casehw" name="casehw" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">软件要求</label>
+                            <div class="col-sm-8">
+                                <input id="casesw" name="casesw" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">VS要求</label>
+                            <div class="col-sm-8">
+                                <input id="casevs" name="casevs" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">驱动支持</label>
+                            <div class="col-sm-8">
+                                <input id="casedrv" name="casedrv" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">OS支持</label>
+                            <div class="col-sm-8">
+                                <input id="caseos" name="caseos" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">OEM支持</label>
+                            <div class="col-sm-8">
+                                <input id="caseoem" name="caseoem" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">SKU支持</label>
+                            <div class="col-sm-8">
+                                <input id="casesku" name="casesku" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">相关测试点</label>
+                            <div class="col-sm-8">
+                                <input id="pointids" name="pointid" class="form-control" type="text" placeholder="请输入测试点id并用，分隔">
+                            </div>
+                        </div>
+
+                        <hr width="100%" />
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"> </div>
+                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="UpdateModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close close_mod_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">修改用例信息</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="caseForm" action="/testcase/edit_case" role="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用例ID：</label>
+                            <div class="col-sm-8">
+                                <input id="mod_id" name="id" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用例名称</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casename" name="casename" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">用例描述</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casedesc" name="casedesc" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本名称</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptname" name="scriptname" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本路径</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptpath" name="scriptpath" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本参数</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptparams" name="scriptparams" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本版本</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptversion" name="scriptversion" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本作者</label>
+                            <div class="col-sm-8">
+                                <input id="mod_caseauthor" name="caseauthor" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本负责人</label>
+                            <div class="col-sm-8">
+                                <input id="mod_caseowner" name="caseowner" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">备份脚本负责人</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casebkowner" name="casebkowner" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本自动化</label>
+                            <div class="col-sm-8">
+                                <div class="radio">
+                                <label>
+                                    <input type="radio" value="True" id="mod_auto1" name="caseauto">True
+                                </label>
+                                <label>
+                                    <input type="radio" value="False" id="mod_auto2" name="caseauto">False
+                                </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">重要性</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptratio" name="scriptratio" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本等级</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptlevel" name="scriptlevel" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本属类</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptcate" name="scriptcate" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本子类</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptsubcate" name="scriptsubcate" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">脚本标签</label>
+                            <div class="col-sm-8">
+                                <input id="mod_scriptlabel" name="scriptlabel" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">硬件要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casehw" name="casehw" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">软件要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casesw" name="casesw" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">VS要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casevs" name="casevs" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">驱动支持</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casedrv" name="casedrv" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">OS支持</label>
+                            <div class="col-sm-8">
+                                <input id="mod_caseos" name="caseos" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">OEM支持</label>
+                            <div class="col-sm-8">
+                                <input id="mod_caseoem" name="caseoem" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">SKU支持</label>
+                            <div class="col-sm-8">
+                                <input id="mod_casesku" name="casesku" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                       <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点</label>
+                            <div class="col-sm-8">
+                                <select class="form-control"  name="pointid" id="mod_pointid" multiple="multiple">
+                                    {% for pt in test_points %}
+                                        <option value="{{ pt.id }}"> {{ pt.id }}:{{ pt.TestDesc }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr width="100%" />
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"> </div>
+                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="DetailModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">测试用例步骤</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="caseForm" role="form" method="get" action="/testcase/test_steps" enctype="multipart/form-data">
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <!-- 全局js -->
     <script src="/static/js/jquery.min.js?v=2.1.4"></script>
     <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
@@ -127,8 +563,67 @@
     <script src="/static/js/plugins/jeditable/jquery.jeditable.js"></script>
     <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
     <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+{#    <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>#}
+    <script src="/static/js/plugins/layer/layer.min.js"></script>
+    <!-- jQuery Validation plugin javascript-->
+    <script src="/static/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="/static/js/plugins/validate/messages_zh.min.js"></script>
+{#    <script src="/static/js/plugins/footable/footable.all.min.js"></script>#}
     <!-- 自定义js -->
     <script src="/static/js/content.min.js?v=1.0.0"></script>
+    <!-- Switchery -->
+    <script src="/static/js/plugins/switchery/switchery.js"></script>
+
+    <script>
+
+        $.validator.setDefaults({
+            highlight:function(a){
+                $(a).closest(".form-group").removeClass("has-success").addClass("has-error")
+            },
+            success:function(a){
+                a.closest(".form-group").removeClass("has-error").addClass("has-success")
+            },
+            errorElement:"span",
+            errorPlacement:function(a,b){
+                if(b.is(":radio")||b.is(":checkbox")){a.appendTo(b.parent().parent().parent())}
+                else{a.appendTo(b.parent())}},errorClass:"help-block m-b-none",validClass:"help-block m-b-none"});
+
+        $().ready(function(){
+            $("#commentForm").validate();
+            var a="<i class='fa fa-times-circle'></i> ";
+            /*
+            $("#signupForm").validate({
+                rules:{
+                    firstname:"required",
+                    lastname:"required",
+                    name:"required",
+                    username:{required:true,minlength:2},
+                    password:{required:true,minlength:5},
+                    confirm_password:{required:true,minlength:5,equalTo:"#password"},
+                    email:{required:true,email:true},
+                    topic:{required:"#newsletter:checked",minlength:2},
+                    agree:"required"
+                },
+                messages:{
+                    firstname:a+"请输入你的姓",
+                    lastname:a+"请输入您的名字",
+                    name:a+"请输入你的昵称",
+                    username:{required:a+"请输入您的用户名",minlength:a+"用户名必须两个字符以上"},
+                    password:{required:a+"请输入您的密码",minlength:a+"密码必须5个字符以上"},
+                    confirm_password:{required:a+"请再次输入密码",minlength:a+"密码必须5个字符以上",equalTo:a+"两次输入的密码不一致"},
+                    email:a+"请输入正确的E-mail",
+                    agree:{required:a+"必须同意协议后才能注册",element:"#agree-error"}
+                }
+            });
+  
+            $("#username").focus(function(){
+                var c=$("#firstname").val();
+                var b=$("#lastname").val();
+                if(c&&b&&!this.value){this.value=c+"."+b}
+            }) */
+        });
+
+    </script>
 
     <script>
         $(document).ready(function(){$(".dataTables-example").dataTable(
@@ -141,7 +636,6 @@
             }
         );var oTable=$("#editable").dataTable();oTable.$("td").editable("http://www.zi-han.net/theme/example_ajax.php",{"callback":function(sValue,y){var aPos=oTable.fnGetPosition(this);oTable.fnUpdate(sValue,aPos[0],aPos[1])},"submitdata":function(value,settings){return{"row_id":this.parentNode.getAttribute("id"),"column":oTable.fnGetPosition(this)[2]}},"width":"90%","height":"100%"})});function fnClickAddRow(){$("#editable").dataTable().fnAddData(["Custom row","New row","New row","New row","New row"])};
     </script>
-
 
     <script>
         $(document).ready(function() {
@@ -159,7 +653,6 @@
         {% endif %}
 
     </script>
-
 
     <script>
         function refresh(){
@@ -181,6 +674,80 @@
         if ($(".alert")){
             $(".alert").fadeOut(3000);
         }
+    </script>
+
+
+    <script>
+        $("table").on("click",".mod-user-btn",function () {
+            mcaseid = $(this).attr('caseid');
+            $("#mod_id").val("");
+            $("#mod_casename").val("");
+            $("#mod_casedesc").val("");
+            $("#mod_scriptname").val("");
+            $("#mod_scriptpath").val("");
+            $("#mod_scriptparams").val("");
+            $("#mod_scriptversion").val("");
+            $("#mod_caseauthor").val("");
+            $("#mod_caseowner").val("");
+            $("#mod_casebkowner").val("");
+            $("#mod_auto").prop("checked",false);
+            $("#mod_scriptratio").val("");
+            $("#mod_scriptlevel").val("");
+            $("#mod_scriptcate").val("");
+            $("#mod_scriptsubcate").val("");
+            $("#mod_scriptlabel").val("");
+            $("#mod_casehw").val("");
+            $("#mod_casesw").val("");
+            $("#mod_casevs").val("");
+            $("#mod_casedrv").val("");
+            $("#mod_caseos").val("");
+            $("#mod_caseoem").val("");
+            $("#mod_casesku").val("");
+            $("#mod_pointid option").prop("selected", false);
+
+            $.ajax({
+                url: "/testcase/edit_case",
+                type: "GET",
+                data: {id: mcaseid},
+                dataType: 'JSON',
+                success: function (arg) {
+                    if (arg) {
+                        console.log(arg);
+                        $("#mod_id").val(arg.id);
+                        $("#mod_casename").val(arg.CaseName);
+                        $("#mod_casedesc").val(arg.Description);
+                        $("#mod_scriptname").val(arg.ScriptName);
+                        $("#mod_scriptpath").val(arg.ScriptPath);
+                        $("#mod_scriptparams").val(arg.ScriptParams);
+                        $("#mod_scriptversion").val(arg.Version);
+                        $("#mod_caseauthor").val(arg.Author);
+                        $("#mod_caseowner").val(arg.Owner);
+                        $("#mod_casebkowner").val(arg.BackupOwner);
+                        if (arg.Automated)
+                        {
+                            $("#mod_auto1").attr('checked', 'checked');
+                            }else{
+　　                                                                            $("#mod_auto2").attr('checked', 'checked');
+                        }
+                        $("#mod_scriptratio").val(arg.Importance);
+                        $("#mod_scriptlevel").val(arg.Level);
+                        $("#mod_scriptcate").val(arg.Category);
+                        $("#mod_scriptsubcate").val(arg.Subcategory);
+                        $("#mod_scriptlabel").val(arg.Labels);
+                        $("#mod_casehw").val(arg.HWRequired);
+                        $("#mod_casesw").val(arg.SWRequired);
+                        $("#mod_casevs").val(arg.VSRequired);
+                        $("#mod_casedrv").val(arg.DrvSupported);
+                        $("#mod_caseos").val(arg.OSSupported);
+                        $("#mod_caseoem").val(arg.OEMSupported);
+                        $("#mod_casesku").val(arg.SKUSupported);
+                        $.each(arg.CaseAndPoint,function (k,v) {
+                            $("#mod_pointid [value=" + v + "]").prop("selected",true);
+                        });
+                    }
+                }
+            })
+        })
     </script>
 
 </body>

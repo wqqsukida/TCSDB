@@ -144,17 +144,16 @@
                                        <a class="J_menuItem" href="/testcase/test_points">测试点</a> 
                                     </li>
                                     <li>
-                                       <a class="J_menuItem" href="/testcase/test_detail_cases">详细测试用例</a> 
+                                       <a class="J_menuItem" href="/testcase/test_cases">详细测试用例</a> 
                                     </li>
                                     <li>
                                         <a href="#">项目测试用例<span class="fa arrow"></span></a>
-                                        <ul class="nav nav-fourth-level">  
-                                        <li>
-                                        <a class="J_menuItem" href="/testcase/oc_test_cases">Open Channel</a> 
-                                        </li>
-                                        <li>
-                                       <a class="J_menuItem" href="/testcase/taiplus_test_cases">Tai+</a> 
-                                        </li>
+                                            <ul class="nav nav-fourth-level"> 
+                                            {% for project  in project_list %}      
+                                                <li>
+                                                    <a class="J_menuItem" href="/testcase/test_project/{{ project }}/"> {{ project }}</a> 
+                                                </li>
+                                            {% endfor %}
                                        </ul>
                                     </li>
                                 </ul>
@@ -168,12 +167,11 @@
                                  <li>
                                     <a href="#">项目测试用例<span class="fa arrow"></span></a>
                                         <ul class="nav nav-fourth-level">  
-                                        <li>
-                                        <a class="J_menuItem" href="/testcases/oc_perf_test_cases">Open Channel</a> 
-                                        </li>
-                                        <li>
-                                       <a class="J_menuItem" href="/testcases/taiplus_perf_test_cases">Tai+</a> 
-                                        </li>
+                                            {% for project  in project_list %}      
+                                                <li>
+                                                    <a class="J_menuItem" href="/testcase/test_perf_project/{{ project }}/"> {{ project }}</a> 
+                                                </li>
+                                            {% endfor %}
                                        </ul>
                                     </li>
                                     <li>
@@ -189,12 +187,11 @@
                                     <li>
                                     <a href="#">项目测试用例<span class="fa arrow"></span></a>
                                         <ul class="nav nav-fourth-level">  
-                                        <li>
-                                        <a class="J_menuItem" href="/testcases/oc_com_test_cases">Open Channel</a> 
-                                        </li>
-                                        <li>
-                                       <a class="J_menuItem" href="/testcases/taiplus_com_test_cases">Tai+</a> 
-                                        </li>
+                                            {% for project  in project_list %}      
+                                                <li>
+                                                    <a class="J_menuItem" href="/testcase/test_com_project/{{ project }}/"> {{ project }}</a> 
+                                                </li>
+                                            {% endfor %}
                                        </ul>
                                     </li>
                                     <li>

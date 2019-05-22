@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 
@@ -43,7 +43,7 @@
                 <div class="ibox">
                     <div class="ibox-title">
                         <ol class="breadcrumb">
-                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B> 测试点列表 </h5>
+                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B> 项目用例列表 </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -73,21 +73,15 @@
                                 <div class="col-sm-3"></div>
                                 <form role="form" class="form-inline">
                                     <div class="form-group">
-                                        <label for="searchtp" class="sr-only">测试点</label>
+                                        <label for="casename" class="sr-only">脚本名称</label>
                                         <div class="col-md-2">
-                                            <input type="text" name="tp" placeholder="请输入测试点进行搜索" id="searchtp" class="form-control">
+                                            <input type="text" name="casename" placeholder="请输入脚本名称" id="casename" class="form-control">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="searchspec" class="sr-only">协议名</label>
+                                        <label for="searchcate" class="sr-only">脚本状态</label>
                                         <div class="col-md-2">
-                                            <input type="text" name="spec" placeholder="请输入协议名称" id="searchspec" class="form-control">
-                                        </div>
-                                     </div>
-                                    <div class="form-group">
-                                        <label for="searchspecver" class="sr-only">协议版本</label>
-                                        <div class="col-md-2">
-                                            <input type="text" name="specver" placeholder="请输入协议版本" id="searchspecver" class="form-control">
+                                            <input type="text" name="searchstatus" placeholder="请输入脚本状态" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-1">
@@ -100,39 +94,56 @@
                             </form>
                         </div>
 
-
                              <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
                                  <thead>
                                     <tr>
-
-                                        <th>测试点索引</th>
-                                        <th>测试点描述</th>
-                                        <th>测试点原文出处</th>
-                                        <th>原文所在页</th>
-                                        <th>协议ID</th>
+                                        <th>#ID</th>
+                                        <th>项目名称</th>
+                                        <th>用例ID</th>
+                                        <th>脚本名称</th>
+                                        <th>脚本路径</th>
+                                        <th>脚本参数</th>
+                                        <th>脚本作者</th>
+                                        <th>脚本负责者</th>
+                                        <th>脚本备份负责者</th>
+                                        <th>自动化</th>
+                                        <th>脚本等级</th>
+                                        <th>脚本属类</th>
+                                        <th>脚本所属子类</th>
+                                        <th>VS要求</th>
+                                        <th>脚本状态</th>
                                         <th>操作(更新/删除)</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for point in queryset %}
-                                     <tr>
-                                            <td>{{ point.id}}</td>
-                                            <td>{{ point.TestDesc}}</td>
-                                            <td>{{ point.SelectFrom}}</td>
-                                            <td>{{ point.PageNo}}</td>
-                                            <td> 
-                                                {% for spec in point.SpecAndPoint.values %}
-                                                    {{ spec.id }}:{{ spec.FileName }}{{ spec.Version }}
-                                            </br>
-                                                    <!--<a class="btn-sm btn-primary">{{ spec.id }}</a>-->
-                                                {% endfor %}
-                                            </td>
+                                    {% for tscase in queryset %}
+                                        <tr>
+                                            <td>{{ tscase.id}}</td>
+                                            <td>{{ tscase.Project}}</td>
+                                            {% for case in tscase.TID.values %}
+                                            <td>{{ case.id }}</td>
+                                            <td>{{ case.ScriptName }}</td>
+                                            <td>{{ case.ScriptPath }}</td>
+                                            <td>{{ case.ScriptParams }}</td>
+                                            <td>{{ case.Author }}</td>
+                                            <td>{{ case.Owner }}</td>
+                                            <td>{{ case.BackupOwner }}</td>
+                                            <td>{{ case.Automated }}</td>
+                                            <td>{{ case.Level }}</td>
+                                            <td>{{ case.Category }}</td>
+                                            <td>{{ case.Subcategory }}</td>
+                                            <td>{{ case.VSRequired }}</td>
+                                            {% endfor %}
+                                            <td>{{ tscase.Status}}</td>
+
+                                            {{tscase.id }} :{{ tscase.TID.values.first.id }}
                                             <td style="font-size: 20px">
-                                                <a class="mod-user-btn" title="修改测试点信息" pointid="{{ point.id }}" data-toggle="modal" data-target="#UpdateModal">
-                                                    <i class="fa fa-cog"></i>
+                                                <a class="mod-user-btn2" title="详细步骤" href="/testcase/test_steps?id={{ tscase.TID.values.first.id }}">
+                                                    <i class="fa fa-book"></i>
                                                 </a>
-                                                <a href="/testcase/del_point?id={{ point.id }}" title="删除测试点" class="del_confirm" style="margin-left: 15px">
-                                                    <i class="fa fa-user-times"></i>
+                                               
+                                                <a class="mod-user-btn" title="修改项目用例信息" projectid="{{ tscase.id }}" data-toggle="modal" data-target="#UpdateModal">
+                                                    <i class="fa fa-cog"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -158,37 +169,31 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加测试点</h4>
-                    </div>
-                    <div class="panel-body">
-                    <form class="form-horizontal m-t" id="pointForm" action="/testcase/add_point" role="form" method="post" enctype="multipart/form-data">
+                    <h4 class="modal-title" id="myModalLabel">添加项目内容</h4>
+                </div>
+                {{ projectname }}
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="projectForm" action="/testcase/add_project/{{ projectname }}/" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-
+                        
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">测试点描述</label>
+                            <label class="col-sm-3 control-label">项目名称：</label>
                             <div class="col-sm-8">
-                                <input id="pointdesc" name="pointdesc" class="form-control" type="text">
+                                <input id="pjname" name="pjname" class="form-control" type="text">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">测试点协议节选</label>
-                            <div class="col-sm-8">
-                                <input id="pointfrom" name="pointfrom" class="form-control" type="text">
-                            </div>
-                        </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">测试点协议页</label>
+                            <label class="col-sm-3 control-label">用例ID：</label>
                             <div class="col-sm-8">
-                                <input id="pointpage" name="pointpage" class="form-control" type="text">
+                                <input id="caseid" name="caseid" class="form-control" type="text">
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">协议ID</label>
+                            <label class="col-sm-3 control-label">用例状态：</label>
                             <div class="col-sm-8">
-                                <input id="specid" name="specid" class="form-control" type="text" placeholder="请输入测试点id并用，分隔">
+                                <input id="casestatus" name="casestatus" class="form-control" type="text">
                             </div>
                         </div>
 
@@ -208,61 +213,39 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close close_mod_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">修改测点试信息</h4>
+                    <h4 class="modal-title" id="myModalLabel">修改项目用例信息</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="pointForm" action="/testcase/edit_point" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="projectForm" action="/testcase/edit_project/{{ projectname }}/" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">索引ID</label>
+                            <label class="col-sm-3 control-label">项目ID：</label>
                             <div class="col-sm-8">
                                 <input id="mod_id" name="id" class="form-control" readonly>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">测试点描述</label>
+                            <label class="col-sm-3 control-label">项目名称：</label>
                             <div class="col-sm-8">
-                                <input id="mod_point" name="pointdesc" class="form-control" type="text">
+                                <input id="mod_projectname" name="projectname" class="form-control" type="text" readonly>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">测试点节选</label>
+                            <label class="col-sm-3 control-label">用例ID：</label>
                             <div class="col-sm-8">
-                                <input id="mod_from" name="pointfrom" class="form-control" type="text">
+                                <input id="mod_caseid" name="caseid" class="form-control" readonly>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">测试点所在页</label>
+                            <label class="col-sm-3 control-label">用例状态：</label>
                             <div class="col-sm-8">
-                                <input id="mod_page" name="pointpage" class="form-control" type="text">
+                            <input id="mod_casestatus" name="casestatus" class="form-control">
                             </div>
                         </div>
-                        <!--
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">协议ID</label>
-                            <div class="col-sm-10">
-                                {% for spec in referspec %}
-                                <label class="checkbox-inline i-checks">
-                                    <input type="checkbox" value="{{ spec.id }}">{{ spec.id }}:{{ spec.FileName }} {{ spec.Version }}</label>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        -->
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">协议ID</label>
-                            <div class="col-sm-8">
-                                <select class="form-control"  name="specid" id="mod_specid" multiple="multiple">
-                                    {% for spec in referspec %}
-                                        <option value="{{ spec.id }}"> {{ spec.id }}:{{ spec.FileName }} {{ spec.Version }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-
 
                         <hr width="100%" />
                         <div class="col-sm-12">
@@ -398,28 +381,23 @@
 
     <script>
         $("table").on("click",".mod-user-btn",function () {
-            mpointid = $(this).attr('pointid');
+            mpjid = $(this).attr('projectid');
             $("#mod_id").val("");
-            $("#mod_point").val("");
-            $("#mod_from").val("");
-            $("#mod_page").val("");
-            $("#mod_specid option").prop("selected",false);
-
+            $("#mod_projectname").val("");
+            $("#mod_caseid").val("");
+            $("#mod_casestatus").val("");
             $.ajax({
-                url: "/testcase/edit_point",
+                url: "/testcase/edit_project/{{ projectname }}/",
                 type: "GET",
-                data: {id: mpointid},
+                data: {id: mpjid},
                 dataType: 'JSON',
                 success: function (arg) {
                     if (arg) {
                         console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_point").val(arg.TestDesc);
-                        $("#mod_from").val(arg.SelectFrom);
-                        $("#mod_page").val(arg.PageNo);
-                        $.each(arg.SpecAndPoint,function (k,v) {
-                            $("#mod_specid [value=" + v + "]").prop("selected",true);
-                        });
+                        $("#mod_projectname").val(arg.Project);
+                        $("#mod_caseid").val(arg.TID[0]);
+                        $("#mod_casestatus").val(arg.Status);
                     }
                 }
             })
