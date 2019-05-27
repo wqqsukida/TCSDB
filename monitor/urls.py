@@ -59,4 +59,9 @@ urlpatterns = [
 
     re_path(r'^duts$', views.duts),
     re_path(r'^dut_update$', views.dut_update),
+    re_path(r'^hosts$', views.hosts),
+    re_path(r'^host_update', views.host_update),
+    re_path(r'^asset_detail', views.asset_detail),
+    re_path(r'^dut_record', views.dut_record),
+    re_path(r'^host_record', views.host_record),
 ]

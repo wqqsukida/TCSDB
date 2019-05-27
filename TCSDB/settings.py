@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -90,6 +91,19 @@ DATABASES = {
     }
 }
 
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+if TESTING:
+    # 当使用SQLite数据库引擎时，测试将默认使用内存数据库
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'tcsdb_test',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -121,7 +135,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -132,7 +146,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 # STATIC_ROOT = os.path.join(BASE_DIR,'static')
-
+SERVER_IP = '10.0.2.20'
 API_TOKEN = "7d6766a6s5f76safas657889hj78kf91"
 ############################ 权限管理相关 ################################
 PERMISSION_MENU_KEY = "w*d6v&ns8qq_y#1f"

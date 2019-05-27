@@ -3,7 +3,7 @@
 # Author  : wuyifei
 # Data    : 5/8/19 2:41 PM
 # FileName: api.py
-from utils.auth_token import APIAuthView
+from utils.auth_token import APIAuthView,APITokenAuthView
 from django.shortcuts import HttpResponse
 from django.db import transaction
 import json,traceback
@@ -15,7 +15,8 @@ class AddDUTNodes(APIAuthView):
     增加一个DUT信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        print(res)
         try:
             DUTInfo.objects.create(**res)
             response = {'code':0,'msg':'Success!','data':True}
@@ -28,7 +29,7 @@ class ChangeDUTFW(APIAuthView):
     更新DUT FW信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             with transaction.atomic():
                 sn = res.pop('SerialNum')
@@ -47,7 +48,7 @@ class ChangeDUTHost(APIAuthView):
     更新DUT Host信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             with transaction.atomic():
                 sn = res.pop('SerialNum')
@@ -69,7 +70,7 @@ class AddDUTMonitorRec(APIAuthView):
     增加一次DUT健康监控记录
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             with transaction.atomic():
                 sn = res.pop('SerialNum')
@@ -87,7 +88,7 @@ class GetDUTBasicInfo(APIAuthView):
     获得DUT基本信息（包含FW版本和Host信息）
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
             print(sn)
@@ -110,7 +111,7 @@ class GetDUTHealthInfo(APIAuthView):
     获得DUT健康信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
             dut_obj = DUTInfo.objects.get(SerialNum=sn)
@@ -131,7 +132,7 @@ class GetAllDUTByHostName(APIAuthView):
     获得主机上所有DUT的SN
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             hostname = res.get('HostName')
             data = DUTInfo.objects.filter(SlotID__HostID__HostName=hostname).values('SerialNum')
@@ -147,7 +148,7 @@ class GetAllDUTByGroupID(APIAuthView):
     获得同组的所有DUT的SN
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             gid = res.get("GroupID")
             data = DUTInfo.objects.filter(GroupID=gid).values("SerialNum")
@@ -163,7 +164,7 @@ class GetAllDUTByTag(APIAuthView):
     获得相同标签的所有DUT的SN
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             tags = res.get("Tags")
             data = DUTInfo.objects.filter(Tags=tags).values("SerialNum")
@@ -179,7 +180,7 @@ class FindDuts(APIAuthView):
     查询所有符合条件的DUT的SN
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             product_name = res.get("ProductName")
             hostname = res.get("HostName")
@@ -210,7 +211,7 @@ class ChangeDUTGroupID(APIAuthView):
     更新DUT的GroupID信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             with transaction.atomic():
                 sn = res.get('SerialNum')
@@ -230,7 +231,7 @@ class ChangeDUTTags(APIAuthView):
     更新DUT的Tag信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             with transaction.atomic():
                 sn = res.get('SerialNum')
@@ -250,7 +251,7 @@ class ChangeDUTStatus(APIAuthView):
     更新DUT的状态
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
             status = res.get("Status")
@@ -267,7 +268,7 @@ class GetDUTStatus(APIAuthView):
     获得DUT的状态
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
             status = DUTInfo.objects.get(SerialNum=sn).Status
@@ -282,7 +283,7 @@ class GetDUTTags(APIAuthView):
     获得DUT的Tags
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
             tags = DUTInfo.objects.get(SerialNum=sn).Tags
@@ -297,7 +298,7 @@ class GetDUTGroupID(APIAuthView):
     获得DUT的GroupID
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
             gid = DUTInfo.objects.get(SerialNum=sn).GroupID
@@ -313,7 +314,7 @@ class AddHostInfo(APIAuthView):
     新增Host机器信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             HostInfo.objects.create(**res)
             response = {'code':0,'msg':'Success!','data':True}
@@ -327,7 +328,7 @@ class ChangeHostHWInfo(APIAuthView):
     更新Host机器硬件配置信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -343,7 +344,7 @@ class ChangeHostNetInfo(APIAuthView):
     更新Host机器网络配置信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -358,7 +359,7 @@ class ChangeSlotDUTInfo(APIAuthView):
     新增/更新Slot信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop("HostName")
             slot = res.get("SlotID")
@@ -376,7 +377,7 @@ class ChangeHostOSInfo(APIAuthView):
     更新Host机器OS信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop('HostName')
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -393,7 +394,7 @@ class ChangeHostDriverInfo(APIAuthView):
     新增/更新Host机器驱动信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop("HostName")
             hw = res.get("Hardware")
@@ -414,7 +415,7 @@ class AddHostMonitorRec(APIAuthView):
     新增一条Host机器的健康状态监控记录
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -432,7 +433,7 @@ class ChangeHostSWInfo(APIAuthView):
     新增/更新Host机器上测试软件安装信息
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.pop("HostName")
             tool_name = res.get("ToolName")
@@ -453,7 +454,7 @@ class GetHostBasicInfo(APIAuthView):
     获得Host机器的基本信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -470,7 +471,7 @@ class GetHostHWInfo(APIAuthView):
     获得Host机器的硬件信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -489,7 +490,7 @@ class GetHostNetInfo(APIAuthView):
     获得Host机器的网络配置信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -506,7 +507,7 @@ class GetHostOSInfo(APIAuthView):
     获得Host机器的OS信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             data = HostOS.objects.filter(HostID__HostName=host_name).values(
@@ -523,7 +524,7 @@ class GetHostDriverInfo(APIAuthView):
     获得Host机器的驱动信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
@@ -544,7 +545,7 @@ class GetHostToolsInfo(APIAuthView):
     获得Host机器的工具版本信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
@@ -565,7 +566,7 @@ class GetHostCurStatus(APIAuthView):
     获得Host机器当前的硬件使用状态
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             data = HostMonitor.objects.filter(HostID__HostName=host_name).values(
@@ -584,7 +585,7 @@ class GetAllSlotsByHostName(APIAuthView):
     获得Host机器上所有Slot的信息
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             data = SlotInfo.objects.filter(HostID__HostName=host_name).values('id','SlotID')
@@ -606,7 +607,7 @@ class FindHosts(APIAuthView):
     获得符合条件的Host机器列表
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             device_model = res.get("DeviceModel")
             status = res.get("Status")
@@ -629,7 +630,7 @@ class GetDisconnectedHost(APIAuthView):
     获得掉线的Host机器清单
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_obj = HostInfo.objects.filter(Status='BAD')
             data = [i.get("HostName") for i in host_obj]
@@ -644,7 +645,7 @@ class GetHostStatus(APIAuthView):
     获取当前主机状态
     '''
     def get(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
@@ -660,7 +661,7 @@ class ChangHostStatus(APIAuthView):
     修改当前主机的状态
     '''
     def post(self,request,*args,**kwargs):
-        res = request.data.get("data")
+        res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
             status = res.get("Status")
