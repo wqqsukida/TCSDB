@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models.lookups import StartsWith
 
 # Create your models here.
 class ReferSpec(models.Model):
@@ -22,7 +23,7 @@ class TestPoint(models.Model):
     TestDesc     = models.CharField(max_length=80)
     SelectFrom   = models.TextField(max_length=200)
     PageNo       = models.IntegerField()
-    SpecAndPoint = models.ManyToManyField(ReferSpec, related_name="spec_point", verbose_name="specAndTestpoint")
+    SpecAndPoint = models.ManyToManyField(ReferSpec, blank=True, related_name="spec_point", verbose_name="specAndTestpoint")
     class Meta:
         verbose_name_plural = "test point"
 
@@ -42,30 +43,30 @@ class TestCaseDetail(models.Model):
                     ('L6', "SelfTest"),
                     ('L7', "ProductionTest")
                          )
-    CaseName     = models.CharField(max_length=40)
+    CaseName     = models.CharField(max_length=40, unique=True)
     Description  = models.CharField(max_length=80)
-    ScriptName   = models.CharField(max_length=80)
-    ScriptPath   = models.CharField(max_length=80)
-    ScriptParams = models.CharField(max_length=80)
-    Version      = models.CharField(max_length=10)
-    Author       = models.CharField(max_length=20)
-    Owner        = models.CharField(max_length=20)
-    BackupOwner  = models.CharField(max_length=20)
-    Automated    = models.BooleanField()
-    Importance   = models.IntegerField()
+    ScriptName   = models.CharField(max_length=80, blank=True)
+    ScriptPath   = models.CharField(max_length=80, blank=True)
+    ScriptParams = models.CharField(max_length=80, blank=True)
+    Version      = models.CharField(max_length=10, blank=True)
+    Author       = models.CharField(max_length=20, blank=True)
+    Owner        = models.CharField(max_length=20, blank=True)
+    BackupOwner  = models.CharField(max_length=20, blank=True)
+    Automated    = models.BooleanField(null=True)
+    Importance   = models.IntegerField(null=True)
 #     Level        = models.CharField(choices=LevelChoice, max_length=20, default='L1')
-    Level        = models.CharField(max_length=20)
-    Category     = models.CharField(max_length=20)
-    Subcategory  = models.CharField(max_length=10)
-    Labels       = models.CharField(max_length=40)
-    HWRequired   = models.CharField(max_length=40)
-    SWRequired   = models.CharField(max_length=40)
-    VSRequired   = models.CharField(max_length=40)
-    DrvSupported = models.CharField(max_length=40)
-    OSSupported  = models.CharField(max_length=40)
-    OEMSupported = models.CharField(max_length=40)
-    SKUSupported = models.CharField(max_length=40)
-    CaseAndPoint = models.ManyToManyField(TestPoint, related_name="case_point", verbose_name="tcAndTestPoint")
+    Level        = models.CharField(max_length=20, blank=True)
+    Category     = models.CharField(max_length=30, blank=True)
+    Subcategory  = models.CharField(max_length=10, blank=True)
+    Labels       = models.CharField(max_length=40, blank=True)
+    HWRequired   = models.CharField(max_length=40, blank=True)
+    SWRequired   = models.CharField(max_length=40, blank=True)
+    VSRequired   = models.CharField(max_length=40, blank=True)
+    DrvSupported = models.CharField(max_length=40, blank=True)
+    OSSupported  = models.CharField(max_length=40, blank=True)
+    OEMSupported = models.CharField(max_length=40, blank=True)
+    SKUSupported = models.CharField(max_length=40, blank=True)
+    CaseAndPoint = models.ManyToManyField(TestPoint, related_name="case_point", verbose_name="tcAndTestPoint") 
 
     class Meta:
         verbose_name_plural = "test case detail"
