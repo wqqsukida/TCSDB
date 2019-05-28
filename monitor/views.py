@@ -185,23 +185,34 @@ def dut_record(request):
     :param request:
     :return:
     '''
-    all_record = [
-
-    ]
+    all_record = []
     if request.method == "GET":
         dut_id = request.GET.get("id",None)
         dut_obj = DUTInfo.objects.filter(id=dut_id).first()
+        stime = request.GET.get("start_time","2019-01-01")
+        etime = request.GET.get("end_time","2019-05-28")
         if dut_obj:
-            fw_record = DUTFW.objects.filter(DUTID=dut_obj)
-            host_record = DUTHost.objects.filter(DUTID=dut_obj)
-            grp_record = DUTGrp.objects.filter(DUTID=dut_obj)
+            fw_record = DUTFW.objects.filter(DUTID=dut_obj,Changed__range=(stime,etime))
+            host_record = DUTHost.objects.filter(DUTID=dut_obj,Changed__range=(stime,etime))
+            grp_record = DUTGrp.objects.filter(DUTID=dut_obj,Changed__range=(stime,etime))
             for f in fw_record:all_record.append(f)
             for h in host_record:all_record.append(h)
             for g in grp_record:all_record.append(g)
-            print(len(all_record))
+            # print(len(all_record))
             all_record = sorted(all_record,key=lambda x:x.Changed)
         all_record, page_html = init_paginaion(request, all_record)
         return render(request,'monitor/dut_record.html',locals())
 
 def host_record(request):
-    pass
+    all_record = []
+    if request.method == "GET":
+        host_id = request.GET.get("id",None)
+        host_obj = HostInfo.objects.filter(id=host_id).first()
+        stime = request.GET.get("start_time","2019-01-01")
+        etime = request.GET.get("end_time","2019-05-28")
+        if host_obj:
+            all_record = HostOS.objects.filter(HostID=host_obj,Changed__range=(stime,etime))
+            # print(len(all_record))
+            # all_record = sorted(all_record,key=lambda x:x.Changed)
+        all_record, page_html = init_paginaion(request, all_record)
+        return render(request,'monitor/host_record.html',locals())

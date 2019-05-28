@@ -27,6 +27,7 @@
     <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
     <link href="/static/css/gstyle.css" rel="stylesheet">
     <link href="/static/css/plugins/switchery/switchery.css" rel="stylesheet">
+    <link href="/static/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
 </head>
 
 <body class="gray-bg">
@@ -64,21 +65,32 @@
                     <div class="ibox-content">
                         <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
                             <form method="get">
-                                <div class="col-sm-1"> <!--添加-->
+                                <input class="hide" type="text" name="id" value="{{ dut_id }}">
+                                <!--
+                                <div class="col-sm-1">
                                     <a class="btn btn-info" href="#" data-toggle="modal" data-target="#AddModal">
                                         <i class="fa fa-user-plus"></i> 添加
                                     </a>
                                 </div>
-
                                 <div class="col-sm-1">
                                     <a id="shownv"  type="button" class="btn btn-warning">显示更多</a>
                                 </div>
-                                <div class="col-sm-3"></div>
-                                <div class="col-sm-5 ">
-                                    <input type="text" name="q"  class="form-control"  placeholder="请输入用户名进行搜索" />
+                                -->
+                                <div class="col-sm-5">
+
+                                </div>
+                                <div class="col-sm-3" id="data_5">
+                                    <div class="input-daterange input-group" id="datepicker">
+                                        <input type="text" class="form-control" id="st" name="start_time" value="{{ stime }}">
+                                        <span class="input-group-addon">到</span>
+                                        <input type="text" class="form-control" id="et" name="end_time" value="{{ etime }}">
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 ">
+                                    <input type="text" name="q"  class="form-control"  placeholder="请输入关键字进行搜索" >
                                 </div>
                                 <div class="col-sm-1">
-                                    <button type="submit" value="搜索" class="btn btn-primary" />
+                                    <button type="submit" value="搜索" class="btn btn-primary" >
                                         <i class="fa fa-search"></i>&nbsp;&nbsp;搜索
                                     </button>
                                 </div>
@@ -112,20 +124,24 @@
                                         <tr>
                                             <td>
                                                 {% if r|class_name == 'DUTFW' %}
-                                                    FW change
+                                                    <a class="btn btn-info btn-xs">FW change</a>
                                                 {% elif  r|class_name == 'DUTHost'  %}
-                                                    HOST change
+                                                    <a class="btn btn-success btn-xs">HOST change</a>
                                                 {% elif  r|class_name == 'DUTGrp'  %}
-                                                    Group/Tag change
+                                                    <a class="btn btn-warning btn-xs">Group/Tag change</a>
                                                 {% endif %}
                                             </td>
                                             <td>
                                                 {% if r|class_name == 'DUTFW' %}
-                                                    {{ r.FWRev }}-{{ r.GoldenFWRev }}-{{ r.FWLoaderRev }}
+                                                    FWRev: <a class="btn btn-white btn-xs">{{ r.FWRev }}</a>
+                                                    GoldenFWRev:<a class="btn btn-white btn-xs">{{ r.GoldenFWRev }}</a>
+                                                    FWLoaderRev:<a class="btn btn-white btn-xs">{{ r.FWLoaderRev }}</a>
                                                 {% elif  r|class_name == 'DUTHost'  %}
-                                                    {{ r.HostName }}-{{ r.SlotID }}
+                                                    HostName:<a class="btn btn-white btn-xs">{{ r.HostName }}</a>
+                                                    SlotID:<a class="btn btn-white btn-xs">{{ r.SlotID }}</a>
                                                 {% elif  r|class_name == 'DUTGrp'  %}
-                                                    {{ r.GroupID }}-{{ r.Tags }}
+                                                    GroupID:<a class="btn btn-white btn-xs">{{ r.GroupID }}</a>
+                                                    Tags:<a class="btn btn-white btn-xs">{{ r.Tags }}</a>
                                                 {% endif %}
                                             </td>
                                             <td>{{ r.Changed | date:"Y-m-d H:i:s" }}</td>
@@ -394,8 +410,17 @@
     <script src="/static/js/content.min.js?v=1.0.0"></script>
     <!-- Switchery -->
     <script src="/static/js/plugins/switchery/switchery.js"></script>
+    <!-- Data picker -->
+    <script src="/static/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 
-
+    <script>
+        $("#data_5 .input-daterange").datepicker(
+            {
+                keyboardNavigation:false,
+                forceParse:false,
+                autoclose:true}
+            );
+    </script>
     <script>
 
         $.validator.setDefaults({

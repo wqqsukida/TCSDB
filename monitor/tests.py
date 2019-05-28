@@ -7,46 +7,6 @@ import hashlib
 from requests.cookies import RequestsCookieJar
 from django.conf import settings
 from monitor.api import *
-# Create your tests here.
-# server_ip = '10.0.2.20:8080'
-#
-# import inspect
-#
-#
-# def get_current_function_name():
-#     return inspect.stack()[1][3]
-
-
-# class ApiTest(TestCase):
-#     @property
-#     def cookies(self):
-#         rep = requests.post('http://{0}/api/auth/'.format(server_ip), data={'username': 'admin', 'password': 'admin'})
-#         cookie_jar = RequestsCookieJar()
-#         cookie_jar.set(name='sessionid', value=rep.cookies['sessionid'])
-#         return cookie_jar
-#
-#     def add_dut(self):
-#         rep = requests.post('http://{0}/monitor/api/dut/add/'.format(server_ip),cookies=self.cookies,
-#                            json={"data":{"SerialNum":"sn10","DeviceType":5,"Manufactured":"2019-05-16 16:50:37"}})
-#         data = json.loads(rep.text)
-#         if data.get("data"):
-#             print("[%s]:Run Successfully!"%get_current_function_name())
-#         else:
-#             print("[%s]:[%s]"%(get_current_function_name(),data))
-#
-#     def dut_get_info(self):
-#         rep = requests.get('http://{0}/monitor/api/dut/get_info/'.format(server_ip),cookies=self.cookies,
-#                            json={"data":{"SerialNum":"sn01"}})
-#         data = json.loads(rep.text)
-#         if data.get("data"):
-#             print("[%s]:Run Successfully!"%get_current_function_name())
-#         else:
-#             print("[%s]:[%s]"%(get_current_function_name(),data))
-#
-# a = ApiTest()
-# a.add_dut()
-# a.dut_get_info()
-
 
 class ApiTest(TestCase):
 
