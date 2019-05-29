@@ -9,6 +9,9 @@ from django.db import transaction
 import json,traceback
 from monitor.models import *
 from django.db.models import Max
+from django.conf import settings
+
+TEST = settings.TESTING
 
 class AddDUTNodes(APIAuthView):
     '''
@@ -16,13 +19,12 @@ class AddDUTNodes(APIAuthView):
     '''
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
-        print(res)
         try:
             DUTInfo.objects.create(**res)
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeDUTFW(APIAuthView):
     '''
@@ -35,13 +37,13 @@ class ChangeDUTFW(APIAuthView):
                 sn = res.pop('SerialNum')
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
                 dut_obj.update(**res)
-                res['Operator'] = request.session['api_auth'].get("user")    # 添加Operator字段
+                res['Operator'] = 'Test' if TEST  else request.session['api_auth'].get("user")
                 DUTFW.objects.create(**res, DUTID=dut_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeDUTHost(APIAuthView):
     '''
@@ -57,13 +59,13 @@ class ChangeDUTHost(APIAuthView):
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
                 slot_obj = SlotInfo.objects.filter(HostID__HostName=hostname,SlotID=slot)
                 dut_obj.update(HostName=hostname,SlotID=slot_obj.first())
-                res['Operator'] = request.session['api_auth'].get("user")    # 添加Operator字段
+                res['Operator'] = 'Test' if TEST else request.session['api_auth'].get("user")
                 DUTHost.objects.create(**res, DUTID=dut_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class AddDUTMonitorRec(APIAuthView):
     '''
@@ -75,42 +77,44 @@ class AddDUTMonitorRec(APIAuthView):
             with transaction.atomic():
                 sn = res.pop('SerialNum')
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
-                res['Operator'] = request.session['api_auth'].get("user")    # 添加Operator字段
+                res['Operator'] = 'Test' if TEST else request.session['api_auth'].get("user")
                 DUTMonitor.objects.create(**res, DUTID=dut_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetDUTBasicInfo(APIAuthView):
     '''
     获得DUT基本信息（包含FW版本和Host信息）
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
-            print(sn)
             dut_obj = DUTInfo.objects.filter(SerialNum=sn)
             data = dut_obj.values('SerialNum','DeviceType','Manufacture','ModelNum','EUI',
                                    'Interface','ProductName','RawCapacity','UserCapacity',
-                                   'Manufactured','Notes','FWLoaderRev','GoldenFWRev','FWRev',
+                                   'Notes','FWLoaderRev','GoldenFWRev','FWRev',
                                    'HostName').first()
-            slot_num_obj = DUTHost.objects.filter(DUTID=dut_obj.first())
-            if slot_num_obj:
-                data['SlotID'] = slot_num_obj.order_by("Changed").last().SlotID
+            data['Manufactured'] = dut_obj.first().Manufactured.strftime("%Y-%m-%d %H:%m:%s")
+            # slot_num_obj = DUTHost.objects.filter(DUTID=dut_obj.first())
+            # if slot_num_obj:
+            # data['SlotID'] = slot_num_obj.order_by("Changed").last().SlotID
+            if dut_obj.first().SlotID:
+                data['SlotID'] = dut_obj.first().SlotID.SlotID
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetDUTHealthInfo(APIAuthView):
     '''
     获得DUT健康信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
@@ -120,18 +124,19 @@ class GetDUTHealthInfo(APIAuthView):
                                       'PowerCycles','PowerOnHours','UnsafeShutdowns','MediaErrNum',
                                       'ErrLogNum','PCIE','Vendor_INFO1','Vendor_INFO2','Vendor_INFO3'
                                       ).last()
-            data['SerialNum'] = sn
+            if data:
+                data['SerialNum'] = sn
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetAllDUTByHostName(APIAuthView):
     '''
     获得主机上所有DUT的SN
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             hostname = res.get('HostName')
@@ -141,13 +146,13 @@ class GetAllDUTByHostName(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetAllDUTByGroupID(APIAuthView):
     '''
     获得同组的所有DUT的SN
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             gid = res.get("GroupID")
@@ -157,13 +162,13 @@ class GetAllDUTByGroupID(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetAllDUTByTag(APIAuthView):
     '''
     获得相同标签的所有DUT的SN
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             tags = res.get("Tags")
@@ -173,13 +178,13 @@ class GetAllDUTByTag(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class FindDuts(APIAuthView):
     '''
     查询所有符合条件的DUT的SN
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             product_name = res.get("ProductName")
@@ -204,7 +209,7 @@ class FindDuts(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeDUTGroupID(APIAuthView):
     '''
@@ -218,13 +223,13 @@ class ChangeDUTGroupID(APIAuthView):
                 gid = res.get('GroupID')
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
                 dut_obj.update(GroupID=gid)
-                operator = request.session['api_auth'].get("user")
+                operator = 'Test' if TEST else request.session['api_auth'].get("user")
                 DUTGrp.objects.create(GroupID=gid, Operator=operator,DUTID=dut_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeDUTTags(APIAuthView):
     '''
@@ -238,13 +243,13 @@ class ChangeDUTTags(APIAuthView):
                 tags = res.get('Tags')
                 dut_obj = DUTInfo.objects.filter(SerialNum=sn)
                 dut_obj.update(Tags=tags)
-                operator = request.session['api_auth'].get("user")
+                operator = 'Test' if TEST else request.session['api_auth'].get("user")
                 DUTGrp.objects.create(Tags=tags, Operator=operator,DUTID=dut_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeDUTStatus(APIAuthView):
     '''
@@ -261,7 +266,7 @@ class ChangeDUTStatus(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetDUTStatus(APIAuthView):
     '''
@@ -276,7 +281,7 @@ class GetDUTStatus(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetDUTTags(APIAuthView):
     '''
@@ -291,7 +296,7 @@ class GetDUTTags(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetDUTGroupID(APIAuthView):
     '''
@@ -306,7 +311,7 @@ class GetDUTGroupID(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 ########################################################################################################################
 class AddHostInfo(APIAuthView):
@@ -321,7 +326,7 @@ class AddHostInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeHostHWInfo(APIAuthView):
     '''
@@ -337,7 +342,7 @@ class ChangeHostHWInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeHostNetInfo(APIAuthView):
     '''
@@ -352,7 +357,7 @@ class ChangeHostNetInfo(APIAuthView):
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeSlotDUTInfo(APIAuthView):
     '''
@@ -370,7 +375,7 @@ class ChangeSlotDUTInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeHostOSInfo(APIAuthView):
     '''
@@ -381,13 +386,13 @@ class ChangeHostOSInfo(APIAuthView):
         try:
             host_name = res.pop('HostName')
             host_obj = HostInfo.objects.filter(HostName=host_name)
-            operator = request.session['api_auth'].get("user")
+            operator = 'Test' if TEST else request.session['api_auth'].get("user")
             HostOS.objects.create(**res,Operator=operator,HostID=host_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeHostDriverInfo(APIAuthView):
     '''
@@ -399,7 +404,7 @@ class ChangeHostDriverInfo(APIAuthView):
             host_name = res.pop("HostName")
             hw = res.get("Hardware")
             os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
-            operator = request.session['api_auth'].get("user")
+            operator = 'Test' if TEST else request.session['api_auth'].get("user")
             res['Operator'] = operator
             HostDriver.objects.create(OSID=os_obj,**res)
             # 如果存在HostID=host_obj,Hardware=hw的数据,则修改;不存在则添加
@@ -408,7 +413,7 @@ class ChangeHostDriverInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class AddHostMonitorRec(APIAuthView):
     '''
@@ -419,14 +424,14 @@ class AddHostMonitorRec(APIAuthView):
         try:
             host_name = res.pop("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
-            operator = request.session['api_auth'].get("user")
+            operator = 'Test' if TEST else request.session['api_auth'].get("user")
             res['Operator'] = operator
             HostMonitor.objects.create(**res,HostID=host_obj.first())
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangeHostSWInfo(APIAuthView):
     '''
@@ -438,7 +443,7 @@ class ChangeHostSWInfo(APIAuthView):
             host_name = res.pop("HostName")
             tool_name = res.get("ToolName")
             os_obj = HostOS.objects.filter(HostID__HostName=host_name).order_by("Changed").last()
-            operator = request.session['api_auth'].get("user")
+            operator = 'Test' if TEST else request.session['api_auth'].get("user")
             res['Operator'] = operator
             HostSoftware.objects.create(OSID=os_obj,**res)
             # 如果存在HostID=host_obj,Hardware=hw的数据,则修改;不存在则添加
@@ -447,7 +452,7 @@ class ChangeHostSWInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostBasicInfo(APIAuthView):
     '''
@@ -464,7 +469,7 @@ class GetHostBasicInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostHWInfo(APIAuthView):
     '''
@@ -483,7 +488,7 @@ class GetHostHWInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostNetInfo(APIAuthView):
     '''
@@ -500,7 +505,7 @@ class GetHostNetInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostOSInfo(APIAuthView):
     '''
@@ -517,7 +522,7 @@ class GetHostOSInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostDriverInfo(APIAuthView):
     '''
@@ -538,7 +543,7 @@ class GetHostDriverInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostToolsInfo(APIAuthView):
     '''
@@ -559,7 +564,7 @@ class GetHostToolsInfo(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostCurStatus(APIAuthView):
     '''
@@ -578,7 +583,7 @@ class GetHostCurStatus(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetAllSlotsByHostName(APIAuthView):
     '''
@@ -600,7 +605,7 @@ class GetAllSlotsByHostName(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class FindHosts(APIAuthView):
     '''
@@ -623,7 +628,7 @@ class FindHosts(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetDisconnectedHost(APIAuthView):
     '''
@@ -638,7 +643,7 @@ class GetDisconnectedHost(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response))
 
 class GetHostStatus(APIAuthView):
     '''
@@ -654,7 +659,7 @@ class GetHostStatus(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Service internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response, indent=4))
+        return HttpResponse(json.dumps(response))
 
 class ChangHostStatus(APIAuthView):
     '''
@@ -671,4 +676,4 @@ class ChangHostStatus(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Service internal error:{0}'.format(str(e)), 'data': {}}
-        return HttpResponse(json.dumps(response, indent=4))
+        return HttpResponse(json.dumps(response))

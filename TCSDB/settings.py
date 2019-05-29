@@ -94,10 +94,20 @@ DATABASES = {
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 if TESTING:
     # 当使用SQLite数据库引擎时，测试将默认使用内存数据库
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.sqlite3',
+    #         'NAME': os.path.join(BASE_DIR,'db.sqlite3'),
+    #     }
+    # }
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR,'db.sqlite3'),
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'tcsdb_test',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
         }
     }
 
