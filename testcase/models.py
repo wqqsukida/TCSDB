@@ -12,6 +12,7 @@ class ReferSpec(models.Model):
     FilePath    = models.CharField(max_length=80)   
     class Meta:
         verbose_name_plural = "spec reference"
+        constraints = [models.UniqueConstraint(fields=['FileName', "Standard", "Version"], name='unique_refer_spec')]
 
     def __str__(self):
         return (self.FileName+":" +self.Version)
@@ -20,7 +21,7 @@ class TestPoint(models.Model):
     """
     test point information
     """
-    TestDesc     = models.CharField(max_length=80)
+    TestDesc     = models.CharField(max_length=80, unique=True)
     SelectFrom   = models.TextField(max_length=200)
     PageNo       = models.IntegerField()
     SpecAndPoint = models.ManyToManyField(ReferSpec, blank=True, related_name="spec_point", verbose_name="specAndTestpoint")

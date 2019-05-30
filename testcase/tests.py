@@ -47,7 +47,7 @@ class TestCaseTests(TestCase):
         cs1.save()
         cs2 = CaseStep(Step=1, StepType="MAIN", StepDesc="read and compare data", ExpectRslt="pass", TID=ts1)
         cs2.save()
-        cs3 = CaseStep(Step=1, StepType="MAIN", StepDesc="write some data", ExpectRslt="pass", TID=ts2)
+        cs3 = CaseStep(Step=1, StepType="MAIN", StepDesc="write some data to drive", ExpectRslt="pass", TID=ts2)
         cs3.save()
         self.c = Client()
 
@@ -61,10 +61,19 @@ class TestCaseTests(TestCase):
                             "FilePath":"C:\\Spec\\Nvme"
                             }
                 }
-        CaseFuncsBase(url, data_dic, 3, self.c, self.assertEqual, self.assertTrue)
+        add_obj = CaseFuncsBase(url, data_dic, 3, self.c, self.assertEqual, self.assertTrue)
+        add_obj.data_dic = {
+                            "data": { "FileName":"NVME", 
+                                    "Standard":"True", 
+                                    "Version":"3.0", 
+                                    "FilePath":"C:\\Spec\\Nvme"
+                                    }
+                        }
+        res_data = add_obj.sendCmd()
+        self.assertEqual(res_data["code"], 5)
 #         self.assertEqual(eval(res_data)["data"], 3)
 #         self.assertEqual(eval(res_data)["code"], 0)
-      
+       
     def testAddTestPoint(self):
         """
         """
@@ -76,7 +85,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, 4, self.c, self.assertEqual, self.assertTrue)
-      
+       
     def testAddCaseDesc(self):
         """
         """
@@ -91,6 +100,7 @@ class TestCaseTests(TestCase):
     def testUpdateCaseStep(self):
         """
         """
+        #update
         url = "/testcase/api/func_test/mod_casestep/"
         data_dic ={"data": { "CaseName":"write1", 
                             "Step"    : "1",
@@ -100,12 +110,20 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-#         resp = self.c.post(url, data_dic, content_type="application/json")
-#         res_data = resp.content
-#         print(str(resp.content, encoding='utf-8'))
-#         self.assertTrue(b'"code": 0' in res_data)
-#         self.assertTrue(b' "data": true' in res_data)   
-     
+#          resp = self.c.post(url, data_dic, content_type="application/json")
+#          res_data = resp.content
+#          print(str(resp.content, encoding='utf-8'))
+#          self.assertTrue(b'"code": 0' in res_data)
+#          self.assertTrue(b' "data": true' in res_data)
+        #add
+        data_dic2 ={"data": { "CaseName":"write1", 
+                             "Step"    : "4",
+                             "StepType":"MAIN", 
+                             "StepDesc":"write with uecc",
+                             "ExpectRslt":"fail"
+                             }
+                 }
+        CaseFuncsBase(url, data_dic2, None, self.c, self.assertEqual, self.assertTrue)
  
     def testUpdateCaseVersion(self):
         """
@@ -116,7 +134,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-     
+      
     def testUpdateCaseSrtInfo(self):
         """
         """
@@ -129,7 +147,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-     
+      
     def testUpdateCaseOwnership(self):
         """
         """
@@ -140,7 +158,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
- 
+  
     def testUpdateCaseProject(self):
         """
         """
@@ -151,7 +169,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-         
+          
         url = "/testcase/api/func_test/mod_caseproject/"
         data_dic ={"data": { "CaseName":"write1", 
                             "Project"    : "TaiPlus",
@@ -159,7 +177,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
- 
+  
     def testUpdateCaseCategory(self):
         """
         """
@@ -173,7 +191,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-     
+      
     def testUpdateCaseLabels(self):
         """
         """
@@ -183,7 +201,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
- 
+  
     def testUpdateCaseDepInfo(self):
         """
         """
@@ -199,7 +217,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-    
+     
     def testGetCaseScriptInfo(self):
         """
         """
@@ -210,7 +228,7 @@ class TestCaseTests(TestCase):
         expect_data = {'CaseName': 'read1', 'ScriptName': 'basicread.py', 
                        'ScriptPath': 'ibm-l2/dataTransfer', 'ScriptParams': '--doPdb True'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
- 
+  
     def testGetCaseSrtOwner(self):
         """
         """
@@ -220,7 +238,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data = {'Owner': 'cuimei', 'BackupOwner': 'xuhui'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-  
+   
     def testGetCaseDetailedInfo(self):
         """
         """
@@ -235,7 +253,7 @@ class TestCaseTests(TestCase):
                        'SWRequired': 'sw', 'VSRequired': 'Y', 'DrvSupported': 'drive', 'OSSupported': 'windows', \
                        'OEMSupported': 'lenovo', 'SKUSupported': '8160'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-  
+   
     def testGetCaseStepInfo(self):
         """
         """
@@ -248,7 +266,7 @@ class TestCaseTests(TestCase):
                        {'id': 2, 'Step': 1, 'StepType': 'MAIN', 'StepDesc': 'read and compare data', 
                         'ExpectRslt': 'pass'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-      
+       
     def testGetCaseTestPoints(self):
         """
         """
@@ -260,7 +278,7 @@ class TestCaseTests(TestCase):
                        {'id': 1, 'TestDesc': 'basicread', 'SelectFrom': 'fdafdafdaf', 'PageNo': 10, 'FileName': 'NVME', 'Version': '3.0'}, 
                        {'id': 2, 'TestDesc': 'basicwrite', 'SelectFrom': 'bbbbb', 'PageNo': 10, 'FileName': 'NVME', 'Version': '3.0'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-
+ 
     def testGetCaseProjectInfo(self):
         """
         """
@@ -270,7 +288,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data = [{'Project': 'TaiPlus', 'Status': 'TODO'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-    
+     
     def testGetProjectCases(self):
         """
         """
@@ -282,7 +300,7 @@ class TestCaseTests(TestCase):
         expect_data = [{'id': 1, 'Project': 'TaiPlus', 'CaseName': 'read1'}, 
                        {'id': 2, 'Project': 'TaiPlus', 'CaseName': 'write1'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-        
+         
         url = "/testcase/api/func_test/get_prjcaselist/"
         data_dic ={"data": { "Project":"TaiPlus",
                             "Status"  : "TODO",
@@ -296,7 +314,7 @@ class CaseFuncsBase(object):
     """
             测试 function的基类
     """
-    def __init__(self, url, data_dic, expect_data, c, checkFun, assertFun=None):
+    def __init__(self, url, data_dic, expect_data, c, checkFun, assertFun=None, runCheck=True):
         """
         """
         self.url = url
@@ -306,14 +324,21 @@ class CaseFuncsBase(object):
         self.checkFun = checkFun
         self.assertFun = assertFun
         print("url:%s" % self.url)
-        self.funTest()
+        if runCheck:
+            self.funTest()
     
-    def funTest(self):
+    def sendCmd(self):
         """
         """
         resp = self.c.post(self.url, self.data_dic, content_type="application/json")
         res_data = json.loads(str(resp.content, encoding='utf-8'))
         print(res_data)
+        return res_data
+        
+    def funTest(self):
+        """
+        """
+        res_data = self.sendCmd()
         #check return code
         self.checkFun(res_data["code"], 0)
         #check return result

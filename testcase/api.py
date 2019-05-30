@@ -111,7 +111,7 @@ class UpdateCaseBase(APIAuthView):
 
 class UpdateCaseStep(UpdateCaseBase):
     '''
-            更新测试用例步骤信息
+            新增/更新测试用例步骤信息
     '''
     def updateData(self, res):
         try:
@@ -119,9 +119,17 @@ class UpdateCaseStep(UpdateCaseBase):
                 case_name = res.pop('CaseName')
                 case_obj = TestCaseDetail.objects.filter(CaseName=case_name).first()
                 case_step_obj = case_obj.case_step.filter(Step=res["Step"])
-                if len(case_step_obj) == 0:
-                    response = {'code':6,'msg':'Step:{0} not exist, please check!!'.format(res["Step"]),'data':False}
+                if len(case_step_obj) == 0:#add a new test case step
+                    try:
+                        with transaction.atomic():
+                            step_obj = CaseStep(Step=res["Step"], StepType=res["StepType"], StepDesc=res["StepDesc"],
+                                                ExpectRslt=res["ExpectRslt"], TID=case_obj)
+                            step_obj.save()
+                            response = {'code':0,'msg':'Success!','data':True}
+                    except Exception as e:
+                        response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':False}
                 else:
+                    print("update")
                     case_step_obj.update(**res)
                     response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
