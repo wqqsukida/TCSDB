@@ -25,7 +25,7 @@ class AddDataBase(APIAuthView):
         print(res)
         response = self.addData(res)
         return HttpResponse(json.dumps(response, indent=4))
-    
+
     def addData(self, res):
         """
         """
@@ -88,6 +88,7 @@ class UpdateCaseBase(APIAuthView):
     '''
     def post(self,request,*args,**kwargs):
         res = request.data.get("data")
+        #print(res)
         response = self.updateData(res)
         return HttpResponse(json.dumps(response,indent=4))
     
@@ -208,15 +209,27 @@ class GetCaseInfoBase(APIAuthView):
     """
             获取用例的一些相关信息
     """
+
     def getItemList(self):
         """
         """
         pass
-
     def get(self,request,*args,**kwargs):
+        response = {'code':1,'msg':'Request method error!'}
+        return HttpResponse(json.dumps(response))
+
+    def post(self,request,*args,**kwargs):
+        print(request.POST)
         res = request.data.get("data")
+        print(res)
         response = self.getData(res)
-        return HttpResponse(json.dumps(response,indent=4))
+        return HttpResponse(json.dumps(response, indent=4))
+
+#     def get(self,request,*args,**kwargs):
+#         res = request.data.get("data")
+#         print("res is:%s" % res)
+#         response = self.getData(res)
+#         return HttpResponse(json.dumps(response,indent=4))
     
     def getData(self, res):
         """

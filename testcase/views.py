@@ -21,19 +21,11 @@ def init_paginaion(request,queryset):
 
     return query_set,page_html
 
-def test_cases(request):
-    '''
-    主机列表
-    :param request:
-    :return:
-    '''
-    return render(request,'testcase/test_cases.html')
 
 def GetProject(request, projectname):
     """
     """
-    
-    print("request is:%s" % request)
+    #print("request is:%s" % dir(request))
     case_template = 'testcase/test_project.html'
     if request.method == "GET":
         status = request.GET.get("status", "")
@@ -364,7 +356,7 @@ def GetRefSpec(request):
         if status.isdigit():
             result = {"code":int(status),"message":message}
         search_q = request.GET.get('q', '').strip()
-        spec_list = ReferSpec.objects.filter(FileName__contains=search_q)
+        spec_list = ReferSpec.objects.filter(FileName__contains=search_q).order_by('id')
         queryset, page_html = init_paginaion(request, spec_list)
         return render(request,'testcase/test_specs.html',locals())
 
