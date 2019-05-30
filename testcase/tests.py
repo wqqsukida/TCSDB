@@ -45,7 +45,7 @@ class TestCaseTests(TestCase):
         tprj2.TID.add(ts2)
         cs1 = CaseStep(Step=1, StepType="MAIN", StepDesc="write some data", ExpectRslt="pass", TID=ts1)
         cs1.save()
-        cs2 = CaseStep(Step=1, StepType="MAIN", StepDesc="read and compare data", ExpectRslt="pass", TID=ts1)
+        cs2 = CaseStep(Step=2, StepType="MAIN", StepDesc="read and compare data", ExpectRslt="pass", TID=ts1)
         cs2.save()
         cs3 = CaseStep(Step=1, StepType="MAIN", StepDesc="write some data to drive", ExpectRslt="pass", TID=ts2)
         cs3.save()
@@ -84,8 +84,18 @@ class TestCaseTests(TestCase):
                             "SpecAndPoint":"1,2"
                             }
                 }
-        CaseFuncsBase(url, data_dic, 4, self.c, self.assertEqual, self.assertTrue)
-       
+        obj = CaseFuncsBase(url, data_dic, 4, self.c, self.assertEqual, self.assertTrue)
+        #constraints check
+        obj.data_dic ={"data": 
+                            { "TestDesc":"basicread", 
+                             "SelectFrom":"bbadfad", 
+                             "PageNo":"30", 
+                             "SpecAndPoint":"1,2"
+                            }
+                       }
+        res_data = obj.sendCmd()
+        self.assertEqual(res_data["code"], 5)
+
     def testAddCaseDesc(self):
         """
         """
@@ -123,7 +133,7 @@ class TestCaseTests(TestCase):
                              "ExpectRslt":"fail"
                              }
                  }
-        CaseFuncsBase(url, data_dic2, None, self.c, self.assertEqual, self.assertTrue)
+        CaseFuncsBase(url, data_dic2, None, self.c, self.assertEqual, self.assertTrue)       
  
     def testUpdateCaseVersion(self):
         """
@@ -263,7 +273,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data = [{'id': 1, 'Step': 1, 'StepType': 'MAIN',
                         'StepDesc': 'write some data', 'ExpectRslt': 'pass'}, 
-                       {'id': 2, 'Step': 1, 'StepType': 'MAIN', 'StepDesc': 'read and compare data', 
+                       {'id': 2, 'Step': 2, 'StepType': 'MAIN', 'StepDesc': 'read and compare data', 
                         'ExpectRslt': 'pass'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
        

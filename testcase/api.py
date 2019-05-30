@@ -46,9 +46,9 @@ class AddRefSpec(AddDataBase):
         return response
 
 class AddTestPoint(AddDataBase):
-    '''
+    """
             新增测试点信息
-    '''
+    """
     def addData(self, res):
         """
         """
