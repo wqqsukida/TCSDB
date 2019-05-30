@@ -272,7 +272,7 @@ class GetDUTStatus(APIAuthView):
     '''
     获得DUT的状态
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
@@ -287,7 +287,7 @@ class GetDUTTags(APIAuthView):
     '''
     获得DUT的Tags
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
@@ -302,7 +302,7 @@ class GetDUTGroupID(APIAuthView):
     '''
     获得DUT的GroupID
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             sn = res.get('SerialNum')
@@ -458,7 +458,7 @@ class GetHostBasicInfo(APIAuthView):
     '''
     获得Host机器的基本信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -475,7 +475,7 @@ class GetHostHWInfo(APIAuthView):
     '''
     获得Host机器的硬件信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -494,7 +494,7 @@ class GetHostNetInfo(APIAuthView):
     '''
     获得Host机器的网络配置信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -511,7 +511,7 @@ class GetHostOSInfo(APIAuthView):
     '''
     获得Host机器的OS信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -528,7 +528,7 @@ class GetHostDriverInfo(APIAuthView):
     '''
     获得Host机器的驱动信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -549,7 +549,7 @@ class GetHostToolsInfo(APIAuthView):
     '''
     获得Host机器的工具版本信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -570,7 +570,7 @@ class GetHostCurStatus(APIAuthView):
     '''
     获得Host机器当前的硬件使用状态
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -589,7 +589,7 @@ class GetAllSlotsByHostName(APIAuthView):
     '''
     获得Host机器上所有Slot的信息
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
@@ -611,7 +611,7 @@ class FindHosts(APIAuthView):
     '''
     获得符合条件的Host机器列表
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             device_model = res.get("DeviceModel")
@@ -634,11 +634,10 @@ class GetDisconnectedHost(APIAuthView):
     '''
     获得掉线的Host机器清单
     '''
-    def get(self,request,*args,**kwargs):
-        res = json.loads(request.body.decode('utf-8')).get("data")
+    def post(self,request,*args,**kwargs):
         try:
             host_obj = HostInfo.objects.filter(Status='BAD')
-            data = [i.get("HostName") for i in host_obj]
+            data = [i.HostName for i in host_obj]
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
             print(traceback.format_exc())
@@ -649,7 +648,7 @@ class GetHostStatus(APIAuthView):
     '''
     获取当前主机状态
     '''
-    def get(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
             host_name = res.get("HostName")
