@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
+import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -79,7 +79,36 @@ WSGI_APPLICATION = 'TCSDB.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME'  : 'testcases',
+#         'USER'  : 'cuimei',
+#         'PASSWORD': '123456',
+#         'HOST'   : '127.0.0.1',
+#         'PORT'   : '5432',
+# #     'ENGINE': 'django.db.backends.mysql',
+# #     'NAME':'tcsdb',
+# #     'USER': 'root',
+# #     'PASSWORD': '',
+# #     'HOST': 'localhost',
+# #     'PORT': '3306',
+#     }
+# }
+
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+if TESTING:
+    # 当使用SQLite数据库引擎时，测试将默认使用内存数据库
+    DATABASES = {
+        'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+        
+    }
+else:
+    DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME'  : 'testcases',
@@ -93,9 +122,8 @@ DATABASES = {
 #     'PASSWORD': '',
 #     'HOST': 'localhost',
 #     'PORT': '3306',
+        }
     }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -181,19 +209,3 @@ LOG_FILE_PATH = os.path.join(BASE_DIR,'log')
 LOG_BACKUP_COUNT = 5
 LOG_MAX_BYTES = 1024*1024*5
 
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django.db.backends': {
-            'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-        },
-    },
-}
