@@ -68,7 +68,7 @@
                 <div class="ibox">
                     <div class="ibox-title">
                         <ol class="breadcrumb">
-                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B> 主机列表 </h5>
+                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B> SSD列表 </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -121,78 +121,72 @@
                                  <thead>
                                     <tr>
                                         <th></th>
-                                        <th>主机名称</th>
-                                        <th>IP地址</th>
-                                        <th>品牌</th>
-                                        <th>产品型号</th>
+                                        <th>SN</th>
+                                        <th>产品名称</th>
+                                        <th>主机</th>
+                                        <th>插槽</th>
                                         <th>设备类型</th>
-                                        <th>加入测试池时间</th>
+                                        <th>型号</th>
                                         <th>状态</th>
 
-                                        <th data-hide="all">主板信息</th>
-                                        <th data-hide="all">CPU类型</th>
-                                        <th data-hide="all">标配CPU数量</th>
-                                        <th data-hide="all">最大CPU数量</th>
-                                        <th data-hide="all">CPU核数</th>
-                                        <th data-hide="all">内存类型</th>
-                                        <th data-hide="all">内存大小</th>
-                                        <th data-hide="all">最大内存大小</th>
-                                        <th data-hide="all">网卡MAC地址</th>
-                                        <th data-hide="all">网络接口卡</th>
-                                        <th data-hide="all">是否支持wifi</th>
-                                        <th data-hide="all">WIFI的IP地址</th>
-                                        <th data-hide="all">最大可插入SATA SSD数量</th>
-                                        <th data-hide="all">最大可插入AIC SSD数量</th>
-                                        <th data-hide="all">最大可插入U.2 SSD数量</th>
+                                        <th data-hide="all">厂商</th>
+                                        <th data-hide="all">EUI信息</th>
+                                        <th data-hide="all">接口类型</th>
+                                        <th data-hide="all">物理容量</th>
+                                        <th data-hide="all">用户可见容量</th>
+                                        <th data-hide="all">生产年月</th>
+                                        <th data-hide="all">当前组编号</th>
+                                        <th data-hide="all">当前标签</th>
+                                        <th data-hide="all">当前FWLoader版本</th>
+                                        <th data-hide="all">当前Golden版本</th>
+                                        <th data-hide="all">当前FW版本</th>
+                                        <th data-hide="all">备注</th>
                                         <th>操作(更新/刪除)</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for host in queryset %}
+                                    {% for dut in queryset %}
                                         <tr>
                                             <td>
                                                 <input type="checkbox"  class="i-checks" name="input_chk" value="{{ dut.id }}">
                                             </td>
                                             <td class="tooltip-demo">
-                                                <a data-toggle="tooltip" data-placement="right" title="查看设备详情" class="btn-white btn-sm" href="/monitor/asset_detail?id={{ host.id }}">
-                                                    {{ host.HostName }}
+                                                <a data-toggle="tooltip" data-placement="right" title="查看操作历史" class="btn-white btn-sm" href="/monitor/dut_record?id={{ dut.id }}">
+                                                    {{ dut.SerialNum }}
                                                 </a>
                                             </td>
-                                            <td>{{ host.IPV4Addr }}</td>
-                                            <td>{{ host.Manufacture }}</td>
-                                            <td>{{ host.DeviceModel }}</td>
-                                            <td>{{ host.DeviceType }}</td>
-                                            <td>{{ host.JoininDate | date:"Y-m-d H:i:s" }}</td>
+                                            <td>{{ dut.ProductName }}</td>
+                                            <td>{{ dut.HostName }}</td>
+                                            <td>{{ dut.SlotID.SlotID }}</td>
+                                            <td>{{ dut.DeviceType }}</td>
+                                            <td>{{ dut.ModelNum }}</td>
                                             <td>
-                                                {% if host.Status == 'IDEL' %}
-                                                    <a class="btn btn-sm btn-success">{{ host.Status }}</a>
-                                                {% elif host.Status == 'BUSY' %}
-                                                    <a class="btn btn-sm btn-info">{{ host.Status }}</a>
-                                                {% elif host.Status == 'BAD' %}
-                                                    <a class="btn btn-sm btn-danger">{{ host.Status }}</a>
-                                                {% elif host.Status == 'RETIRED' %}
-                                                    <a class="btn btn-sm btn-warning">{{ host.Status }}</a>
+                                                {% if dut.Status == 'Idle' %}
+                                                    <a class="btn btn-sm btn-success">{{ dut.Status }}</a>
+                                                {% elif dut.Status == 'Unplugged' %}
+                                                    <a class="btn btn-sm btn-info">{{ dut.Status }}</a>
+                                                {% elif dut.Status == 'Busy' %}
+                                                    <a class="btn btn-sm btn-danger">{{ dut.Status }}</a>
+                                                {% elif dut.Status == 'Debug' %}
+                                                    <a class="btn btn-sm btn-warning">{{ dut.Status }}</a>
                                                 {% endif %}
                                             </td>
 
 
-                                            <td>{{ host.MotherBoard }}</td>
-                                            <td>{{ host.CPUType }}</td>
-                                            <td>{{ host.NumOfCPU }}</td>
-                                            <td>{{ host.MaxCPUNum }}</td>
-                                            <td>{{ host.CPUCores }}</td>
-                                            <td>{{ host.DRAMType }}</td>
-                                            <td>{{ host.DRAMSize }}</td>
-                                            <td>{{ host.MaxDRAMSize }}</td>
-                                            <td>{{ host.MAC }}</td>
-                                            <td>{{ host.NICType }}</td>
-                                            <td>{{ host.WIFISupported }}</td>
-                                            <td>{{ host.IPV4WIFI }}</td>
-                                            <td>{{ host.MaxSATASlot }}</td>
-                                            <td>{{ host.MaxAICSlot }}</td>
-                                            <td>{{ host.MaxU2Slot }}</td>
+                                            <td>{{ dut.Manufacture }}</td>
+                                            <td>{{ dut.EUI }}</td>
+                                            <td>{{ dut.Interface }}</td>
+                                            <td>{{ dut.RawCapacity }}</td>
+                                            <td>{{ dut.UserCapacity }}</td>
+                                            <td>{{ dut.Manufactured | date:"Y-m-d H:i:s" }}</td>
+                                            <td>{{ dut.GroupID }}</td>
+                                            <td>{{ dut.Tags }}</td>
+                                            <td>{{ dut.FWLoaderRev }}</td>
+                                            <td>{{ dut.GoldenFWRev }}</td>
+                                            <td>{{ dut.FWRev }}</td>
+                                            <td>{{ dut.Notes }}</td>
                                             <td class="tooltip-demo" style="font-size: 20px">
-                                                <a class="mod-asset-btn" title="更新主机信息" hid="{{ host.id }}" data-toggle="modal" data-target="#UpdateModal">
+                                                <a class="mod-asset-btn" title="更新SSD信息" sid="{{ dut.id }}" data-toggle="modal" data-target="#UpdateModal">
                                                     <i class="fa fa-cog"></i>
                                                 </a>
                                             </td>
@@ -227,10 +221,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close close_mod_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">更新主机信息</h4>
+                    <h4 class="modal-title" id="myModalLabel">更新设备信息</h4>
                 </div>
                 <div class="panel-body">
-                    <form action="/monitor/host_update" role="form" method="post" enctype="multipart/form-data">
+                    <form action="/monitor/dut_update" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
                         <div class="tabs-container">
@@ -252,22 +246,6 @@
                                         </div>
 
                                         <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">品牌<font style="color:red;"> </font></h5></div>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" type="text"  name="Manufacture" id="mod_Manufacture"
-                                                       placeholder="品牌">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">产品型号<font style="color:red;"> </font></h5></div>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" type="text"  name="DeviceModel" id="mod_DeviceModel"
-                                                       placeholder="产品型号">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group col-sm-12">
                                             <div class="col-sm-2">  <h5 style="float:right;">设备类型<font style="color:red;"> </font></h5></div>
                                             <div class="col-sm-9">
                                                 <input class="form-control" type="text"  name="DeviceType" id="mod_DeviceType"
@@ -276,13 +254,60 @@
                                         </div>
 
                                         <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">主板信息<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-2">  <h5 style="float:right;">厂商<font style="color:red;"> </font></h5></div>
                                             <div class="col-sm-9">
-                                                <input class="form-control" type="text"  name="MotherBoard" id="mod_MotherBoard"
-                                                       placeholder="主板信息">
+                                                <input class="form-control" type="text"  name="Manufacture" id="mod_Manufacture"
+                                                       placeholder="厂商">
                                             </div>
                                         </div>
 
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-2">  <h5 style="float:right;">型号<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text"  name="ModelNum" id="mod_ModelNum"
+                                                       placeholder="型号">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-2">  <h5 style="float:right;">EUI信息<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text"  name="EUI" id="mod_EUI"
+                                                       placeholder="EUI信息">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-2">  <h5 style="float:right;">接口类型<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text"  name="Interface" id="mod_Interface"
+                                                       placeholder="接口类型">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-2">  <h5 style="float:right;">产品名称<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text"  name="ProductName" id="mod_ProductName"
+                                                       placeholder="产品名称">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-2">  <h5 style="float:right;">物理容量<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text"  name="RawCapacity" id="mod_RawCapacity"
+                                                       placeholder="物理容量">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-sm-12">
+                                            <div class="col-sm-2">  <h5 style="float:right;">可见容量<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control" type="text"  name="UserCapacity" id="mod_UserCapacity"
+                                                       placeholder="可见容量">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -290,38 +315,21 @@
                                     <div class="panel-body">
 
                                         <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">主机状态<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-2">  <h5 style="float:right;">设备状态<font style="color:red;"> </font></h5></div>
                                             <div class="col-sm-10">
                                                 <select class="form-control"  name="Status" id="mod_Status">
-                                                    <option value="IDEL">IDEL</option>
-                                                    <option value="BUSY">BUSY</option>
-                                                    <option value="BAD">BAD</option>
-                                                    <option value="RETIRED">RETIRED</option>
+                                                    <option value="Idle">Idle</option>
+                                                    <option value="Busy">Busy</option>
+                                                    <option value="Debug">Debug</option>
+                                                    <option value="Unplugged">Unplugged</option>
                                                 </select>
                                             </div>
                                         </div>
 
                                         <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">SATASSD<font style="color:red;"> </font></h5></div>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" type="number"  name="MaxSATASlot" id="mod_MaxSATASlot"
-                                                       placeholder="SATA SSD">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">AIC SSD<font style="color:red;"> </font></h5></div>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" type="number"  name="MaxAICSlot" id="mod_MaxAICSlot"
-                                                       placeholder="AIC SSD">
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group col-sm-12">
-                                            <div class="col-sm-2">  <h5 style="float:right;">U.2 SSD<font style="color:red;"> </font></h5></div>
-                                            <div class="col-sm-9">
-                                                <input class="form-control" type="number"  name="MaxU2Slot" id="mod_MaxU2Slot"
-                                                       placeholder="U.2 SSD">
+                                            <div class="col-sm-2">  <h5 style="float:right;">备注<font style="color:red;"> </font></h5></div>
+                                            <div class="col-sm-10">
+                                                <textarea class="form-control" name="Notes" id="mod_Notes" rows="5"></textarea>
                                             </div>
                                         </div>
 
@@ -437,34 +445,38 @@
 
     <script>
         $("table").on("click",".mod-asset-btn",function () {
-            hid = $(this).attr('hid');
+            sid = $(this).attr('sid');
             $("#mod_id").val("");
-            $("#mod_Manufacture").val("");
-            $("#mod_DeviceModel").val("");
             $("#mod_DeviceType").val("");
-            $("#mod_MotherBoard").val("");
-            $("#mod_MaxSATASlot").val("");
-            $("#mod_MaxAICSlot").val("");
-            $("#mod_MaxU2Slot").val("");
+            $("#mod_Manufacture").val("");
+            $("#mod_ModelNum").val("");
+            $("#mod_EUI").val("");
+            $("#mod_Interface").val("");
+            $("#mod_ProductName").val("");
+            $("#mod_RawCapacity").val("");
+            $("#mod_UserCapacity").val("");
+            $("#mod_Notes").val("");
 
             $("#mod_Status option").attr("selected",false);
 
             $.ajax({
-                url: "/monitor/host_update",
+                url: "/monitor/dut_update",
                 type: "GET",
-                data: {hid: hid},
+                data: {sid: sid},
                 dataType: 'JSON',
                 success: function (arg) {
                     if (arg) {
                         console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_Manufacture").val(arg.Manufacture);
-                        $("#mod_DeviceModel").val(arg.DeviceModel);
                         $("#mod_DeviceType").val(arg.DeviceType);
-                        $("#mod_MotherBoard").val(arg.MotherBoard);
-                        $("#mod_MaxSATASlot").val(arg.MaxSATASlot);
-                        $("#mod_MaxAICSlot").val(arg.MaxAICSlot);
-                        $("#mod_MaxU2Slot").val(arg.MaxU2Slot);
+                        $("#mod_Manufacture").val(arg.Manufacture);
+                        $("#mod_ModelNum").val(arg.ModelNum);
+                        $("#mod_EUI").val(arg.EUI);
+                        $("#mod_Interface").val(arg.Interface);
+                        $("#mod_ProductName").val(arg.ProductName);
+                        $("#mod_RawCapacity").val(arg.RawCapacity);
+                        $("#mod_UserCapacity").val(arg.UserCapacity);
+                        $("#mod_Notes").val(arg.Notes);
 
                         $("#mod_Status [value=" + arg.Status + "]").prop('selected',true);
 
@@ -500,6 +512,65 @@
             }
         }
 
+    </script>
+
+
+    <script>
+        el1 = '                                    <select  data-placeholder="选择主机组" name="business_units"  class="chosen-select" multiple style="width:241px;" tabindex="4">\n' +
+            '                                        {% for bussiness in business_list %}\n'+
+                '                                            <option value="{{ bussiness.id }}" >{{ bussiness.name }}</option>\n'
+                +
+                '                                        {% endfor %}\n' +
+            '                                    </select>';
+        el2 = '                                    <select  data-placeholder="选择标签" name="tags"  class="chosen-select" multiple style="width:241px;" tabindex="4">\n' +
+            '                                        {% for tag in tag_list %}\n'+
+                '                                            <option value="{{ tag.id }}">{{ tag.name }}</option>\n'+
+                '                                        {% endfor %}\n' +
+            '                                    </select>';
+        el3 = '                                    <select class="form-control"  name="status_ids">\n' +
+            '                                        <option value="1">上架</option>\n' +
+            '                                        <option value="2">在线</option>\n' +
+            '                                        <option value="3">离线</option>\n' +
+            '                                        <option value="4">下架</option>\n' +
+            '                                    </select>';
+        el4= '    <select data-placeholder="选择任务项" name="taskmethods" class="chosen-select" multiple style="width:241px;" tabindex="4">\n' +
+            '        {% for tm in taskmethod_list %}\n'+
+                '            <option value="{{ tm.id }}">{{ tm.title }}</option>\n'+
+                '        {% endfor %}\n' +
+            '    </select>';
+        el5 = '                                    <select class="form-control" name="task_script_id" id="">\n' +
+            '                                        {% for script in taskscript_list %}\n'+
+                '                                            <option value="{{ script.id }}">{{ script.name }}</option>\n'
+                +
+                '                                        {% endfor %}\n' +
+            '                                    </select>';
+        el6 = '<input class="hide" type="text" name="del_hosts" value="True">';
+
+        $("#chose-action").on('change',function () {
+            $("#add-action").empty();
+            if($(this).val() == 1){
+                $("#add-action").append(el1);
+                init_ms()
+            }
+            else if($(this).val() == 2){
+                $("#add-action").append(el2);
+                init_ms();
+            }
+            else if($(this).val() == 3){
+                $("#add-action").append(el3)
+            }
+            else if($(this).val() == 4){
+                $("#add-action").append(el4);
+                init_ms();
+            }
+            else if($(this).val() == 5){
+                $("#add-action").append(el5);
+            }
+            else if($(this).val() == 6){
+                $("#add-action").append(el6);
+            }
+        }
+        )
     </script>
 
     <script>
