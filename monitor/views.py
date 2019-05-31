@@ -2,6 +2,7 @@ from django.shortcuts import render,HttpResponse,HttpResponseRedirect
 import json
 import copy
 import traceback
+import datetime
 from utils.pagination import Pagination
 from monitor.models import *
 from django.db.models import Q
@@ -190,7 +191,7 @@ def dut_record(request):
         dut_id = request.GET.get("id",None)
         dut_obj = DUTInfo.objects.filter(id=dut_id).first()
         stime = request.GET.get("start_time","2019-01-01")
-        etime = request.GET.get("end_time","2019-05-28")
+        etime = request.GET.get("end_time",datetime.datetime.now().strftime('%Y-%m-%d'))
         if dut_obj:
             fw_record = DUTFW.objects.filter(DUTID=dut_obj,Changed__range=(stime,etime))
             host_record = DUTHost.objects.filter(DUTID=dut_obj,Changed__range=(stime,etime))
@@ -204,15 +205,43 @@ def dut_record(request):
         return render(request,'monitor/dut_record.html',locals())
 
 def host_record(request):
+    '''
+    主机变更记录
+    :param request:
+    :return:
+    '''
     all_record = []
     if request.method == "GET":
         host_id = request.GET.get("id",None)
         host_obj = HostInfo.objects.filter(id=host_id).first()
         stime = request.GET.get("start_time","2019-01-01")
-        etime = request.GET.get("end_time","2019-05-28")
+        etime = request.GET.get("end_time",datetime.datetime.now().strftime('%Y-%m-%d'))
         if host_obj:
             all_record = HostOS.objects.filter(HostID=host_obj,Changed__range=(stime,etime))
             # print(len(all_record))
             # all_record = sorted(all_record,key=lambda x:x.Changed)
         all_record, page_html = init_paginaion(request, all_record)
         return render(request,'monitor/host_record.html',locals())
+
+def os_record(request):
+    '''
+    OS变更记录
+    :param request:
+    :return:
+    '''
+    all_record = []
+    if request.method == "GET":
+        os_id = request.GET.get("id",None)
+        os_obj = HostOS.objects.filter(id=os_id).first()
+        host_obj = os_obj.HostID
+        stime = request.GET.get("start_time","2019-01-01")
+        etime = request.GET.get("end_time",datetime.datetime.now().strftime('%Y-%m-%d'))
+        if os_obj:
+            driver_record = HostDriver.objects.filter(OSID=os_obj,Changed__range=(stime,etime))
+            sw_record = HostSoftware.objects.filter(OSID=os_obj,Changed__range=(stime,etime))
+            for f in driver_record:all_record.append(f)
+            for h in sw_record:all_record.append(h)
+            # print(len(all_record))
+            all_record = sorted(all_record,key=lambda x:x.Changed)
+        all_record, page_html = init_paginaion(request, all_record)
+        return render(request,'monitor/os_record.html',locals())
