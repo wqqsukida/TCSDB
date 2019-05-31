@@ -116,64 +116,6 @@
                         <form method="post" action="/cmdb/asset_run_tasks">
                             {% csrf_token %}
                             <input class="hide" type="text" name="page" value="{{ page }}">
-                            <!--
-                            <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
-                                <div class="col-sm-7">
-
-                                </div>
-                                <div class="col-sm-2">
-                                    <select class="form-control"  id="chose-action">
-                                        <option disabled selected='selected'>====选择批量执行动作====</option>
-                                        <option value="1">修改主机组</option>
-                                        <option value="2">修改标签</option>
-                                        <option value="3">修改主机状态</option>
-{#                                        <option value="4">执行主机任务</option>#}
-{#                                        <option value="5">下发任务脚本</option>#}
-                                        <option value="6">批量删除主机</option>
-                                    </select>
-                                </div>
-
-                                <div id="add-action" class="col-sm-2">
-                                    <select class="form-control">
-                                        <option disabled selected="selected">====请选择批量执行动作====</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-sm-1">
-                                    <button type="submit" value="修改" class="btn btn-primary js_confirm" />
-                                        <i class="fa fa-random"></i>&nbsp;&nbsp;批量执行
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12 m-b-xs">
-                                <div id="show-nav" class="panel panel-default" style="display: none;">
-                                    <div class="panel-heading"><i class="fa fa-filter" aria-hidden="true"></i> 快速筛选</div>
-                                    <div class="panel-body">
-                                        <div class="comb-search">
-                                            按主机组:
-                                           {% if row %}
-                                                {% for r in row %}
-                                                    {{ r | safe }}
-                                                {% endfor %}
-                                           {% endif %}
-                                            按主机状态:
-                                           {% if ss_row %}
-                                                {% for r in ss_row %}
-                                                    {{ r | safe }}
-                                                {% endfor %}
-                                           {% endif %}
-                                            按标签:
-                                           {% if tag_row %}
-                                                {% for r in tag_row %}
-                                                    {{ r | safe }}
-                                                {% endfor %}
-                                           {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            -->
                             <div class="row">
                              <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="20" data-filter=#filter>
                                  <thead>
@@ -247,17 +189,6 @@
                                                 <a class="mod-asset-btn" title="更新SSD信息" sid="{{ dut.id }}" data-toggle="modal" data-target="#UpdateModal">
                                                     <i class="fa fa-cog"></i>
                                                 </a>
-                                                <!--暂不开放删除功能-->
-                                                <!--
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/cmdb/asset_del?sid={{ dut.id }}&page={{ page }}" title="删除SSD" class="del_confirm" style="margin-left: 15px">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
-
-
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/cmdb/server_task_status/{{ asset.id }}////" title="任务列表" style="margin-left: 15px">
-                                                    <i class="fa fa-cubes"></i>
-                                                </a>
-                                                -->
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -280,56 +211,6 @@
                             </div>
                         </form>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal inmodal" id="AddModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加主机</h4>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal m-t" action="/cmdb/asset_add"  role="form" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <input class="hide" type="text" name="page" value="{{ page }}">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">主机名：</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" type="text"  name="hostname" id="get_hostname"
-                                       placeholder="主机名,必选">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">SN：</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" type="text"  name="sn" id="get_sn"
-                                       placeholder="SN号，必选">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">主机状态：</label>
-                            <div class="col-sm-8">
-                                <select class="form-control"  name="server_status_id" id="get_server_status_id">
-                                    <option value="1">上架</option>
-                                    <option value="2">在线</option>
-                                    <option value="3">下架</option>
-                                    <option value="4">离线</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <hr width="100%" />
-                        <div class="col-sm-12">
-                            <div class="col-sm-5"> </div>
-                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
@@ -459,74 +340,6 @@
                         <div class="col-sm-12" style="padding-top: 15px;">
                             <div class="col-sm-5"> </div>
                             <button type="submit" class="btn btn-primary js_confirm">提交修改</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal inmodal" id="TagModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加标签</h4>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal m-t" action="/cmdb/tag_add"  role="form" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <input class="hide" type="text" name="page" value="{{ page }}">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">标签名：</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" type="text"  name="name" id=""
-                                       placeholder="标签名,必选">
-                            </div>
-                        </div>
-
-                        <hr width="100%" />
-                        <div class="col-sm-12">
-                            <div class="col-sm-5"> </div>
-                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal inmodal" id="ModTagModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">修改标签</h4>
-                </div>
-                <div class="panel-body">
-                    <form class="form-horizontal m-t" action="/cmdb/tag_edit"  role="form" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <input class="hide" type="text" name="page" value="{{ page }}">
-                        <div class="form-group hide">
-                            <label class="col-sm-3 control-label">ID：</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" type="text"  name="id" id="mod_tid"
-                                       placeholder="ID,必选">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">标签名：</label>
-                            <div class="col-sm-8">
-                                <input class="form-control" type="text"  name="name" id="mod_tname"
-                                       placeholder="标签名,必选">
-                            </div>
-                        </div>
-
-                        <hr width="100%" />
-                        <div class="col-sm-12">
-                            <div class="col-sm-5"> </div>
-                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
                         </div>
                     </form>
                 </div>
