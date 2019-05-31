@@ -45,10 +45,11 @@
                 <div class="ibox">
                     <div class="ibox-title">
                         <ol class="breadcrumb">
-                          <li><a href="/index_v3"><span class="g_nav_font">首页</span></a></li>
-                          <li><a href="/monitor/hosts"><span class="g_nav_font">主机列表</span></a></li>
+                            <li><a href="/index_v3"><span class="g_nav_font">首页</span></a></li>
+                            <li><a href="/monitor/hosts"><span class="g_nav_font">主机列表</span></a></li>
                             <li><a href="/monitor/asset_detail?id={{ host_obj.id }}"><span class="g_nav_font">{{ host_obj.HostName }}</span></a></li>
-                          <li class="active">{{ host_obj.HostName }}变更记录</li>
+                            <li><a href="/monitor/host_record?id={{ host_obj.id}}"><span class="g_nav_font">{{ host_obj.HostName }}变更记录</span></a></li>
+                            <li class="active">{{ host_obj.HostName }}-{{ os_obj.OSType }}变更记录</li>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -66,7 +67,7 @@
                     <div class="ibox-content">
                         <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
                             <form method="get">
-                                <input class="hide" type="text" name="id" value="{{ host_id }}">
+                                <input class="hide" type="text" name="id" value="{{ os_id }}">
                                 <!--
                                 <div class="col-sm-1">
                                     <a class="btn btn-info" href="#" data-toggle="modal" data-target="#AddModal">
@@ -111,17 +112,26 @@
                                  <tbody>
                                     {% for r in all_record %}
                                         <tr>
-                                            <td class="tooltip-demo">
-                                                <a data-toggle="tooltip" data-placement="right" href="/monitor/os_record?id={{ r.id }}" title="查看OS详情" class="btn btn-info btn-xs">
-                                                    OS change
-                                                </a>
+                                            <td>
+                                                {% if r|class_name == 'HostDriver' %}
+                                                    <a class="btn btn-info btn-xs">Driver change</a>
+                                                {% elif  r|class_name == 'HostSoftware'  %}
+                                                    <a class="btn btn-success btn-xs">Software change</a>
+                                                {% endif %}
                                             </td>
                                             <td>
-                                                OSType:<a class="btn btn-white btn-xs">{{ r.OSType }}</a>
-                                                OSVersion:<a class="btn btn-white btn-xs">{{ r.OSVersion }}</a>
+                                                {% if r|class_name == 'HostDriver' %}
+                                                    Hardware: <a class="btn btn-white btn-xs">{{ r.Hardware }}</a>
+                                                    DriverName:<a class="btn btn-white btn-xs">{{ r.DriverName }}</a>
+                                                    DriverVersion:<a class="btn btn-white btn-xs">{{ r.DriverVersion }}</a>
+                                                {% elif  r|class_name == 'HostSoftware'  %}
+                                                    ToolName:<a class="btn btn-white btn-xs">{{ r.ToolName }}</a>
+                                                    ToolVer:<a class="btn btn-white btn-xs">{{ r.ToolVer }}</a>
+                                                {% endif %}
                                             </td>
                                             <td>{{ r.Changed | date:"Y-m-d H:i:s" }}</td>
                                             <td>{{ r.Operator }}</td>
+
                                         </tr>
                                     {% endfor %}
                                  </tbody>
@@ -168,57 +178,6 @@
                 autoclose:true}
             );
     </script>
-    <script>
-
-        $.validator.setDefaults({
-            highlight:function(a){
-                $(a).closest(".form-group").removeClass("has-success").addClass("has-error")
-            },
-            success:function(a){
-                a.closest(".form-group").removeClass("has-error").addClass("has-success")
-            },
-            errorElement:"span",
-            errorPlacement:function(a,b){
-                if(b.is(":radio")||b.is(":checkbox")){a.appendTo(b.parent().parent().parent())}
-                else{a.appendTo(b.parent())}},errorClass:"help-block m-b-none",validClass:"help-block m-b-none"});
-
-        $().ready(function(){
-            $("#commentForm").validate();
-            var a="<i class='fa fa-times-circle'></i> ";
-            $("#signupForm").validate({
-                rules:{
-                    firstname:"required",
-                    lastname:"required",
-                    name:"required",
-                    username:{required:true,minlength:2},
-                    password:{required:true,minlength:5},
-                    confirm_password:{required:true,minlength:5,equalTo:"#password"},
-                    email:{required:true,email:true},
-                    topic:{required:"#newsletter:checked",minlength:2},
-                    agree:"required"
-                },
-                messages:{
-                    firstname:a+"请输入你的姓",
-                    lastname:a+"请输入您的名字",
-                    name:a+"请输入你的昵称",
-                    username:{required:a+"请输入您的用户名",minlength:a+"用户名必须两个字符以上"},
-                    password:{required:a+"请输入您的密码",minlength:a+"密码必须5个字符以上"},
-                    confirm_password:{required:a+"请再次输入密码",minlength:a+"密码必须5个字符以上",equalTo:a+"两次输入的密码不一致"},
-                    email:a+"请输入正确的E-mail",
-                    agree:{required:a+"必须同意协议后才能注册",element:"#agree-error"}
-                }
-            });
-            /*
-            $("#username").focus(function(){
-                var c=$("#firstname").val();
-                var b=$("#lastname").val();
-                if(c&&b&&!this.value){this.value=c+"."+b}
-            }) */
-        });
-
-    </script>
-
-
 
     <script>
         $(document).ready(function(){$(".dataTables-example").dataTable(
@@ -277,59 +236,6 @@
         if ($(".alert")){
             $(".alert").fadeOut(3000);
         }
-    </script>
-
-
-    <script>
-        $("table").on("click",".mod-user-btn",function () {
-            user_id = $(this).attr('uid');
-            $("#mod_id").val("");
-            $("#mod_email").val("");
-            $("#mod_mobile").val("");
-            $("#mod_phone").val("");
-            $("#is_admin").prop("checked",false);
-            $("#mod_roles option").prop("selected",false);
-
-            $.ajax({
-                url: "/rbac/users_edit",
-                type: "GET",
-                data: {user_id: user_id},
-                dataType: 'JSON',
-                success: function (arg) {
-                    if (arg) {
-                        console.log(arg);
-                        $("#mod_id").val(arg.id);
-                        $("#mod_email").val(arg.email);
-                        $("#mod_mobile").val(arg.mobile);
-                        $("#mod_phone").val(arg.phone);
-                        if(arg.is_admin){
-                            $("#is_admin").prop("checked",true);
-                        }
-                        $.each(arg.roles,function (k,v) {
-                            $("#mod_roles [value=" + v + "]").prop("selected",true);
-                        });
-
-                    }
-                }
-            })
-        })
-    </script>
-
-    <script>
-        $("table").on('click','.mod-pwd-btn',function () {
-            user_id = $(this).attr('uid');
-            $("#user_id").val("");
-
-            $.ajax({
-                url: "/rbac/users_pwd",
-                type: "GET",
-                data: {user_id: user_id},
-                dataType: 'JSON',
-                success:function (arg) {
-                    if(arg){$("#user_id").val(arg)}
-                }
-            })
-        })
     </script>
 
 </body>

@@ -64,4 +64,5 @@ urlpatterns = [
     re_path(r'^asset_detail', views.asset_detail),
     re_path(r'^dut_record', views.dut_record),
     re_path(r'^host_record', views.host_record),
+    re_path(r'^os_record', views.os_record),
 ]
