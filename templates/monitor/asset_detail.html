@@ -71,14 +71,6 @@
                                     <div class="panel-options">
 
                                         <ul class="nav nav-tabs">
-                                            <!--
-                                            <li class="active"><a data-toggle="tab" href="tabs_panels.html#tab-4"><i class="fa fa-laptop"></i> Memory</a>
-                                            </li>
-                                            <li class=""><a data-toggle="tab" href="tabs_panels.html#tab-5"><i class="fa fa-desktop"></i> Disk</a>
-                                            </li>
-                                            <li class=""><a data-toggle="tab" href="tabs_panels.html#tab-6"><i class="fa fa-signal"></i> Nic</a>
-                                            </li>
-                                            -->
                                             <li class=""><a data-toggle="tab" href="tabs_panels.html#tab-7"><i class="fa fa-bar-chart-o"></i> SSD</a>
                                             </li>
                                         </ul>
@@ -86,124 +78,6 @@
                                 </div>
                                 <div class="panel-body">
                                     <div class="tab-content">
-                                        <!--
-                                        <div id="tab-4" class="tab-pane">
-                                            <div class="raw" style="font-size: 20px ;font-weight: 600">内存详情</div>
-                                            {% for mem in memory_query_list %}
-                                                <div class="col-sm-4">
-                                                    <div class="ibox float-e-margins panel panel-warning">
-                                                        <div class="ibox-title panel-heading">
-                                                            <h5>{{ mem.slot }}</h5>
-                                                            <div class="ibox-tools">
-                                                                <a class="collapse-link">
-                                                                    <i class="fa fa-chevron-up"></i>
-                                                                </a>
-                                                                <a class="dropdown-toggle" data-toggle="dropdown" href="typography.html#">
-                                                                    <i class="fa fa-wrench"></i>
-                                                                </a>
-                                                                <ul class="dropdown-menu dropdown-user">
-                                                                    <li><a href="typography.html#">选项1</a>
-                                                                    </li>
-                                                                    <li><a href="typography.html#">选项2</a>
-                                                                    </li>
-                                                                </ul>
-                                                                <a class="close-link">
-                                                                    <i class="fa fa-times"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div style="font-size: 18px ;font-weight: 400" class="ibox-content panel-body">
-                                                            <ul>
-                                                                <li>插槽位 : {{ mem.slot }}</li>
-                                                                <li>制造商 : {{ mem.manufacturer }}</li>
-                                                                <li>型号 : {{ mem.model }}</li>
-                                                                <li>容量 : {{ mem.capacity }}</li>
-                                                                <li>内存SN号 : {{ mem.sn }}</li>
-                                                                <li>速度 : {{ mem.speed }}</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-
-                                        <div id="tab-5" class="tab-pane">
-                                            <div class="raw" style="font-size: 20px ;font-weight: 600">硬盘详情</div>
-                                            {% for disk in disk_query_list %}
-                                                <div class="col-sm-4">
-                                                    <div class="ibox float-e-margins panel panel-primary">
-                                                        <div class="ibox-title panel-heading">
-                                                            <h5>{{ disk.slot }}</h5>
-                                                            <div class="ibox-tools">
-                                                                <a class="collapse-link">
-                                                                    <i class="fa fa-chevron-up"></i>
-                                                                </a>
-                                                                <a class="dropdown-toggle" data-toggle="dropdown" href="typography.html#">
-                                                                    <i class="fa fa-wrench"></i>
-                                                                </a>
-                                                                <ul class="dropdown-menu dropdown-user">
-                                                                    <li><a href="typography.html#">选项1</a>
-                                                                    </li>
-                                                                    <li><a href="typography.html#">选项2</a>
-                                                                    </li>
-                                                                </ul>
-                                                                <a class="close-link">
-                                                                    <i class="fa fa-times"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div style="font-size: 18px ;font-weight: 400" class="ibox-content panel-body">
-                                                            <ul>
-                                                                <li>插槽位 : {{ disk.slot }}</li>
-                                                                <li>磁盘型号 : {{ disk.model }}</li>
-                                                                <li>磁盘容量(GB) : {{ disk.capacity }}</li>
-                                                                <li>磁盘类型 : {{ disk.pd_type }}</li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        <div id="tab-6" class="tab-pane">
-                                            <div class="raw" style="font-size: 20px ;font-weight: 600">网卡详情</div>
-                                            {% for nic in nic_query_list %}
-                                                <div class="col-sm-4">
-                                                    <div class="ibox float-e-margins panel panel-success">
-                                                        <div class="ibox-title panel-heading">
-                                                            <h5>{{ nic.name }}</h5>
-                                                            <div class="ibox-tools">
-                                                                <a class="collapse-link">
-                                                                    <i class="fa fa-chevron-up"></i>
-                                                                </a>
-                                                                <a class="dropdown-toggle" data-toggle="dropdown" href="typography.html#">
-                                                                    <i class="fa fa-wrench"></i>
-                                                                </a>
-                                                                <ul class="dropdown-menu dropdown-user">
-                                                                    <li><a href="typography.html#">选项1</a>
-                                                                    </li>
-                                                                    <li><a href="typography.html#">选项2</a>
-                                                                    </li>
-                                                                </ul>
-                                                                <a class="close-link">
-                                                                    <i class="fa fa-times"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div style="font-size: 18px ;font-weight: 400" class="ibox-content panel-body">
-                                                            <ul>
-                                                                <li>网卡名称 : {{ nic.name }}</li>
-                                                                <li>网卡mac地址 : {{ nic.hwaddr }}</li>
-                                                                <li>Netmask : {{ nic.netmask }}</li>
-                                                                <li>ip地址 : {{ nic.ipaddrs }}</li>
-                                                                <li>up/down : {% if nic.up == 1 %}开启{% elif nic.up == 0 %}关闭{% endif %}
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        -->
                                         <div id="tab-7" class="tab-pane active">
                                             <div class="raw" style="font-size: 20px ;font-weight: 600">SSD详情</div>
                                             {% for slot in slot_query_list %}
@@ -249,37 +123,6 @@
                         </div>
                 </div>
 
-                </div>
-            </div>
-        </div>
-
-
-        <div class="modal inmodal" id="LogModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="myModalLabel">变更记录</h4>
-                    </div>
-                    <div class="panel-body" style="overflow: auto;height: 380px;">
-
-                        <ul class="sortable-list connectList agile-list" id="get_change_log">
-                            <li class="warning-element">
-                                加强过程管理，及时统计教育经费使用情况，做到底码清楚，
-                                <div class="agile-detail">
-                                    <a href="#" class="pull-right btn btn-xs btn-white">标签</a>
-                                    <i class="fa fa-clock-o"></i> 2015.09.01
-                                </div>
-                            </li>
-                            <li class="success-element">
-                                支持财会人员的继续培训工作。
-                                <div class="agile-detail">
-                                    <a href="#" class="pull-right btn btn-xs btn-white">标记</a>
-                                    <i class="fa fa-clock-o"></i> 2015.05.12
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>
@@ -361,49 +204,6 @@
             return str;
         };
     </script>
-
-    <script>
-        li_tag = '                   <li class="{0}-element">\n' +
-            '                            {1}\n' +
-            '                            <div class="agile-detail">\n' +
-            '                                <a href="#" class="pull-right btn btn-xs btn-white">{3}</a>\n' +
-            '                                <i class="fa fa-clock-o"></i> {2}\n' +
-            '                            </div>\n' +
-            '                        </li>';
-        li_class = '';
-        $("body").on('click','#get-log',function () {
-			$("#get_change_log").empty();
-			server_id = $(this).attr('server_id');
-			$.ajax({
-                url:"/cmdb/asset_change_log",
-                type:"GET",
-                data:{server_id:server_id},
-                dataType:'JSON',
-                success:function (arg){
-                    if(arg){
-                        console.log(arg);
-                        $.each(arg,function (k,v) {
-                            if(v['content'].indexOf('内存') > 0){li_class='warning'}
-                            else if(v['content'].indexOf('网卡') > 0){li_class='info'}
-                            else if(v['content'].indexOf('SSD') > 0){li_class='success'}
-                            else{li_class='info'}
-
-                            $("#get_change_log").append(
-                                String.format(li_tag,li_class,v['content'],v['create_at'],v['creator'])
-
-                            )
-                        });
-                    }else{
-                        $("#get_change_log").text(arg);
-                    }
-                }
-            })
-        });
-
-
-
-    </script>
-
 
 
 </body>
