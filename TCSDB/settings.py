@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import sys
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'monitor.apps.MonitorConfig',
     'testcase.apps.TestcaseConfig',
-    'rbac.apps.RbacConfig'
+    'rbac.apps.RbacConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -51,7 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'rbac.middlewares.rbac.RbacMiddleware',  # 鏉冮檺涓棿浠�
+    'rbac.middlewares.rbac.RbacMiddleware',  # 权限中间件
 ]
 
 ROOT_URLCONF = 'TCSDB.urls'
@@ -110,20 +112,15 @@ if TESTING:
 else:
     DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME'  : 'testcases',
-        'USER'  : 'cuimei',
-        'PASSWORD': '123456',
-        'HOST'   : '127.0.0.1',
-        'PORT'   : '5432',
-#     'ENGINE': 'django.db.backends.mysql',
-#     'NAME':'tcsdb',
-#     'USER': 'root',
-#     'PASSWORD': '',
-#     'HOST': 'localhost',
-#     'PORT': '3306',
-        }
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME':'tcsdb_test',
+    'USER': 'postgres',
+    'PASSWORD': 'dera1234',
+    'HOST': '10.0.4.118',
+    'PORT': '5432',
+
     }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -155,7 +152,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -166,11 +163,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 # STATIC_ROOT = os.path.join(BASE_DIR,'static')
-
+SERVER_IP = '10.0.2.20'
 API_TOKEN = "7d6766a6s5f76safas657889hj78kf91"
-############################ 鏉冮檺绠＄悊鐩稿叧 ################################
+############################ 权限管理相关 ################################
 PERMISSION_MENU_KEY = "w*d6v&ns8qq_y#1f"
-# 涓嶇敤鐧婚檰鍙闂〉闈�
+# 不用登陆可访问页面
 VALID_URL= [
     '^/login/',
     '^/api/auth/',
@@ -186,26 +183,31 @@ VALID_URL= [
 APPEND_SLASH=False
 ###############################其它设置##################################
 SERVER_IP = ''
-CODE_FONT_FILE = os.path.join(BASE_DIR,'static/fonts/wqy-microhei.ttc')  #璁剧疆楠岃瘉鐮佸瓧浣撴枃浠�
+CODE_FONT_FILE = os.path.join(BASE_DIR,'static/fonts/wqy-microhei.ttc')  #设置验证码字体文件
 
-##################### 鍒嗛〉鍣ㄨ缃� ########################################
+##################### 分页器设置 ########################################
 
-PER_PAGE = 20    #姣忛〉鏄剧ず鏁版嵁鏁�
-PAGER_PAGE_COUNT = 11    #椤甸潰涓婃渶澶氭樉绀洪〉鐮佹暟
 
-##################### session閰嶇疆 ######################################
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 寮曟搸锛堥粯璁わ級
-SESSION_COOKIE_NAME = "sessionid"  # Session鐨刢ookie淇濆瓨鍦ㄦ祻瑙堝櫒涓婃椂鐨刱ey锛屽嵆锛歴essionid=闅忔満瀛楃涓诧紙榛樿锛�
-SESSION_COOKIE_PATH = "/"  # Session鐨刢ookie淇濆瓨鐨勮矾寰勶紙榛樿锛�
-SESSION_COOKIE_DOMAIN = None  # Session鐨刢ookie淇濆瓨鐨勫煙鍚嶏紙榛樿锛�
-SESSION_COOKIE_SECURE = False  # 鏄惁Https浼犺緭cookie锛堥粯璁わ級
-SESSION_COOKIE_HTTPONLY = True  # 鏄惁Session鐨刢ookie鍙敮鎸乭ttp浼犺緭锛堥粯璁わ級
-# SESSION_COOKIE_AGE = 3600  # Session鐨刢ookie澶辨晥鏃ユ湡锛�1灏忔椂锛夛紙榛樿1209600 2鍛級
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 鏄惁鍏抽棴娴忚鍣ㄤ娇寰桽ession杩囨湡锛堥粯璁alse锛�
-SESSION_SAVE_EVERY_REQUEST = True  # 鏄惁姣忔璇锋眰閮戒繚瀛楽ession锛岄粯璁や慨鏀逛箣鍚庢墠淇濆瓨锛堥粯璁alse锛�
+PER_PAGE = 20    #每页显示数据数
+PAGER_PAGE_COUNT = 11    #页面上最多显示页码数
 
-########################### 鏃ュ織鏂囦欢閰嶇疆 ########################################
+##################### session配置 ######################################
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # 引擎（默认）
+SESSION_COOKIE_NAME = "sessionid"  # Session的cookie保存在浏览器上时的key，即：sessionid=随机字符串（默认）
+SESSION_COOKIE_PATH = "/"  # Session的cookie保存的路径（默认）
+SESSION_COOKIE_DOMAIN = None  # Session的cookie保存的域名（默认）
+SESSION_COOKIE_SECURE = False  # 是否Https传输cookie（默认）
+SESSION_COOKIE_HTTPONLY = True  # 是否Session的cookie只支持http传输（默认）
+# SESSION_COOKIE_AGE = 3600  # Session的cookie失效日期（1小时）（默认1209600 2周）
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 是否关闭浏览器使得Session过期（默认False）
+SESSION_SAVE_EVERY_REQUEST = True  # 是否每次请求都保存Session，默认修改之后才保存（默认False）
+
+
+########################### 日志文件配置 ########################################
 LOG_FILE_PATH = os.path.join(BASE_DIR,'log')
 LOG_BACKUP_COUNT = 5
 LOG_MAX_BYTES = 1024*1024*5
 
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'utils.custom_exception.custom_exception_handler'
+}

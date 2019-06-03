@@ -17,7 +17,7 @@ class DUTInfo(models.Model):
     Status = models.CharField('当前设备状态', max_length=16,null=True,blank=True) #Idle,Busy,Debug,Unplugged
     Notes = models.TextField('备注',null=True,blank=True)
     HostName = models.CharField('当前SSD所在Host机器名称', max_length=32, null=True, blank=True)
-    SlotID = models.ForeignKey('当前SSD在Host机器的卡槽位置',to='SlotInfo',on_delete=models.SET_NULL,null=True, blank=True)
+    SlotID = models.ForeignKey(verbose_name='当前SSD在Host机器的卡槽位置',to='SlotInfo',on_delete=models.SET_NULL,null=True, blank=True)
     GroupID = models.IntegerField('当前组编号',default=255)
     Tags = models.CharField('当前标签',max_length=64,null=True,blank=True)
     FWLoaderRev = models.CharField('当前FWLoader版本',max_length=16,null=True,blank=True)
@@ -31,7 +31,7 @@ class DUTFW(models.Model):
     '''
     FW变更信息表
     '''
-    DUTID = models.ForeignKey('对应dut', to='DUTInfo', on_delete=models.CASCADE)
+    DUTID = models.ForeignKey(verbose_name='对应dut', to='DUTInfo', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者',max_length=32,null=True,blank=True)
     FWLoaderRev = models.CharField('Bootloader版本号',max_length=16,null=True,blank=True)
@@ -45,7 +45,7 @@ class DUTHost(models.Model):
     '''
     Host/Solt变更信息表
     '''
-    DUTID = models.ForeignKey('对应dut', to='DUTInfo', on_delete=models.CASCADE)
+    DUTID = models.ForeignKey(verbose_name='对应dut', to='DUTInfo', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者',max_length=32,null=True,blank=True)
     HostName = models.CharField('SSD所在Host机器的名称', max_length=32, null=True, blank=True)
@@ -58,7 +58,7 @@ class DUTMonitor(models.Model):
     '''
     DUT健康监控记录表
     '''
-    DUTID = models.ForeignKey('对应dut', to='DUTInfo', on_delete=models.CASCADE)
+    DUTID = models.ForeignKey(verbose_name='对应dut', to='DUTInfo', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者',max_length=32,null=True,blank=True)
     CurrentPower = models.FloatField('设备当前功耗	',null=True,blank=True)
@@ -72,7 +72,7 @@ class DUTMonitor(models.Model):
     UnsafeShutdowns = models.IntegerField('异常掉电次数',null=True,blank=True)
     MediaErrNum = models.IntegerField('数据相关错误次数',null=True,blank=True)
     ErrLogNum = models.IntegerField('ErrLog Entries Count',null=True,blank=True)
-    PCIe = models.CharField('PCIe信息',max_length=16,null=True,blank=True)
+    PCIE = models.CharField('PCIE信息',max_length=16,null=True,blank=True)
     Vendor_INFO1 = models.CharField('VendorDefinedInfo#1',max_length=32,null=True,blank=True)
     Vendor_INFO2 = models.CharField('VendorDefinedInfo#2',max_length=32,null=True,blank=True)
     Vendor_INFO3 = models.CharField('VendorDefinedInfo#3',max_length=32,null=True,blank=True)
@@ -81,7 +81,7 @@ class DUTGrp(models.Model):
     '''
     Grp/tags变更信息表
     '''
-    DUTID = models.ForeignKey('对应dut', to='DUTInfo', on_delete=models.CASCADE)
+    DUTID = models.ForeignKey(verbose_name='对应dut', to='DUTInfo', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者',max_length=32,null=True,blank=True)
     GroupID = models.IntegerField('组编号	',default=255)
@@ -125,18 +125,21 @@ class SlotInfo(models.Model):
     SSD Slot信息表
     '''
     SlotID = models.IntegerField('Slot位置序号')
-    HostID = models.ForeignKey('对应主机',to='HostInfo',on_delete=models.CASCADE)
+    HostID = models.ForeignKey(verbose_name='对应主机',to='HostInfo',on_delete=models.CASCADE)
     Status = models.CharField('状态',max_length=16,null=True,blank=True) #Good，Bad
     Interface = models.CharField('接口类型',max_length=16,null=True,blank=True) #SATA，PCIe，U.2
 
     def __str__(self):
         return self.SlotID
 
+    class Meta:
+        unique_together = ('SlotID', 'HostID',)
+
 class HostOS(models.Model):
     '''
     主机OS变更信息表
     '''
-    HostID = models.ForeignKey('对应主机', to='HostInfo', on_delete=models.CASCADE)
+    HostID = models.ForeignKey(verbose_name='对应主机', to='HostInfo', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者', max_length=32, null=True, blank=True)
     OSType = models.CharField('操作系统类型', max_length=16, null=True, blank=True) #Windows, Linux, MacOS
@@ -149,7 +152,7 @@ class HostDriver(models.Model):
     '''
     主机驱动信息记录表
     '''
-    OSID = models.ForeignKey('对应的OS', to='HostOS', on_delete=models.CASCADE)
+    OSID = models.ForeignKey(verbose_name='对应的OS', to='HostOS', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者', max_length=32, null=True, blank=True)
     Hardware = models.CharField('驱动对应的硬件名称', max_length=32, null=True, blank=True)
@@ -159,11 +162,14 @@ class HostDriver(models.Model):
     def __str__(self):
         return self.DriverName
 
+    # class Meta:
+    #     unique_together = ('OSID', 'Hardware',)
+
 class HostMonitor(models.Model):
     '''
     主机健康状态监控记录表
     '''
-    HostID = models.ForeignKey('对应主机', to='HostInfo', on_delete=models.CASCADE)
+    HostID = models.ForeignKey(verbose_name='对应主机', to='HostInfo', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者', max_length=32, null=True, blank=True)
     CPUUsage = models.IntegerField('CPU使用率	',null=True,blank=True)
@@ -177,7 +183,7 @@ class HostSoftware(models.Model):
     '''
     主机软件工具记录表
     '''
-    OSID = models.ForeignKey('对应的OS', to='HostOS', on_delete=models.CASCADE)
+    OSID = models.ForeignKey(verbose_name='对应的OS', to='HostOS', on_delete=models.CASCADE)
     Changed = models.DateTimeField('发生改变的日期时间', auto_now_add=True)
     Operator = models.CharField('操作者', max_length=32, null=True, blank=True)
     ToolName = models.CharField('工具名称', max_length=32, null=True, blank=True)
@@ -186,3 +192,5 @@ class HostSoftware(models.Model):
     def __str__(self):
         return self.ToolName
 
+    # class Meta:
+    #     unique_together = ('OSID', 'ToolName',)
