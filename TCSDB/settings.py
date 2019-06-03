@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'monitor.apps.MonitorConfig',
     'testcase.apps.TestcaseConfig',
     'rbac.apps.RbacConfig',
-    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -118,7 +117,7 @@ else:
     'PASSWORD': 'dera1234',
     'HOST': '10.0.4.118',
     'PORT': '5432',
-
+    }
     }
 
 
