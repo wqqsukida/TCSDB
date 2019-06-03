@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.lookups import StartsWith
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 class ReferSpec(models.Model):
@@ -112,3 +112,81 @@ class CaseStep(models.Model):
 
     def __str__(self):
         return self.StepDesc
+
+class PerfGlobal(models.Model):
+    """
+    performance global information
+    """
+    GlobalName    = models.CharField(max_length=20, unique=True)
+    MaxIOSize     = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    Offset        = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    NeedPurge     = models.BooleanField()
+    Need2XFillDriver= models.BooleanField()
+    class Meta:
+        verbose_name_plural = "performance global"
+
+    def __str__(self):
+        return self.Name
+
+class PerfTestItem(models.Model):
+    """
+    performance test item
+    """
+    ItemName      = models.CharField(max_length=20, unique=True)
+    CheckPoint    = models.CharField(max_length=10)
+    AccessPercent = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    BlockSize     = models.IntegerField()
+    BlockAlign    = models.IntegerField()
+    IODepth       = models.IntegerField()
+    RWMixRead     = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    RandPercent   = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    NumJobs       = models.IntegerField()
+    RunTime       = models.IntegerField()
+    StartDelay    = models.IntegerField()
+    LoopCnt       = models.IntegerField()
+    class Meta:
+        verbose_name_plural = "performance test item"
+
+    def __str__(self):
+        return self.Name
+
+class PerfTestCase(models.Model):
+    """
+    performance test case
+    """
+    CaseName      = models.CharField(max_length=40)
+    Level         = models.CharField(max_length=10)
+    CaseType      = models.CharField(max_length=10)
+    TIID          = models.ForeignKey(PerfGlobal, related_name="global_case", on_delete=models.CASCADE)
+    class Meta:
+        verbose_name_plural = "performance test case"
+
+    def __str__(self):
+        return self.Name
+
+class PerfItemInCase(models.Model):
+    """
+    performance items in case
+    """
+    TIID          = models.OneToOneField(PerfTestItem, on_delete=models.CASCADE, related_name="item_item")
+    TCID          = models.OneToOneField(PerfTestCase, on_delete=models.CASCADE, related_name="case_item")
+    class Meta:
+        verbose_name_plural = "performance test item relation ship"
+
+    def __str__(self):
+        return self.id
+
+class PerfRefTarget(models.Model):
+    """
+    performance reference target
+    """
+    Project       = models.CharField(max_length=20)
+    RefUnit       = models.CharField(max_length=10)#MBPS,IOPS， MS，US
+    RefVal        = models.CharField(max_length=10)
+    IICID         = models.OneToOneField(PerfItemInCase, on_delete=models.CASCADE, related_name="item_target")
+    #TIID         = 
+    class Meta:
+        verbose_name_plural = "performance related target"
+
+    def __str__(self):
+        return self.Project

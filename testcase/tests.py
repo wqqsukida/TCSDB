@@ -9,6 +9,7 @@ class TestCaseTests(TestCase):
     Test RefSpec related API
     """
     def setUp(self):
+        #create function test objects
         r1 = ReferSpec(FileName="UFS", Standard=True, Version="3.0", FilePath="C:\\Spec\\UFS")
         r1.save()
         r2 = ReferSpec(FileName="NVME", Standard=True, Version="3.0", FilePath="C:\\Spec\\Nvme")
@@ -49,6 +50,30 @@ class TestCaseTests(TestCase):
         cs2.save()
         cs3 = CaseStep(Step=1, StepType="MAIN", StepDesc="write some data to drive", ExpectRslt="pass", TID=ts2)
         cs3.save()
+        #create performance test objects
+        perfg1 = PerfGlobal(GlobalName="fio", MaxIOSize=100, Offset=0, NeedPurge=True, Need2XFillDriver=False)
+        perfg1.save()
+        perfg2 = PerfGlobal(GlobalName="bonnie", MaxIOSize=0, Offset=50, NeedPurge=False, Need2XFillDriver=True)
+        perfg2.save()
+        
+        perfitem1 = PerfTestItem(ItemName="test1", CheckPoint="FOB", AccessPercent=100, BlockSize=4096,
+                                 BlockAlign=4096, IODepth=64, RWMixRead=30, RandPercent=0, NumJobs=2,
+                                 RunTime=3600, StartDelay=0, LoopCnt=10)
+        perfitem1.save()
+        perfitem2 = PerfTestItem(ItemName="test2", CheckPoint="SSS", AccessPercent=100, BlockSize=4096,
+                                 BlockAlign=4096, IODepth=64, RWMixRead=30, RandPercent=0, NumJobs=2,
+                                 RunTime=3600, StartDelay=0, LoopCnt=20)
+        perfitem2.save()
+        perfcase1 = PerfTestCase(CaseName="fiotest1", Level="BASIC", CaseType="IOPS", TIID=perfg1)
+        perfcase1.save()
+        perfcase2 = PerfTestCase(CaseName="fiotest2", Level="FULL", CaseType="IOPS", TIID=perfg1)
+        perfcase2.save()
+        perfcaseitem1 = PerfItemInCase(TIID=perfitem1, TCID=perfcase1)
+        perfcaseitem1.save()
+        perfcaseitem2 = PerfItemInCase(TIID=perfitem1, TCID=perfcase2)
+        perfcaseitem2.save()
+        perfref1 = PerfRefTarget(Project="taiplus", RefUnit="IOPS", RefVal=10000, IICID=perfcaseitem1)
+        perfref1.save()
         self.c = Client()
 
     def testAddRefSpec(self):

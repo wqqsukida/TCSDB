@@ -562,3 +562,96 @@ def DeleteTestPoint(request):
         return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
                                     format(result.get("code", ""),
                                    result.get("message", "")))
+
+
+def AddPerfGlobal(request):
+    """
+     新增全局测试信息
+    """
+    result = {}
+    if request.method == "POST":
+        pointdes = request.POST.get("pointdesc",None)
+        pointfrom = request.POST.get("pointfrom",None)
+        pointpage = request.POST.get("pointpage",None)
+        pointspec = request.POST.get("specid", None)
+        print("pointspec is:%s" % pointspec)
+        print(pointdes,pointfrom,pointpage)
+
+        try:
+            with transaction.atomic():
+                spec_obj = TestPoint(TestDesc=pointdes, SelectFrom=pointfrom, PageNo=pointpage)
+                spec_obj.save()
+                specList = pointspec.split(",")
+                print("specList is:%s" % specList)
+                referspec = ReferSpec.objects.all()
+                for spec in specList:
+                    spec_obj.SpecAndPoint.add(referspec[int(spec)-1])
+            result = {"code": 0, "message": "创建协议成功"}
+        except Exception as e:
+            result = {"code": 1, "message": e}
+            print(e)
+
+        return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def UpdatePerfGlobal(request):
+    """
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        point_obj = TestPoint.objects.filter(id=id)
+        point_dict = point_obj.values().first()
+        if point_dict:
+            specs = point_obj.first().SpecAndPoint.all()
+            specid_list = [spec.id for spec in specs]
+            point_dict['SpecAndPoint'] = specid_list
+            res = dict(point_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        pointid = request.POST.get("id")
+        pointdesc = request.POST.get("pointdesc",None)
+        pointfrom = request.POST.get("pointfrom",None)
+        pointpage = request.POST.get("pointpage",None)
+        specId = request.POST.getlist("specid",None)
+        form_data = {
+            'id':pointid,
+            'TestDesc':pointdesc,
+            'SelectFrom':pointfrom,
+            'PageNo':pointpage,
+            'SpecAndPoint':specId,
+        }
+        point_obj = TestPoint.objects.get(id=pointid)
+        try:
+            for k ,v in form_data.items():
+                if k == "SpecAndPoint":
+                    point_obj.SpecAndPoint.set(v)
+                else:
+                    setattr(point_obj,k,v)
+            point_obj.save()
+            result = {"code": 0, "message": "更新协议成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+def DeletePerfGlobal(request):
+    """
+    """
+    if request.method == "GET":
+        pointid =request.GET.get("id",None)
+        try:
+            with transaction.atomic():
+                TestPoint.objects.filter(id=pointid).delete()
+                result = {"code": 0, "message": "删除协议成功！"}
+        except Exception as e:
+            result = {"code": 1, "message":e }
+
+        return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                   result.get("message", "")))
