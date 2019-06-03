@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'monitor.apps.MonitorConfig',
     'testcase.apps.TestcaseConfig',
     'rbac.apps.RbacConfig',
@@ -80,7 +81,36 @@ WSGI_APPLICATION = 'TCSDB.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME'  : 'testcases',
+#         'USER'  : 'cuimei',
+#         'PASSWORD': '123456',
+#         'HOST'   : '127.0.0.1',
+#         'PORT'   : '5432',
+# #     'ENGINE': 'django.db.backends.mysql',
+# #     'NAME':'tcsdb',
+# #     'USER': 'root',
+# #     'PASSWORD': '',
+# #     'HOST': 'localhost',
+# #     'PORT': '3306',
+#     }
+# }
+
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+if TESTING:
+    # 当使用SQLite数据库引擎时，测试将默认使用内存数据库
+    DATABASES = {
+        'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+        
+    }
+else:
+    DATABASES = {
     'default': {
     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     'NAME':'tcsdb_test',
@@ -88,18 +118,9 @@ DATABASES = {
     'PASSWORD': 'dera1234',
     'HOST': '10.0.4.118',
     'PORT': '5432',
-    }
-}
 
-TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
-if TESTING:
-    # 当使用SQLite数据库引擎时，测试将默认使用内存数据库
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR,'db.sqlite3'),
-        }
     }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -166,6 +187,7 @@ CODE_FONT_FILE = os.path.join(BASE_DIR,'static/fonts/wqy-microhei.ttc')  #设置
 
 ##################### 分页器设置 ########################################
 
+
 PER_PAGE = 20    #每页显示数据数
 PAGER_PAGE_COUNT = 11    #页面上最多显示页码数
 
@@ -179,6 +201,7 @@ SESSION_COOKIE_HTTPONLY = True  # 是否Session的cookie只支持http传输（�
 # SESSION_COOKIE_AGE = 3600  # Session的cookie失效日期（1小时）（默认1209600 2周）
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 是否关闭浏览器使得Session过期（默认False）
 SESSION_SAVE_EVERY_REQUEST = True  # 是否每次请求都保存Session，默认修改之后才保存（默认False）
+
 
 ########################### 日志文件配置 ########################################
 LOG_FILE_PATH = os.path.join(BASE_DIR,'log')

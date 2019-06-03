@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/table_data_tables.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:20:01 GMT -->
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>H+ 后台主题UI框架 - 数据表格</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="../static/favicon.ico">
+    <link href="/static/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!-- Data Tables -->
+    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+{#    <link href="/static/css/plugins/footable/footable.core.css" rel="stylesheet">#}
+    <link href="/static/css/font-awesome.min93e3.css" rel="stylesheet">
+    <link href="/static/css/animate.min.css" rel="stylesheet">
+    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/css/gstyle.css" rel="stylesheet">
+    <link href="/static/css/plugins/switchery/switchery.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+    <!--通知消息处-->
+    {% if result  %}
+        {% if result.code == 0 %}
+            <div class="alert alert-success" style="text-align: center">执行成功:<strong>{{ result.message }}</strong></div>
+        {% else %}
+            <div class="alert alert-danger" style="text-align: center">执行失败:<strong>{{ result.message }}</strong></div>
+        {% endif %}
+    {% endif %}
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <ol class="breadcrumb">
+                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B> 测试点列表 </h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                                <a onclick="window.location.reload()">
+                                    <i class="fa fa-refresh"></i>
+                                </a>
+                                <a class="close-link">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </div>
+                        </ol>
+                    </div>
+
+                    <div class="ibox-content">
+                        <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
+                            <form method="get">
+                                <div class="col-sm-1"> <!--添加-->
+                                    <a class="btn btn-info" href="#" data-toggle="modal" data-target="#AddModal">
+                                        <i class="fa fa-user-plus"></i> 添加
+                                    </a>
+                                </div>
+
+                                <div class="col-sm-1">
+                                    <a id="shownv"  type="button" class="btn btn-warning">显示更多</a>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <form role="form" class="form-inline">
+                                    <div class="form-group">
+                                        <label for="searchtp" class="sr-only">测试点</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="tp" placeholder="请输入测试点进行搜索" id="searchtp" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="searchspec" class="sr-only">协议名</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="spec" placeholder="请输入协议名称" id="searchspec" class="form-control">
+                                        </div>
+                                     </div>
+                                    <div class="form-group">
+                                        <label for="searchspecver" class="sr-only">协议版本</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="specver" placeholder="请输入协议版本" id="searchspecver" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button type="submit" value="搜索" class="btn btn-primary" />
+                                        <i class="fa fa-search"></i>&nbsp;&nbsp;搜索
+                                        </button>
+                                    </div>
+                                </form>
+
+                            </form>
+                        </div>
+
+
+                             <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
+                                 <thead>
+                                    <tr>
+
+                                        <th>测试点索引</th>
+                                        <th>测试点描述</th>
+                                        <th>测试点原文出处</th>
+                                        <th>原文所在页</th>
+                                        <th>协议ID</th>
+                                        <th>操作(更新/删除)</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    {% for point in queryset %}
+                                     <tr>
+                                            <td>{{ point.id}}</td>
+                                            <td>{{ point.TestDesc}}</td>
+                                            <td>{{ point.SelectFrom}}</td>
+                                            <td>{{ point.PageNo}}</td>
+                                            <td> 
+                                                {% for spec in point.SpecAndPoint.values %}
+                                                    {{ spec.id }}:{{ spec.FileName }}{{ spec.Version }}
+                                            </br>
+                                                    <!--<a class="btn-sm btn-primary">{{ spec.id }}</a>-->
+                                                {% endfor %}
+                                            </td>
+                                            <td style="font-size: 20px">
+                                                <a class="mod-user-btn" title="修改测试点信息" pointid="{{ point.id }}" data-toggle="modal" data-target="#UpdateModal">
+                                                    <i class="fa fa-cog"></i>
+                                                </a>
+                                                <a href="/testcase/del_point?id={{ point.id }}" title="删除测试点" class="del_confirm" style="margin-left: 15px">
+                                                    <i class="fa fa-user-times"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                 </tbody>
+
+                             </table>
+                            <div class="row">
+                                <div class="col-md-6 col-md-offset-3" style="text-align: center">
+                                    <ul class="pagination">
+                                        {{ page_html|safe }}
+                                    </ul>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="AddModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">添加测试点</h4>
+                    </div>
+                    <div class="panel-body">
+                    <form class="form-horizontal m-t" id="pointForm" action="/testcase/add_point" role="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点描述</label>
+                            <div class="col-sm-8">
+                                <input id="pointdesc" name="pointdesc" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点协议节选</label>
+                            <div class="col-sm-8">
+                                <input id="pointfrom" name="pointfrom" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点协议页</label>
+                            <div class="col-sm-8">
+                                <input id="pointpage" name="pointpage" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">协议ID</label>
+                            <div class="col-sm-8">
+                                <input id="specid" name="specid" class="form-control" type="text" placeholder="请输入测试点id并用，分隔">
+                            </div>
+                        </div>
+
+                        <hr width="100%" />
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"> </div>
+                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="UpdateModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close close_mod_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">修改测点试信息</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="pointForm" action="/testcase/edit_point" role="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">索引ID</label>
+                            <div class="col-sm-8">
+                                <input id="mod_id" name="id" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点描述</label>
+                            <div class="col-sm-8">
+                                <input id="mod_point" name="pointdesc" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点节选</label>
+                            <div class="col-sm-8">
+                                <input id="mod_from" name="pointfrom" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">测试点所在页</label>
+                            <div class="col-sm-8">
+                                <input id="mod_page" name="pointpage" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <!--
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">协议ID</label>
+                            <div class="col-sm-10">
+                                {% for spec in referspec %}
+                                <label class="checkbox-inline i-checks">
+                                    <input type="checkbox" value="{{ spec.id }}">{{ spec.id }}:{{ spec.FileName }} {{ spec.Version }}</label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">协议ID</label>
+                            <div class="col-sm-8">
+                                <select class="form-control"  name="specid" id="mod_specid" multiple="multiple">
+                                    {% for spec in referspec %}
+                                        <option value="{{ spec.id }}"> {{ spec.id }}:{{ spec.FileName }} {{ spec.Version }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <hr width="100%" />
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"> </div>
+                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <script src="/static/js/plugins/jeditable/jquery.jeditable.js"></script>
+    <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+    <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+{#    <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>#}
+    <script src="/static/js/plugins/layer/layer.min.js"></script>
+    <!-- jQuery Validation plugin javascript-->
+    <script src="/static/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="/static/js/plugins/validate/messages_zh.min.js"></script>
+{#    <script src="/static/js/plugins/footable/footable.all.min.js"></script>#}
+    <!-- 自定义js -->
+    <script src="/static/js/content.min.js?v=1.0.0"></script>
+    <!-- Switchery -->
+    <script src="/static/js/plugins/switchery/switchery.js"></script>
+
+    <script>
+
+        $.validator.setDefaults({
+            highlight:function(a){
+                $(a).closest(".form-group").removeClass("has-success").addClass("has-error")
+            },
+            success:function(a){
+                a.closest(".form-group").removeClass("has-error").addClass("has-success")
+            },
+            errorElement:"span",
+            errorPlacement:function(a,b){
+                if(b.is(":radio")||b.is(":checkbox")){a.appendTo(b.parent().parent().parent())}
+                else{a.appendTo(b.parent())}},errorClass:"help-block m-b-none",validClass:"help-block m-b-none"});
+
+        $().ready(function(){
+            $("#commentForm").validate();
+            var a="<i class='fa fa-times-circle'></i> ";
+            /*
+            $("#signupForm").validate({
+                rules:{
+                    firstname:"required",
+                    lastname:"required",
+                    name:"required",
+                    username:{required:true,minlength:2},
+                    password:{required:true,minlength:5},
+                    confirm_password:{required:true,minlength:5,equalTo:"#password"},
+                    email:{required:true,email:true},
+                    topic:{required:"#newsletter:checked",minlength:2},
+                    agree:"required"
+                },
+                messages:{
+                    firstname:a+"请输入你的姓",
+                    lastname:a+"请输入您的名字",
+                    name:a+"请输入你的昵称",
+                    username:{required:a+"请输入您的用户名",minlength:a+"用户名必须两个字符以上"},
+                    password:{required:a+"请输入您的密码",minlength:a+"密码必须5个字符以上"},
+                    confirm_password:{required:a+"请再次输入密码",minlength:a+"密码必须5个字符以上",equalTo:a+"两次输入的密码不一致"},
+                    email:a+"请输入正确的E-mail",
+                    agree:{required:a+"必须同意协议后才能注册",element:"#agree-error"}
+                }
+            });
+  
+            $("#username").focus(function(){
+                var c=$("#firstname").val();
+                var b=$("#lastname").val();
+                if(c&&b&&!this.value){this.value=c+"."+b}
+            }) */
+        });
+
+    </script>
+
+    <script>
+        $(document).ready(function(){$(".dataTables-example").dataTable(
+            {
+                "order": [], //取消加载后的第一列默认排序
+                "aLengthMenu" : [10, 25, 50, 100], //更改显示记录数选项
+                "iDisplayLength" : 10, //默认显示的记录数
+                "paging": false,
+                "searching": false
+            }
+        );var oTable=$("#editable").dataTable();oTable.$("td").editable("http://www.zi-han.net/theme/example_ajax.php",{"callback":function(sValue,y){var aPos=oTable.fnGetPosition(this);oTable.fnUpdate(sValue,aPos[0],aPos[1])},"submitdata":function(value,settings){return{"row_id":this.parentNode.getAttribute("id"),"column":oTable.fnGetPosition(this)[2]}},"width":"90%","height":"100%"})});function fnClickAddRow(){$("#editable").dataTable().fnAddData(["Custom row","New row","New row","New row","New row"])};
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            $('.footable').footable();
+            $('.footable2').footable();
+
+        });
+
+    </script>
+
+    <script>
+        {% if result %}
+        swal("{{ result }}");
+        {% endif %}
+
+    </script>
+
+    <script>
+        function refresh(){
+            window.location.reload();
+        }
+    </script>
+
+    <script>
+        $(' .del_confirm').click(function(){
+            return confirm("确认要执行删除操作吗？");
+        });
+        $(' .js_confirm').click(function(){
+            return confirm("确认执行操作吗？");
+        });
+    </script>
+
+    <script>
+    // 如果通知元素存在,则5秒后淡出
+        if ($(".alert")){
+            $(".alert").fadeOut(3000);
+        }
+    </script>
+
+
+    <script>
+        $("table").on("click",".mod-user-btn",function () {
+            mpointid = $(this).attr('pointid');
+            $("#mod_id").val("");
+            $("#mod_point").val("");
+            $("#mod_from").val("");
+            $("#mod_page").val("");
+            $("#mod_specid option").prop("selected",false);
+
+            $.ajax({
+                url: "/testcase/edit_point",
+                type: "GET",
+                data: {id: mpointid},
+                dataType: 'JSON',
+                success: function (arg) {
+                    if (arg) {
+                        console.log(arg);
+                        $("#mod_id").val(arg.id);
+                        $("#mod_point").val(arg.TestDesc);
+                        $("#mod_from").val(arg.SelectFrom);
+                        $("#mod_page").val(arg.PageNo);
+                        $.each(arg.SpecAndPoint,function (k,v) {
+                            $("#mod_specid [value=" + v + "]").prop("selected",true);
+                        });
+                    }
+                }
+            })
+        })
+    </script>
+
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/table_data_tables.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:20:02 GMT -->
+</html>
