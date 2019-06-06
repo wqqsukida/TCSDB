@@ -126,7 +126,7 @@ class PerfGlobal(models.Model):
         verbose_name_plural = "performance global"
 
     def __str__(self):
-        return self.Name
+        return self.GlobalName
 
 class PerfTestItem(models.Model):
     """
@@ -148,7 +148,7 @@ class PerfTestItem(models.Model):
         verbose_name_plural = "performance test item"
 
     def __str__(self):
-        return self.Name
+        return self.ItemName
 
 class PerfTestCase(models.Model):
     """
@@ -162,19 +162,20 @@ class PerfTestCase(models.Model):
         verbose_name_plural = "performance test case"
 
     def __str__(self):
-        return self.Name
+        return self.CaseName
 
 class PerfItemInCase(models.Model):
     """
     performance items in case
     """
-    TIID          = models.OneToOneField(PerfTestItem, on_delete=models.CASCADE, related_name="item_item")
-    TCID          = models.OneToOneField(PerfTestCase, on_delete=models.CASCADE, related_name="case_item")
+    TIID          = models.ForeignKey(PerfTestItem, on_delete=models.CASCADE, related_name="item_item")
+    TCID          = models.ForeignKey(PerfTestCase, on_delete=models.CASCADE, related_name="case_item")
+    constraints   = [models.UniqueConstraint(fields=['TIID', "TCID"], name='unique_case_item')]
     class Meta:
         verbose_name_plural = "performance test item relation ship"
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 class PerfRefTarget(models.Model):
     """

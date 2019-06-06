@@ -19,8 +19,7 @@ def init_paginaion(request,queryset):
     query_set = queryset[page_obj.start:page_obj.end]
     page_html = page_obj.page_html()
 
-    return query_set,page_html
-
+    return query_set,page_html       
 
 def GetProject(request, projectname):
     """
@@ -443,7 +442,6 @@ def DeleteRefSpec(request):
                                     format(result.get("code", ""),
                                    result.get("message", "")))
 
-
 def GetTestPoint(request):
     """
     """
@@ -490,9 +488,10 @@ def AddTestPoint(request):
                 spec_obj.save()
                 specList = pointspec.split(",")
                 print("specList is:%s" % specList)
-                referspec = ReferSpec.objects.all()
-                for spec in specList:
-                    spec_obj.SpecAndPoint.add(referspec[int(spec)-1])
+                spec_obj.SpecAndPoint.set(specList)
+#                 referspec = ReferSpec.objects.all()
+#                 for spec in specList:
+#                     spec_obj.SpecAndPoint.add(referspec[int(spec)-1])
             result = {"code": 0, "message": "创建协议成功"}
         except Exception as e:
             result = {"code": 1, "message": e}
@@ -563,6 +562,30 @@ def DeleteTestPoint(request):
                                     format(result.get("code", ""),
                                    result.get("message", "")))
 
+def GetPerfGlobal(request):
+    """
+    """
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_name = request.GET.get('sname', '').strip()
+        search_content = request.GET.get('scontent', '').strip()
+        filter_dic = {}
+        name_dic = { "变量名称"      : "GlobalName",
+                    "全局最大IOSize" : "MaxIOSize",
+                    "偏移量"        : "Offset",
+                    "是否需要Purge"  : "NeedPurge",
+                    "是否需要2XFill Driver":"Need2XFillDriver"
+                    }
+        if search_name != "" and  search_content != "":
+            filter_dic.update({name_dic[search_name]+"__icontains":search_content,})
+        print("filter dic is:%s" % filter_dic)
+        global_list = PerfGlobal.objects.filter(**filter_dic)
+        queryset, page_html = init_paginaion(request, global_list)
+        return render(request,'testcase/perf_get_global.html',locals())
+
 
 def AddPerfGlobal(request):
     """
@@ -570,88 +593,461 @@ def AddPerfGlobal(request):
     """
     result = {}
     if request.method == "POST":
-        pointdes = request.POST.get("pointdesc",None)
-        pointfrom = request.POST.get("pointfrom",None)
-        pointpage = request.POST.get("pointpage",None)
-        pointspec = request.POST.get("specid", None)
-        print("pointspec is:%s" % pointspec)
-        print(pointdes,pointfrom,pointpage)
-
+        perfName      = request.POST.get("globalname",None)
+        perfMaxIo     = request.POST.get("maxio",None)
+        perfOffset    = request.POST.get("offset",None)
+        perfNeedPurge = request.POST.get("purge", None)
+        perf2XFill    = request.POST.get("mfill", None)
+        print("perfName is:%s" % perfName)
+        print(perfMaxIo,perfOffset,perfNeedPurge,perf2XFill)
         try:
             with transaction.atomic():
-                spec_obj = TestPoint(TestDesc=pointdes, SelectFrom=pointfrom, PageNo=pointpage)
-                spec_obj.save()
-                specList = pointspec.split(",")
-                print("specList is:%s" % specList)
-                referspec = ReferSpec.objects.all()
-                for spec in specList:
-                    spec_obj.SpecAndPoint.add(referspec[int(spec)-1])
-            result = {"code": 0, "message": "创建协议成功"}
+                global_obj = PerfGlobal(GlobalName=perfName, MaxIOSize=perfMaxIo, Offset=perfOffset,
+                                        NeedPurge=perfNeedPurge, Need2XFillDriver=perf2XFill)
+                global_obj.save()
+            result = {"code": 0, "message": "新增Perf全局信息成功"}
         except Exception as e:
             result = {"code": 1, "message": e}
             print(e)
 
-        return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
+        return HttpResponseRedirect('/testcase/perf_get_global?status={0}&message={1}'.
                                     format(result.get("code", ""),
                                     result.get("message", "")))
 
 def UpdatePerfGlobal(request):
     """
+    修改全局测试信息
     """
     if request.method == "GET":
         res = {}
         id = request.GET.get("id",None)
-        point_obj = TestPoint.objects.filter(id=id)
-        point_dict = point_obj.values().first()
-        if point_dict:
-            specs = point_obj.first().SpecAndPoint.all()
-            specid_list = [spec.id for spec in specs]
-            point_dict['SpecAndPoint'] = specid_list
-            res = dict(point_dict)
+        global_obj = PerfGlobal.objects.filter(id=id)
+        global_dict = global_obj.values().first()
+        if global_dict:
+            res = dict(global_dict)
         return HttpResponse(json.dumps(res))
 
     elif request.method == "POST":
-        result = {}
-        pointid = request.POST.get("id")
-        pointdesc = request.POST.get("pointdesc",None)
-        pointfrom = request.POST.get("pointfrom",None)
-        pointpage = request.POST.get("pointpage",None)
-        specId = request.POST.getlist("specid",None)
+        result        = {}
+        perfId        = request.POST.get("id")
+        perfName      = request.POST.get("globalname",None)
+        perfMaxIo     = request.POST.get("maxio",None)
+        perfOffset    = request.POST.get("offset",None)
+        perfNeedPurge = request.POST.get("purge", None)
+        perf2XFill    = request.POST.get("mfill", None)
         form_data = {
-            'id':pointid,
-            'TestDesc':pointdesc,
-            'SelectFrom':pointfrom,
-            'PageNo':pointpage,
-            'SpecAndPoint':specId,
-        }
-        point_obj = TestPoint.objects.get(id=pointid)
+                    'id'        :perfId,
+                    'GlobalName':perfName,
+                    'MaxIOSize' :perfMaxIo,
+                    'Offset'     :perfOffset,
+                    'NeedPurge'  :perfNeedPurge,
+                    'Need2XFillDriver':perf2XFill
+                    }
         try:
+            global_obj = PerfGlobal.objects.filter(id=perfId).first()
             for k ,v in form_data.items():
-                if k == "SpecAndPoint":
-                    point_obj.SpecAndPoint.set(v)
-                else:
-                    setattr(point_obj,k,v)
-            point_obj.save()
-            result = {"code": 0, "message": "更新协议成功！"}
+                setattr(global_obj,k,v)
+            global_obj.save()
+            result = {"code": 0, "message": "更新Perf全局变量成功！"}
         except Exception as e:
             print(e)
             result = {"code": 1, "message": e}
 
-        return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
+        return HttpResponseRedirect('/testcase/perf_get_global?status={0}&message={1}'.
                                     format(result.get("code", ""),
                                     result.get("message", "")))
 def DeletePerfGlobal(request):
     """
+    删除全局测试信息
+    """
+    if request.method == "GET":
+        globalId =request.GET.get("id",None)
+        try:
+            with transaction.atomic():
+                PerfGlobal.objects.filter(id=globalId).delete()
+                result = {"code": 0, "message": "删除Perf全局变量成功！"}
+        except Exception as e:
+            result = {"code": 1, "message":e }
+
+        return HttpResponseRedirect('/testcase/perf_get_global?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                   result.get("message", "")))
+
+def GetPerfTestItem(request):
+    """
+    获取测试项目的信息
+    """
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_name = request.GET.get('sname', '').strip()
+        search_content = request.GET.get('scontent', '').strip()
+        filter_dic = {}
+        name_dic = { "条目名称"            : "ItemName",
+                    "测试点"               : "CheckPoint",
+                    "可访问区间百分比"        : "AccessPercent",
+                    "数据传输块大小(byte)"   : "BlockSize",
+                    "数据块对齐大小(byte)"   :"BlockAlign",
+                    "IO命令深度"           :"IODepth",
+                    "Read占百分比"         :"RWMixRead",
+                    "随机百分比"            :"RandPercent",
+                    "并行Job的数目"         :"NumJobs",
+                    "测试执行时间(单位：秒)"   :"RunTime",
+                    "测试开始前的静默时间(单位：秒)" :"StartDelay",
+                    "循环执行次数"           :"LoopCnt",
+                    }
+        if search_name != "" and  search_content != "":
+            filter_dic.update({name_dic[search_name]+"__icontains":search_content,})
+        print("filter dic is:%s" % filter_dic)
+        item_list = PerfTestItem.objects.filter(**filter_dic)
+        queryset, page_html = init_paginaion(request, item_list)
+        return render(request,'testcase/perf_get_item.html',locals())
+
+def AddPerfTestItem(request):
+    """
+    添加测试项目的信息
+    """
+    result = {}
+    if request.method == "POST":
+        itemName  = request.POST.get("itemname",None)
+        checkPoint = request.POST.get("checkpoint",None)
+        accessPercent = request.POST.get("accesspercent",None)
+        blkSize = request.POST.get("blksize", None)
+        blkAlign = request.POST.get("blkalign", None)
+        ioDepth = request.POST.get("iodepth", None)
+        rwMixRead = request.POST.get("rwmixread", None)
+        randPercent = request.POST.get("randpercent", None)
+        numJobs = request.POST.get("numjobs", None)
+        runTime = request.POST.get("runtime", None)
+        strDelay = request.POST.get("strdelay", None)
+        loopCnt  = request.POST.get("loopcnt", None)
+        print("variable is:%s,%s,%s,%s,%s,%s, %s, %s, %s, %s, %s, %s" 
+              %(itemName,checkPoint,accessPercent, blkSize, blkAlign, ioDepth, rwMixRead,
+                randPercent, numJobs, runTime, strDelay, loopCnt))
+        try:
+            with transaction.atomic():
+                item_obj = PerfTestItem(ItemName=itemName, CheckPoint=checkPoint, AccessPercent=accessPercent, BlockSize=blkSize,
+                                        BlockAlign=blkAlign, IODepth=ioDepth, RWMixRead=rwMixRead, RandPercent=randPercent,
+                                        NumJobs=numJobs, RunTime=runTime, StartDelay=strDelay, LoopCnt=loopCnt)
+                item_obj.save()
+            result = {"code": 0, "message": "创建Perf项目成功"}
+        except Exception as e:
+            result = {"code": 1, "message": e}
+            print(e)
+
+        return HttpResponseRedirect('/testcase/perf_get_item?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def UpdatePerfTestItem(request):
+    """
+    更新测试项目的信息
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        item_obj = PerfTestItem.objects.filter(id=id)
+        item_dict = item_obj.values().first()
+        if item_dict:
+            res = dict(item_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        itemId = request.POST.get("id")
+        itemName  = request.POST.get("itemname",None)
+        checkPoint = request.POST.get("checkpoint",None)
+        accessPercent = request.POST.get("accesspercent",None)
+        blkSize = request.POST.get("blksize", None)
+        blkAlign = request.POST.get("blkalign", None)
+        ioDepth = request.POST.get("iodepth", None)
+        rwMixRead = request.POST.get("rwmixread", None)
+        randPercent = request.POST.get("randpercent", None)
+        numJobs = request.POST.get("numjobs", None)
+        runTime = request.POST.get("runtime", None)
+        strDelay = request.POST.get("strdelay", None)
+        loopCnt  = request.POST.get("loopcnt", None)
+        form_data = {
+            'id'      :itemId,
+            'ItemName':itemName,
+            'CheckPoint':checkPoint,
+            'AccessPercent':accessPercent,
+            'BlockSize':blkSize,
+            'BlockAlign':blkAlign,
+            'IODepth':ioDepth,
+            'RWMixRead':rwMixRead,
+            'RandPercent':randPercent,
+            'NumJobs':numJobs,
+            'RunTime':runTime,
+            'StartDelay':strDelay,
+            'LoopCnt':loopCnt,
+        }
+        item_obj = PerfTestItem.objects.get(id=itemId)
+        try:
+            for k ,v in form_data.items():
+                setattr(item_obj,k,v)
+            item_obj.save()
+            result = {"code": 0, "message": "更新Perf项目成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/perf_get_item?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+def DeletePerfTestItem(request):
+    """
+    删除测试项目的信息
     """
     if request.method == "GET":
         pointid =request.GET.get("id",None)
         try:
             with transaction.atomic():
-                TestPoint.objects.filter(id=pointid).delete()
-                result = {"code": 0, "message": "删除协议成功！"}
+                PerfTestItem.objects.filter(id=pointid).delete()
+                result = {"code": 0, "message": "删除Perf项目成功！"}
         except Exception as e:
             result = {"code": 1, "message":e }
 
-        return HttpResponseRedirect('/testcase/test_points?status={0}&message={1}'.
+        return HttpResponseRedirect('/testcase/perf_get_item?status={0}&message={1}'.
                                     format(result.get("code", ""),
                                    result.get("message", "")))
+
+def GetPerfTestCase(request):
+    """
+    """
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_case_name = request.GET.get('scase', '').strip()
+        search_case_level = request.GET.get('slevel', '').strip()
+        search_case_type  = request.GET.get('stype', '').strip()
+        #only search test point information
+        filter_dic = {}
+        if search_case_name != "":
+            filter_dic["CaseName__icontains"] = search_case_name
+        if search_case_level != "":
+            filter_dic["Level__icontains"] = search_case_level
+        if search_case_type != "":
+            filter_dic["CaseType__icontains"] = search_case_type
+        case_list = PerfTestCase.objects.filter(**filter_dic).distinct()
+        global_obj = PerfGlobal.objects.all()
+        queryset, page_html = init_paginaion(request, case_list)
+        return render(request,'testcase/perf_get_case.html',locals())
+
+def AddPerfTestCase(request):
+    """
+    """
+    result = {}
+    if request.method == "POST":
+        caseName= request.POST.get("casename",None)
+        caseLevel = request.POST.get("caselevel",None)
+        caseType = request.POST.get("casetype",None)
+        caseInitId = request.POST.get("caseinitid", None)
+        print("variable is:%s, %s, %s, %s" %
+              (caseName,caseLevel,caseType, caseInitId))
+
+        try:
+            with transaction.atomic():
+                init_obj = PerfGlobal.objects.get(id=caseInitId)
+                case_obj = PerfTestCase(CaseName=caseName, Level=caseLevel, CaseType=caseType, TIID=init_obj)
+                case_obj.save()
+                result = {"code": 0, "message": "创建Perf用例成功"}
+        except Exception as e:
+            result = {"code": 1, "message": e}
+            print(e)
+
+        return HttpResponseRedirect('/testcase/perf_get_case?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def UpdatePerfTestCase(request):
+    """
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        case_obj = PerfTestCase.objects.filter(id=id)
+        case_dict = case_obj.values().first()
+        if case_dict:
+            res = dict(case_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        caseid = request.POST.get("id")
+        caseName= request.POST.get("casename",None)
+        caseLevel = request.POST.get("caselevel",None)
+        caseType = request.POST.get("casetype",None)
+        caseInitId = request.POST.get("caseinitid", None)
+        form_data = {
+                    'id'      :caseid,
+                    'CaseName':caseName,
+                    'Level'   :caseLevel,
+                    'CaseType':caseType,
+                    'TIID'    :caseInitId,
+                    }
+        case_obj = PerfTestCase.objects.get(id=caseid)
+        g_obj = PerfGlobal.objects.get(pk=caseInitId)
+        try:
+            for k ,v in form_data.items():
+                if k == "TIID":
+                    setattr(case_obj, k, g_obj)
+                else:
+                    setattr(case_obj,k,v)
+            case_obj.save()
+            result = {"code": 0, "message": "更新Perf用例成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/perf_get_case?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+def DeletePerfTestCase(request):
+    """
+    """
+    if request.method == "GET":
+        caseId =request.GET.get("id",None)
+        try:
+            with transaction.atomic():
+                PerfTestCase.objects.filter(id=caseId).delete()
+                result = {"code": 0, "message": "删除Perf用例成功！"}
+        except Exception as e:
+            result = {"code": 1, "message":e }
+
+        return HttpResponseRedirect('/testcase/perf_get_case?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                   result.get("message", "")))
+
+def GetPerfCaseInfo(request):
+    """
+    """
+    case_template = 'testcase/perf_get_case_info.html'
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        case_id = request.GET.get('id', '')
+        print("case id:%s" % case_id)
+        case_obj = PerfItemInCase.objects.filter(TCID__id=case_id)
+        refer_obj = PerfRefTarget.objects.filter(IICID__TCID__id=case_id)
+        print("case obj :%s" % case_obj)
+        print("refer obj:%s" % refer_obj)
+        queryset, page_html = init_paginaion(request, case_obj)
+        print("queryset:%s" %queryset)
+        return render(request,case_template,locals())
+
+def GetPerfProject(request, projectName):
+    """
+    """
+    case_template = 'testcase/perf_test_project.html'
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_case = request.GET.get('casename', '').strip()
+        search_level = request.GET.get('searchlevel', '').strip()
+        filter_dic = {}
+        if search_case != "":
+            filter_dic["IICID__TCID__CaseName__icontains"] = search_case
+        if search_level !="":
+            filter_dic["IICID__TCID__Level__icontains"] = search_level
+        #add project filter
+        filter_dic["Project"] = projectName.replace('\'', '')
+        print("filter dic:%s" % filter_dic)
+        case_list = PerfRefTarget.objects.filter(**filter_dic).distinct()
+        item_case_list = PerfItemInCase.objects.all()
+        queryset, page_html = init_paginaion(request, case_list)
+        return render(request,case_template,locals())
+
+def AddPerfProject(request, projectName):
+    """
+    """
+    result = {}
+    print("project name:%s" %projectName)
+    if request.method == "GET":
+        res = {}
+        project_obj = PerfRefTarget.objects.all()
+        project_dict = project_obj.values().first()
+        if project_dict:
+            res = dict(project_dict)
+        print("case_dict:%s" %project_dict)
+        return HttpResponse(json.dumps(res))
+    elif request.method == "POST":
+        pjName = request.POST.get("pjname",None)
+        refUnit = request.POST.get("refunit",None)
+        refVal = request.POST.get("refval",None)
+        itemCaseId = request.POST.get("iicid",None)
+        #check pjname
+        if pjName != projectName:
+            result = {"code": 1, "message": "project name error"}
+        else:
+            #check input case id
+            try:
+                getItemCaseObj = PerfItemInCase.objects.get(pk=itemCaseId)
+                try:
+                    with transaction.atomic():
+                        pj_obj = PerfRefTarget(Project=pjName, RefUnit=refUnit.upper(), RefVal=refVal, IICID=getItemCaseObj)
+                        pj_obj.save()   
+                    result = {"code": 0, "message": "创建用例成功"}
+                except Exception as e:
+                    result = {"code": 1, "message": e}
+                    print(e)
+            except Exception as e:
+                result = {"code": 1, "message": e}
+                print(e)
+        print("project name2:%s" % projectName)
+        return HttpResponseRedirect('/testcase/perf_test_project/'+projectName+'/?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def UpdatePerfProject(request, projectName):
+    """
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        project_obj = PerfRefTarget.objects.filter(id=id)
+        case_dict = project_obj.values().first()
+        if case_dict:
+            res = dict(case_dict)
+        print("case_dict:%s" %case_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        pjid = request.POST.get("id")
+        pjName = request.POST.get("pjname",None)
+        refUnit = request.POST.get("refunit",None)
+        refVal = request.POST.get("refval",None)
+        itemCaseId = request.POST.get("iicid",None)
+        form_data = {
+                    'id'     :pjid,
+                    'Project':pjName,
+                    'RefUnit' :refUnit,
+                    'RefVal'  :refVal,
+                    'IICID'   :itemCaseId
+        }
+        pj_obj = TestProject.objects.get(id=pjid)
+        try:
+            for k ,v in form_data.items():
+                if k == "IICID":
+                    ii_obj = PerfItemInCase.objects.get(pk=itemCaseId)
+                    setattr(pj_obj, k, ii_obj)
+                else:
+                    setattr(pj_obj,k,v)
+            pj_obj.save()
+            result = {"code": 0, "message": "更新协议成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/perf_test_project/'+pjName+'/?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
