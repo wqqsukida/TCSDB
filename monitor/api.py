@@ -67,6 +67,22 @@ class ChangeDUTHost(APIAuthView):
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
         return HttpResponse(json.dumps(response))
 
+class ChangeDUTBasicInfo(APIAuthView):
+    '''
+    修改DUT基本信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            sn = res.pop('SerialNum')
+            dut_obj = DUTInfo.objects.filter(SerialNum=sn)
+            dut_obj.update(**res)
+            response = {'code': 0, 'msg': 'Success!', 'data': True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response))
+
 class AddDUTMonitorRec(APIAuthView):
     '''
     增加一次DUT健康监控记录
@@ -414,6 +430,24 @@ class ChangeHostDriverInfo(APIAuthView):
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
         return HttpResponse(json.dumps(response))
+
+class ChangeHostBasicInfo(APIAuthView):
+    '''
+    修改Host机器的基本信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            host_name = res.pop("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            print(res)
+            host_obj.update(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
 
 class AddHostMonitorRec(APIAuthView):
     '''
