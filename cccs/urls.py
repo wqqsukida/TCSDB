@@ -30,9 +30,11 @@ urlpatterns = [
     re_path(r'^api/find_cycle/$', api.FindTestCycle.as_view()),
     re_path(r'^api/find_run/$', api.FIndTestRun.as_view()),
     re_path(r'^api/add_comment/$', api.AddTRComments.as_view()),
+    re_path(r'^api/change_cyc_status/$', api.ChgCycleStatus.as_view()),
+    re_path(r'^api/change_plc_status/$', api.ChgPlanCaseStatus.as_view()),
 
-    re_path(r'^test_cycles$', views.test_cycles),
-    re_path(r'^test_plans$', views.test_plans),
-    re_path(r'^run_records', views.run_records),
-    re_path(r'^actions', views.actions),
+    # re_path(r'^test_cycles$', views.test_cycles),
+    # re_path(r'^test_plans$', views.test_plans),
+    # re_path(r'^run_records', views.run_records),
+    # re_path(r'^actions', views.actions),
 ]

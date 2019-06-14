@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'monitor.apps.MonitorConfig',
     'testcase.apps.TestcaseConfig',
     'rbac.apps.RbacConfig',
+    'cccs.apps.CccsConfig',
 ]
 
 MIDDLEWARE = [
@@ -177,6 +178,7 @@ VALID_URL= [
     '^/logout/',
     '^/monitor/api/',
     '^/testcase/api/',
+    '^/cccs/api/',
 ]
 
 APPEND_SLASH=False

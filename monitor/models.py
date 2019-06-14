@@ -25,7 +25,7 @@ class DUTInfo(models.Model):
     FWRev = models.CharField('当前FW版本',max_length=16,null=True,blank=True)
 
     def __str__(self):
-        return self.ProductName
+        return self.SerialNum
 
 class DUTFW(models.Model):
     '''
