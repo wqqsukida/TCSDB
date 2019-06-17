@@ -23,6 +23,7 @@ def init_paginaion(request,queryset):
 
 def GetProject(request, projectname):
     """
+    获取项目的用例信息
     """
     #print("request is:%s" % dir(request))
     case_template = 'testcase/test_project.html'
@@ -47,6 +48,7 @@ def GetProject(request, projectname):
 
 def AddProject(request, projectname):
     """
+    添加项目的用例信息
     """
     result = {}
     print("project name:%s" %projectname)
@@ -92,6 +94,7 @@ def AddProject(request, projectname):
 
 def UpdateProject(request, projectname):
     """
+    更新项目的用例信息
     """
     if request.method == "GET":
         res = {}
@@ -138,6 +141,7 @@ def UpdateProject(request, projectname):
 
 def GetTestCase(request):
     """
+    获取功能测试用例
     """
     case_template = 'testcase/test_cases.html'
     print("case request:%s" % dir(request))
@@ -169,6 +173,7 @@ def GetTestCase(request):
 
 def AddTestCase(request):
     """
+    添加功能测试用例
     """
     result = {}
     if request.method == "POST":
@@ -227,6 +232,7 @@ def AddTestCase(request):
 
 def UpdateTestCase(request):
     """
+    更新功能测试用例
     """
     if request.method == "GET":
         res = {}
@@ -313,6 +319,7 @@ def UpdateTestCase(request):
 
 def DeleteTestCase(request):
     """
+    删除功能测试用例
     """
     if request.method == "GET":
         pointid =request.GET.get("id",None)
@@ -329,6 +336,7 @@ def DeleteTestCase(request):
 
 def GetTestStep(request):
     """
+    获取功能测试用例步骤
     """
     case_template = 'testcase/test_steps.html'
     if request.method == "GET":
@@ -348,6 +356,7 @@ def GetTestStep(request):
 
 def GetRefSpec(request):
     """
+    获取参考协议信息
     """
     if request.method == "GET":
         status = request.GET.get("status", "")
@@ -361,6 +370,7 @@ def GetRefSpec(request):
 
 def AddRefSpec(request):
     """
+    添加参考协议信息
     """
     result = {}
     if request.method == "POST":
@@ -388,6 +398,7 @@ def AddRefSpec(request):
 
 def UpdateRefSpec(request):
     """
+    更新参考协议信息
     """
     if request.method == "GET":
         res = {}
@@ -428,6 +439,7 @@ def UpdateRefSpec(request):
                                     result.get("message", "")))
 def DeleteRefSpec(request):
     """
+    删除参考协议信息
     """
     if request.method == "GET":
         specid =request.GET.get("id",None)
@@ -444,6 +456,7 @@ def DeleteRefSpec(request):
 
 def GetTestPoint(request):
     """
+    获取测试点信息
     """
     if request.method == "GET":
         status = request.GET.get("status", "")
@@ -472,6 +485,7 @@ def GetTestPoint(request):
 
 def AddTestPoint(request):
     """
+     添加测试点信息
     """
     result = {}
     if request.method == "POST":
@@ -503,6 +517,7 @@ def AddTestPoint(request):
 
 def UpdateTestPoint(request):
     """
+     更新测试点信息
     """
     if request.method == "GET":
         res = {}
@@ -548,6 +563,7 @@ def UpdateTestPoint(request):
                                     result.get("message", "")))
 def DeleteTestPoint(request):
     """
+     删除测试点信息
     """
     if request.method == "GET":
         pointid =request.GET.get("id",None)
@@ -564,6 +580,7 @@ def DeleteTestPoint(request):
 
 def GetPerfGlobal(request):
     """
+     获取新能测试的全局变量信息
     """
     if request.method == "GET":
         status = request.GET.get("status", "")
@@ -816,6 +833,7 @@ def DeletePerfTestItem(request):
 
 def GetPerfTestCase(request):
     """
+    获取性能测试用例信息
     """
     if request.method == "GET":
         status = request.GET.get("status", "")
@@ -840,6 +858,7 @@ def GetPerfTestCase(request):
 
 def AddPerfTestCase(request):
     """
+    新增性能测试用例信息
     """
     result = {}
     if request.method == "POST":
@@ -866,6 +885,7 @@ def AddPerfTestCase(request):
 
 def UpdatePerfTestCase(request):
     """
+    更新性能测试用例信息
     """
     if request.method == "GET":
         res = {}
@@ -909,6 +929,7 @@ def UpdatePerfTestCase(request):
                                     result.get("message", "")))
 def DeletePerfTestCase(request):
     """
+    删除性能测试用例信息
     """
     if request.method == "GET":
         caseId =request.GET.get("id",None)
@@ -925,6 +946,7 @@ def DeletePerfTestCase(request):
 
 def GetPerfCaseInfo(request):
     """
+    获取项目性能测试用例信息
     """
     case_template = 'testcase/perf_get_case_info.html'
     if request.method == "GET":
@@ -944,6 +966,7 @@ def GetPerfCaseInfo(request):
 
 def GetPerfProject(request, projectName):
     """
+    获取项目性能测试用例信息
     """
     case_template = 'testcase/perf_test_project.html'
     if request.method == "GET":
@@ -968,6 +991,7 @@ def GetPerfProject(request, projectName):
 
 def AddPerfProject(request, projectName):
     """
+    新增项目性能测试用例信息
     """
     result = {}
     print("project name:%s" %projectName)
@@ -1009,6 +1033,7 @@ def AddPerfProject(request, projectName):
 
 def UpdatePerfProject(request, projectName):
     """
+    更新项目性能测试用例信息
     """
     if request.method == "GET":
         res = {}
@@ -1034,7 +1059,7 @@ def UpdatePerfProject(request, projectName):
                     'RefVal'  :refVal,
                     'IICID'   :itemCaseId
         }
-        pj_obj = TestProject.objects.get(id=pjid)
+        pj_obj = PerfRefTarget.objects.get(id=pjid)
         try:
             for k ,v in form_data.items():
                 if k == "IICID":

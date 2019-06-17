@@ -14,6 +14,7 @@ import traceback
 
 class AddDataBase(APIAuthView):
     """
+    新增项目的基类
     """
     def get(self,request,*args,**kwargs):
         response = {'code':1,'msg':'Request method error!'}
@@ -476,7 +477,7 @@ class AddPerfGlobal(AddDataBase):
 
 class AddPerfTestCase(AddDataBase):
     '''
-            新增性能全局
+            新增性能测试用例
     '''
     def addData(self, res):
         """
@@ -496,7 +497,7 @@ class AddPerfTestCase(AddDataBase):
 
 class AddItemIntoCase(AddDataBase):
     '''
-            新增性能全局
+            新增性能测试项目和测试用例对应关系
     '''
     def addData(self, res):
         """
@@ -522,18 +523,20 @@ class AddItemIntoCase(AddDataBase):
 
 class AddItemRefVal(AddDataBase):
     '''
-            新增性能全局
+            新增项目参考值
     '''
     def addData(self, res):
         """
         """
         case_name = res.pop("CaseName")
         item_name = res.pop("ItemName")
-        case_item_obj = PerfItemInCase.objects.filter(CaseName=case_name, ItemName=item_name)
+        print("*** case name:%s, item name:%s" %(case_name, item_name))
+        case_item_obj = PerfItemInCase.objects.filter(TCID__CaseName=case_name, TIID__ItemName=item_name)
         if len(case_item_obj) == 0:
             response = {'code':6,'msg':'case name:' + case_name +'item name:'+item_name+" doesn't exist, please check!!",'data':""}
         else:
             res["IICID"] = case_item_obj.first()
+            print("*** iicid:%s" % res["IICID"])
             try:
                 perf_obj = PerfRefTarget.objects.create(**res)
                 response = {'code':0,'msg':'Success!','data':True}
@@ -543,7 +546,7 @@ class AddItemRefVal(AddDataBase):
 
 class GetCaseTestItems(GetCaseInfoBase):
     """
-            获得用例项目状态信息
+            获得用例测试项目
     """
     def getItemList(self):
         return("ItemName")
@@ -562,9 +565,9 @@ class GetCaseTestItems(GetCaseInfoBase):
                 case_item_list = []
                 for item in item_list:
                     data_dic = {}
-                    item_obj = item.item_item.objects.all().first
-                    data_dic["ItemName"] = item_obj.ItemName
+                    data_dic["ItemName"] = item.TIID.ItemName
                     case_item_list.append(data_dic)
+                print(case_item_list)
                 response = {'code': 0, 'msg': 'Success!', 'data': case_item_list}
             except Exception as e:
                 print(traceback.format_exc())
@@ -573,7 +576,7 @@ class GetCaseTestItems(GetCaseInfoBase):
 
 class GetPerfGlobal(GetCaseInfoBase):
     """
-            获得用例项目状态信息
+            获得用例全局信息
     """
     def getItemList(self):
         return("GlobalName", "MaxIOSize", "Offset", "NeedPurge", "Need2XFillDriver")
