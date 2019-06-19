@@ -68,8 +68,8 @@ class StartTestRun(APIAuthView):
             with transaction.atomic():
                 tr_name = res.pop("TestRunName")
                 tr_obj = TestRun.objects.filter(TestRunName=tr_name)
-                if tr_obj.first().Status=='RUNING':raise Exception('TestRun already running!')
-                tr_obj.update(**res,Status='RUNING',StartTime=datetime.datetime.now())
+                if tr_obj.first().Status=='RUNNING':raise Exception('TestRun already running!')
+                tr_obj.update(**res,Status='RUNNING',StartTime=datetime.datetime.now())
                 tc_obj = tr_obj.first().TCID
                 tc_obj.TriggeredTotal += 1
                 tc_obj.LastTriggered = datetime.datetime.now()
@@ -107,7 +107,8 @@ class GetTestCycle(APIAuthView):
             data = cycle_obj.values('CycleName', 'Project', 'CycleLevel', 'Status',
                                   'TriggeredTotal').first()
             data['Created'] = cycle_obj.first().Created.strftime("%Y-%m-%d %H:%m:%s")
-            data['LastTriggered'] = cycle_obj.first().LastTriggered.strftime("%Y-%m-%d %H:%m:%s")
+            if cycle_obj.first().LastTriggered:
+                data['LastTriggered'] = cycle_obj.first().LastTriggered.strftime("%Y-%m-%d %H:%m:%s")
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -160,19 +161,23 @@ class FindTestCycle(APIAuthView):
             project = res.get("Project")
             cycle_level = res.get("CycleLevel")
             status = res.get("Status")
-            timeDelta = res.get("timeDelta") # 获取天数,查询几天前的数据
+            created= res.get("CreatedTimeDelta") # 获取天数,查询几天前的数据
+            triggered = res.get("TriggeredTimeDelta") # 获取天数,查询几天前的数据
             parms_dict = {}
             if project and project != "ALL":
                 parms_dict["Project"] = project
             if cycle_level and cycle_level != "ALL":
-                parms_dict["HostName"] = cycle_level
+                parms_dict["CycleLevel"] = cycle_level
             if status and status != "ALL":
-                parms_dict["Interface"] = status
+                parms_dict["Status"] = status
 
-            data = TestCycle.objects.filter(**parms_dict).values("CycleName")
-            if timeDelta:
-                date_time = datetime.datetime.now() - datetime.timedelta(days=timeDelta)
-                data.filter(Created__gt=date_time)
+            data = TestCycle.objects.filter(**parms_dict).values()
+            if created:
+                created_time = datetime.datetime.now() - datetime.timedelta(days=created)
+                data = data.filter(Created__gt=created_time)
+            if triggered:
+                triggered_time = datetime.datetime.now() - datetime.timedelta(days=triggered)
+                data = data.filter(LastTriggered__gt=triggered_time)
             data = [i.get("CycleName") for i in data]
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
@@ -180,7 +185,7 @@ class FindTestCycle(APIAuthView):
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
         return HttpResponse(json.dumps(response))
 
-class FIndTestRun(APIAuthView):
+class FindTestRun(APIAuthView):
     '''
     查询符合条件的TestRun
     '''
@@ -190,19 +195,32 @@ class FIndTestRun(APIAuthView):
             project = res.get("Project")
             cycle_name = res.get("CycleName")
             cycle_level = res.get("CycleLevel")
+
             status = res.get("Status")
             jira_id = res.get("JIRAID")
             timeDelta = res.get("timeDelta")
-            parms_dict = {}
+            #获取过滤需要的TestCycle对象
+            cyc_parms_dict = {}
             if project and project != "ALL":
-                parms_dict["Project"] = project
+                cyc_parms_dict["Project"] = project
             if cycle_level and cycle_level != "ALL":
-                parms_dict["HostName"] = cycle_level
+                cyc_parms_dict["CycleLevel"] = cycle_level
+            if cycle_name and cycle_name != "ALL":
+                cyc_parms_dict["CycleName"] = cycle_name
+            cyc_obj = TestCycle.objects.filter(**cyc_parms_dict).first()
+            #通过TCID,Status,JIRAID过滤获取TestRun对象
+            parms_dict = {}
+            parms_dict['TCID'] = cyc_obj
             if status and status != "ALL":
-                parms_dict["Interface"] = status
+                parms_dict['Status'] = status
+            if jira_id:
+                parms_dict['JIRAID'] = jira_id
+            data = TestRun.objects.filter(**parms_dict).values()
+            if timeDelta:
+                stime = datetime.datetime.now() - datetime.timedelta(days=timeDelta)
+                data = data.filter(StartTime__gt=stime)
 
-            data = TestCycle.objects.filter(**parms_dict).values("CycleName")
-            data = [i.get("CycleName") for i in data]
+            data = [i.get("TestRunName") for i in data]
             response = {'code': 0, 'msg': 'Success!', 'data': data}
         except Exception as e:
             print(traceback.format_exc())

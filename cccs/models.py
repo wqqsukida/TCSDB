@@ -15,6 +15,24 @@ class TestCycle(models.Model):
     def __str__(self):
         return self.CycleName
 
+    def atr(self):
+        return self.testrun_set.count()
+
+    def ntr(self):
+        return self.testrun_set.filter(Status='NOTSTART').count()
+
+    def ftr(self):
+        return self.testrun_set.filter(Status='FINISHED').count()
+
+    def etr(self):
+        return self.testrun_set.filter(Status='FAILED').count()
+
+    def ctr(self):
+        return self.testrun_set.filter(Status='CANCELED').count()
+
+    def rtr(self):
+        return self.testrun_set.filter(Status='RUNNING').count()
+
 class TestPlan(models.Model):
     '''
     TestPlan表
@@ -37,7 +55,7 @@ class TestRun(models.Model):
     TriggerTime = models.DateTimeField('计划触发时间',null=True,blank=True)
     StartTime = models.DateTimeField('开始时间',null=True,blank=True)
     EndTime = models.DateTimeField('结束时间',null=True,blank=True)
-    Status = models.CharField('状态', max_length=16, default='NOTSTART')  # NOTSTART，RUNING，CANCELED，FINISHED
+    Status = models.CharField('状态', max_length=16, default='NOTSTART')  # NOTSTART，RUNNING，CANCELED，FINISHED
     TCID = models.ForeignKey(verbose_name='TestCycle ID', to='TestCycle',
                              on_delete=models.SET_NULL,null=True, blank=True)
     JIRAID = models.CharField('对应的JIRA ID',max_length=16,null=True,blank=True)

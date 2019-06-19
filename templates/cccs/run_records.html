@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/table_data_tables.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:20:01 GMT -->
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>H+ 后台主题UI框架 - 数据表格</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="../static/favicon.ico">
+    <link href="/static/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!-- Data Tables -->
+    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+{#    <link href="/static/css/plugins/footable/footable.core.css" rel="stylesheet">#}
+    <link href="/static/css/font-awesome.min93e3.css" rel="stylesheet">
+    <link href="/static/css/animate.min.css" rel="stylesheet">
+    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/css/gstyle.css" rel="stylesheet">
+    <style>
+        .text-ellipsis{
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .alert-btn{
+            margin: 2.5px;
+            font-weight: 600;
+            display: inline-block;
+            padding: 6px 12px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-primary{
+            color: #257675;
+            background-color: #c0edf0;
+            border-color: #85e9e6
+        }
+    </style>
+</head>
+
+<body class="gray-bg">
+    <!--通知消息处-->
+    {% if result  %}
+        {% if result.code == 0 %}
+            <div class="alert alert-success" style="text-align: center">执行成功:<strong>{{ result.message }}</strong></div>
+        {% else %}
+            <div class="alert alert-danger" style="text-align: center">执行失败:<strong>{{ result.message }}</strong></div>
+        {% endif %}
+    {% endif %}
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <ol class="breadcrumb">
+                            <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
+                            <li>
+                                <a href="/cccs/test_cycles"><span class="g_nav_font">TestCycle列表</span></a>
+                            </li>
+
+                            <li class="active">
+                                {{ tc_obj.CycleName }}的TestRun详情
+                              </li>
+                            <div class="ibox-tools">
+                                <a onclick="refresh()">
+                                    <i class="fa fa-refresh"></i>
+                                </a>
+                            </div>
+                        </ol>
+                    </div>
+
+                    <div class="ibox-content">
+                        <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
+                            <form method="get" action="">
+{#                                <div class="col-sm-1"> <!--添加-->#}
+{#                                    <a class="btn btn-info" href="#" data-toggle="modal" data-target="#AddModal">+ 添加</a>#}
+{#                                </div>#}
+
+                                <div class="col-sm-1">
+                                    <a href="#" data-toggle="modal" data-target="#AddModal" class="btn btn-warning add-btn">
+                                        <i class="fa fa-plus"></i> 创建TestRun
+                                    </a>
+                                </div>
+                                <div class="col-sm-8"></div>
+                                <div class="col-sm-2">
+                                    <input type="text" name="q"  class="form-control"  value="{{ search_q }}" placeholder="请输入关键字进行搜索" />
+                                </div>
+                                <div class="col-sm-1">
+                                    <button type="submit" value="搜索" class="btn btn-primary" />
+                                        <i class="fa fa-search"></i>&nbsp;&nbsp;搜索
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                             <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
+                                 <thead>
+                                    <tr>
+                                        <th>TestRun名称</th>
+                                        <th>计划触发时间</th>
+                                        <th>开始时间</th>
+                                        <th>结束时间</th>
+                                        <th>状态</th>
+                                        <th>JIRA ID</th>
+                                        <th>DUT Group ID</th>
+                                        <th>FW Package</th>
+                                        <th>Script Package</th>
+                                        <th>备注</th>
+                                        <th>操作</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    {% for tr in queryset %}
+                                        <tr>
+                                            <td>{{ tr.TestRunName }}</td>
+                                            <td>{{ tr.TriggerTime| date:'Y-m-d H:i:s' }}</td>
+                                            <td>{{ tr.StartTime| date:'Y-m-d H:i:s' }}</td>
+                                            <td>{{ tr.EndTime| date:'Y-m-d H:i:s' }}</td>
+                                            <td>
+                                                {% if tr.Status == "NOTSTART" %}
+                                                    <a class="alert-btn alert-info">{{ tr.Status }}</a>
+                                                {% elif tr.Status == "FINISHED" %}
+                                                    <a class="alert-btn alert-success">{{ tr.Status }}</a>
+                                                {% elif tr.Status == "FAILED" %}
+                                                    <a class="alert-btn alert-danger">{{ tr.Status }}</a>
+                                                {% elif tr.Status == "CANCELED" %}
+                                                    <a class="alert-btn alert-warning">{{ tr.Status }}</a>
+                                                {% elif tr.Status == "RUNNING" %}
+                                                    <a class="alert-btn alert-primary">{{ tr.Status }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ tr.JIRAID }}</td>
+                                            <td>{{ tr.DUTGRPID }}</td>
+                                            <td>{{ tr.FWPkgName }}</td>
+                                            <td>{{ tr.SrtPkgName }}</td>
+                                            <td>{{ tr.Comments }}</td>
+                                            <td class="tooltip-demo" style="font-size: 20px">
+                                                <a class="edit-btn" tid={{ tr.id }}  data-toggle="modal" data-target="#EditModal" title="更新TestRun" style="margin-right: 15px">
+                                                    <i class="fa fa-wrench"></i>
+                                                </a>
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/cccs/test_run/del/?tc_id={{ tc_obj.id }}&tr_id={{ tr.id }}&page={{ page }}" class="del_confirm" title="删除TestRun" style="margin-right: 15px">
+                                                    <i class="fa fa-trash-o"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                 </tbody>
+
+                             </table>
+                            <div class="row">
+                                <div class="col-md-6 col-md-offset-3" style="text-align: center">
+                                    <ul class="pagination">
+                                        {{ page_html|safe }}
+                                    </ul>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="AddModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated bounceInDown">
+                <div class="modal-header">
+                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">添加TestRun</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="signupForm" action="/cccs/test_run/add/" role="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input class="hide" type="text" name="page" value="{{ page }}">
+                        <input class="hide" type="text" name="tc_id" value="{{ tc_obj.id }}">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">TestRun名称：</label>
+                            <div class="col-sm-8">
+                                <input name="TestRunName" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">计划触发时间：</label>
+                            <div class="col-sm-8">
+                                <input name="TriggerTime" class="form-control" type="datetime-local">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">JIRA ID：</label>
+                            <div class="col-sm-8">
+                                <input name="JIRAID" class="form-control" type="text">
+                            </div>
+                        </div>
+
+                        <hr width="100%" />
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"> </div>
+                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="EditModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated bounceInDown">
+                <div class="modal-header">
+                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">更新TestRun</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal m-t" id="signupForm" action="/cccs/test_run/update/" role="form" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input class="hide" type="text" name="page" value="{{ page }}">
+                        <input class="hide" type="text" name="tc_id" value="{{ tc_obj.id }}">
+                        <div class="form-group hide">
+                            <label class="col-sm-2 control-label">ID：</label>
+                            <div class="col-sm-9">
+                                <input name="id" class="form-control" id="mod_id" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">TestRun名称：</label>
+                            <div class="col-sm-8">
+                                <input name="TestRunName" class="form-control" id="mod_TestRunName" type="text">
+                            </div>
+                        </div>
+                        <!--
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">计划触发时间：</label>
+                            <div class="col-sm-8">
+                                <input name="TriggerTime" class="form-control" id="mod_TriggerTime" type="datetime-local">
+                            </div>
+                        </div>
+                        -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">JIRA ID：</label>
+                            <div class="col-sm-8">
+                                <input name="JIRAID" class="form-control" id="mod_JIRAID" type="text">
+                            </div>
+                        </div>
+
+                        <hr width="100%" />
+                        <div class="col-sm-12">
+                            <div class="col-sm-5"> </div>
+                            <button type="submit" class="btn btn-primary js_confirm">提交</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+
+    <script src="/static/js/plugins/jeditable/jquery.jeditable.js"></script>
+    <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+    <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+
+    <script src="/static/js/plugins/layer/layer.min.js"></script>
+    <!-- 自定义js -->
+    <script src="/static/js/content.min.js?v=1.0.0"></script>
+
+
+
+    <script>
+        $(document).ready(function(){$(".dataTables-example").dataTable(
+            {
+                "order": [],
+                "aLengthMenu" : [10, 25, 50, 100], //更改显示记录数选项
+                "iDisplayLength" : 10, //默认显示的记录数
+                "paging": false,
+                "searching": false
+
+            }
+        );var oTable=$("#editable").dataTable();oTable.$("td").editable("http://www.zi-han.net/theme/example_ajax.php",{"callback":function(sValue,y){var aPos=oTable.fnGetPosition(this);oTable.fnUpdate(sValue,aPos[0],aPos[1])},"submitdata":function(value,settings){return{"row_id":this.parentNode.getAttribute("id"),"column":oTable.fnGetPosition(this)[2]}},"width":"90%","height":"100%"})});function fnClickAddRow(){$("#editable").dataTable().fnAddData(["Custom row","New row","New row","New row","New row"])};
+    </script>
+
+
+
+    <script>
+        {% if result %}
+        swal("{{ result }}");
+        {% endif %}
+
+    </script>
+
+
+    <script>
+        function refresh(){
+            window.location.reload();
+        }
+    </script>
+
+    <script>
+        $(' .del_confirm').click(function(){
+            return confirm("确认要执行删除操作吗？");
+        });
+        $(' .js_confirm').click(function(){
+            return confirm("确认执行操作吗？");
+        });
+    </script>
+
+    <script>
+        $(' .domain_confirm').click(function(){
+            return confirm("确认要对" + $(this).attr("id") + "执行删除或停止操作吗？");
+        });
+    </script>
+
+    <script>
+    // 如果通知元素存在,则5秒后淡出
+        if ($(".alert")){
+            $(".alert").fadeOut(10000);
+        }
+    </script>
+
+
+    <script>
+        $("#shownv").click(function(){
+            if(this.text=="显示更多"){
+                $("#show-nav").show();
+                $(this).text("隐藏更多");
+            }else{
+                $("#show-nav").hide();
+                $(this).text("显示更多")
+            }
+        });
+
+    </script>
+
+    <script>
+        $("table").on("click",".edit-btn",function () {
+            tid = $(this).attr('tid');
+            $("#mod_id").val("");
+            $("#mod_TestRunName").val("");
+            $("#mod_JIRAID").val("");
+            //$("#mod_TriggerTime").val("");
+
+            $.ajax({
+                url: "/cccs/test_run/update/",
+                type: "GET",
+                data: {tid: tid},
+                dataType: 'JSON',
+                success: function (arg) {
+                    if (arg) {
+                        //console.log(arg);
+                        $("#mod_id").val(arg.id);
+                        $("#mod_TestRunName").val(arg.TestRunName);
+                        $("#mod_JIRAID").val(arg.JIRAID);
+                        //$("#mod_TriggerTime").val(arg.TriggerTime);
+                    }
+                }
+            })
+        })
+    </script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/table_data_tables.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:20:02 GMT -->
+</html>
