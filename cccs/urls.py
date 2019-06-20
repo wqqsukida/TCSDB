@@ -43,5 +43,5 @@ urlpatterns = [
     re_path(r'^test_run/add/$', views.add_test_run),
     re_path(r'^test_run/update/$', views.update_test_run),
     re_path(r'^test_run/del/$', views.del_test_run),
-    re_path(r'^actions', views.actions),
+    re_path(r'^test_actions/(?P<tc_id>\d*)/(?P<tp_id>\d*)/', views.actions),
 ]

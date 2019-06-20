@@ -145,7 +145,7 @@
                                         <th>触发次数</th>
                                         <th>创建时间</th>
                                         <th>最近一次触发时间</th>
-                                        <th style="text-align: center">操作(更新/删除)</th>
+                                        <th style="text-align: center">操作(历史/更新/删除)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -192,6 +192,9 @@
                                             <td>{{ test_cycle.Created|date:'Y-m-d H:i:s' }}</td>
                                             <td>{{ test_cycle.LastTriggered|date:'Y-m-d H:i:s' }}</td>
                                             <td class="tooltip-demo" style="text-align:center;font-size: 20px">
+                                                <a data-toggle="tooltip" data-placement="bottom" title="查看操作记录" href="/cccs/test_actions/{{ test_cycle.id }}//" style="margin-right: 15px">
+                                                    <i class="fa fa-history"></i>
+                                                </a>
                                                 <a class="edit-btn" tid={{ test_cycle.id }}  data-toggle="modal" data-target="#EditModal" title="更新TestCycle" style="margin-right: 15px">
                                                     <i class="fa fa-wrench"></i>
                                                 </a>

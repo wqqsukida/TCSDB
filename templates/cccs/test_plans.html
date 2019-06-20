@@ -138,14 +138,14 @@
                                         <th>创建日期</th>
                                         <th>状态</th>
                                         <th>重复运行次数</th>
-                                        <th style="text-align: center">操作(更新/删除)</th>
+                                        <th style="text-align: center">操作(历史/更新/删除)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for test_plan in queryset %}
                                         <tr>
                                             <td class="tooltip-demo">
-                                                <a class="btn-sm btn-white">
+                                                <a data-toggle="tooltip" data-placement="bottom" title="查看操作记录" class="btn-sm btn-white" href="/cccs/test_actions//{{ test_plan.id }}/">
                                                     {{ test_plan.CaseName }}
                                                 </a>
                                             </td>
@@ -153,6 +153,9 @@
                                             <td>{{ test_plan.Status }}</td>
                                             <td>{{ test_plan.LoopCnt }}</td>
                                             <td class="tooltip-demo" style="text-align:center;font-size: 20px">
+                                                <a data-toggle="tooltip" data-placement="bottom" title="查看操作记录" href="/cccs/test_actions//{{ test_plan.id }}/" style="margin-right: 15px">
+                                                    <i class="fa fa-history"></i>
+                                                </a>
                                                 <a class="edit-btn" tid={{ test_plan.id }}  data-toggle="modal" data-target="#EditModal" title="更新TestPlan" style="margin-right: 15px">
                                                     <i class="fa fa-wrench"></i>
                                                 </a>

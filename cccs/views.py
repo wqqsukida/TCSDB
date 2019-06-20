@@ -163,7 +163,7 @@ def update_test_plan(request):
         tid = request.GET.get('tid',None)
         tp_obj = TestPlan.objects.filter(id=tid)
         tp_dict = tp_obj.values('id','CaseName','LoopCnt','Status').first()
-        print(tp_dict)
+        # print(tp_dict)
         return HttpResponse(json.dumps(dict(tp_dict)))
 
     elif request.method == "POST":
@@ -323,9 +323,42 @@ def del_test_run(request):
                                            result.get("message", ""),
                                            page,tc_id))
 
-def actions(request):
+def actions(request,tc_id="",tp_id=""):
     '''
     状态变更记录
     :param request:
     :return:
     '''
+    if request.method == "GET":
+        # 通知栏
+        task_status = request.GET.get("task_status", "")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code": int(status), "message": message}
+
+        tc_id = tc_id
+        tp_id = tp_id
+
+        search_q = request.GET.get("q","").strip()
+        stime = request.GET.get("start_time","2019-01-01")
+        etime = request.GET.get("end_time",datetime.datetime.now().strftime('%Y-%m-%d'))
+        page = request.GET.get('page')
+
+        q_query = Q(Q(OriginalVal__contains=search_q)|
+                    Q(NewVal__contains=search_q)|
+                    Q(ActionOP__contains=search_q)
+                    )
+
+        if tc_id: #从test_cycles访问
+            tc_obj = TestCycle.objects.get(id=tc_id)
+            queryset = TestAction.objects.filter(q_query,CycleID_id=tc_id,ActionTime__range=(stime,etime)).order_by("-id")
+        elif tp_id: #从test_plans访问
+            tp_obj = TestPlan.objects.get(id=tp_id)
+            queryset = TestAction.objects.filter(q_query,PlanID_id=tp_id,ActionTime__range=(stime,etime)).order_by("-id")
+        else:
+            queryset = TestAction.objects.filter(q_query,ActionTime__range=(stime,etime)).order_by("-id")
+        # 加载分页器
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request, 'cccs/test_actions.html', locals())
