@@ -164,20 +164,26 @@
                             <li>
                                 <a href="#"><i class="fa fa-desktop"></i>性能测试<span class="fa arrow"></span></a>
                                 <ul class="nav nav-third-level">
-                                 <li>
-                                    <a href="#">项目测试用例<span class="fa arrow"></span></a>
-                                        <ul class="nav nav-fourth-level">  
-                                            {% for project  in project_list %}      
-                                                <li>
-                                                    <a class="J_menuItem" href="/testcase/test_perf_project/{{ project }}/"> {{ project }}</a> 
-                                                </li>
-                                            {% endfor %}
-                                       </ul>
+                                    <li>
+                                        <a class="J_menuItem" href="/testcase/perf_get_global">Perf全局变量</a> 
                                     </li>
                                     <li>
-                                       <a class="J_menuItem" href="/testcases/test_perf_detail_cases">详细测试用例</a> 
+                                       <a class="J_menuItem" href="/testcase/perf_get_item">Perf测试条目</a> 
                                     </li>
-                                    </ul>
+                                    <li>
+                                        <a class="J_menuItem" href="/testcase/perf_get_case">Perf测试用例</a> 
+                                    </li>
+                                    <li>
+                                        <a href="#">项目测试用例<span class="fa arrow"></span></a>
+                                            <ul class="nav nav-fourth-level">  
+                                                {% for project  in perf_prj_list %}      
+                                                    <li>
+                                                        <a class="J_menuItem" href="/testcase/perf_test_project/{{ project }}/"> {{ project }}</a> 
+                                                    </li>
+                                                {% endfor %}
+                                             </ul>
+                                    </li>
+                                 </ul>
                             </li>
                         </ul>
                         <ul class="nav nav-second-level">
@@ -195,7 +201,7 @@
                                        </ul>
                                     </li>
                                     <li>
-                                       <a class="J_menuItem" href="/testcases/test_com_detail_cases">详细测试用例</a> 
+                                       <a class="J_menuItem" href="/testcase/test_com_detail_cases">详细测试用例</a> 
                                     </li>
                                     </ul>
                             </li>

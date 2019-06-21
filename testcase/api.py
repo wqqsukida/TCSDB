@@ -14,6 +14,7 @@ import traceback
 
 class AddDataBase(APIAuthView):
     """
+    新增项目的基类
     """
     def get(self,request,*args,**kwargs):
         response = {'code':1,'msg':'Request method error!'}
@@ -446,22 +447,280 @@ class GetProjectCases(GetCaseInfoBase):
 
         return response
 
-class AddPerfTestItem(APIAuthView):
+class AddPerfTestItem(AddDataBase):
     '''
-    新增性能测试项
+            新增性能测试项目
     '''
-    def get(self,request,*args,**kwargs):
-        response = {'code':1,'msg':'Request method error!'}
-        return HttpResponse(json.dumps(response))
+    def addData(self, res):
+        """
+        """
+        try:
+            perf_obj = PerfTestItem.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
+        return response
 
-    def post(self,request,*args,**kwargs):
-        print(request.POST)
-        '''
-        query...
-        '''
-        response = {'code':0,'msg':'Success!','data':{}}
+class AddPerfGlobal(AddDataBase):
+    '''
+            新增性能全局
+    '''
+    def addData(self, res):
+        """
+        """
+        try:
+            perf_obj = PerfGlobal.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
+        return response
 
-        return HttpResponse(json.dumps(response))
+class AddPerfTestCase(AddDataBase):
+    '''
+            新增性能测试用例
+    '''
+    def addData(self, res):
+        """
+        """
+        global_name = res.pop("GlobalName")
+        global_obj = PerfGlobal.objects.filter(GlobalName=global_name)
+        if len(global_obj) == 0:
+            response = {'code':6,'msg':'global case name:' + global_name+"doesn't exist, please check!!",'data':""}
+        else:
+            res["TIID"] = global_obj.first()
+            try:
+                perf_obj = PerfTestCase.objects.create(**res)
+                response = {'code':0,'msg':'Success!','data':True}
+            except Exception as e:
+                response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
+        return response
+
+class AddItemIntoCase(AddDataBase):
+    '''
+            新增性能测试项目和测试用例对应关系
+    '''
+    def addData(self, res):
+        """
+        """
+        case_name = res.pop("CaseName")
+        item_name = res.pop("ItemName")
+        case_obj = PerfTestCase.objects.filter(CaseName=case_name)
+        item_obj = PerfTestItem.objects.filter(ItemName=item_name)
+        if len(case_name) == 0:
+            response = {'code':6,'msg':'case name:' + case_name +"doesn't exist, please check!!",'data':""}
+        else:
+            if len(item_obj) == 0:
+                response = {'code':6,'msg':'item name:' + item_name +"doesn't exist, please check!!",'data':""}
+            else:
+                res["TIID"] = item_obj.first()
+                res["TCID"] = case_obj.first()
+                try:
+                    perf_obj = PerfItemInCase.objects.create(**res)
+                    response = {'code':0,'msg':'Success!','data':True}
+                except Exception as e:
+                    response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
+        return response
+
+class AddItemRefVal(AddDataBase):
+    '''
+            新增项目参考值
+    '''
+    def addData(self, res):
+        """
+        """
+        case_name = res.pop("CaseName")
+        item_name = res.pop("ItemName")
+        print("*** case name:%s, item name:%s" %(case_name, item_name))
+        case_item_obj = PerfItemInCase.objects.filter(TCID__CaseName=case_name, TIID__ItemName=item_name)
+        if len(case_item_obj) == 0:
+            response = {'code':6,'msg':'case name:' + case_name +'item name:'+item_name+" doesn't exist, please check!!",'data':""}
+        else:
+            res["IICID"] = case_item_obj.first()
+            print("*** iicid:%s" % res["IICID"])
+            try:
+                perf_obj = PerfRefTarget.objects.create(**res)
+                response = {'code':0,'msg':'Success!','data':True}
+            except Exception as e:
+                response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
+        return response
+
+class GetCaseTestItems(GetCaseInfoBase):
+    """
+            获得用例测试项目
+    """
+    def getItemList(self):
+        return("ItemName")
+
+    def getData(self, res):
+        """
+        """
+        get_list = self.getItemList()
+        case_name = res.get('CaseName')
+        case_obj = PerfTestCase.objects.filter(CaseName=case_name)
+        if len(case_obj) == 0:
+            response = {'code':6,'msg':'Case:{0} not exist, please check!!'.format(case_name),'data':""}
+        else:
+            try:
+                item_list = PerfItemInCase.objects.filter(TCID=case_obj.first())
+                case_item_list = []
+                for item in item_list:
+                    data_dic = {}
+                    data_dic["ItemName"] = item.TIID.ItemName
+                    case_item_list.append(data_dic)
+                print(case_item_list)
+                response = {'code': 0, 'msg': 'Success!', 'data': case_item_list}
+            except Exception as e:
+                print(traceback.format_exc())
+                response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return response
+
+class GetPerfGlobal(GetCaseInfoBase):
+    """
+            获得用例全局信息
+    """
+    def getItemList(self):
+        return("GlobalName", "MaxIOSize", "Offset", "NeedPurge", "Need2XFillDriver")
+
+    def getData(self, res):
+        """
+        """
+        get_list = self.getItemList()
+        global_name = res.get('GlobalName')
+        try:
+            case_obj = PerfGlobal.objects.filter(GlobalName=global_name)
+            case_list = case_obj.first()
+            if len(case_obj) == 0:
+                response = {'code':6,'msg':'Case:{0} not exist, please check!!'.format(global_name),'data':""}
+            else:
+                data_dic = {}
+                for item in get_list:
+                    data_dic[item] = getattr(case_list, item)
+                response = {'code': 0, 'msg': 'Success!', 'data': data_dic}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return response
+
+class GetTestCase(GetCaseInfoBase):
+    """
+            获得Perf用例信息
+    """
+    def getItemList(self):
+        return("CaseName", "CaseType")
+    
+    def getData(self, res):
+        """
+        """
+        get_list = self.getItemList()
+        case_name = res.get('CaseName')
+        try:
+            case_obj = PerfTestCase.objects.filter(CaseName=case_name)
+            case_item = case_obj.first()
+            if len(case_obj) == 0:
+                response = {'code':6,'msg':'Case:{0} not exist, please check!!'.format(case_name),'data':""}
+            else:
+                data_dic = {}
+                global_name= case_item.TIID.GlobalName
+                data_dic["GlobalName"] = global_name
+                for item in get_list:
+                    data_dic[item] = getattr(case_item, item)
+                response = {'code': 0, 'msg': 'Success!', 'data': data_dic}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return response
+
+class GetCaseItem(GetCaseInfoBase):
+    """
+            获得测试项信息
+    """
+    def getItemList(self):
+        return("ItemName", "CheckPoint", "AccessPercent", "BlockSize", "BlockAlign", "IODepth", "RWMixRead",
+               "RandPercent", "NumJobs", "RunTime", "StartDelay", "LoopCnt")
+    
+    def getData(self, res):
+        """
+        """
+        get_list = self.getItemList()
+        item_name = res.get('ItemName')
+        try:
+            item_obj = PerfTestItem.objects.filter(ItemName=item_name)
+            item_item = item_obj.first()
+            if len(item_obj) == 0:
+                response = {'code':6,'msg':'Case:{0} not exist, please check!!'.format(item_name),'data':""}
+            else:
+                data_dic = {}
+                for item in get_list:
+                    data_dic[item] = getattr(item_item, item)
+                response = {'code': 0, 'msg': 'Success!', 'data': data_dic}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return response
+
+class GetItemRefVal(GetCaseInfoBase):
+    """
+            获得测试项参考值
+    """
+    def getItemList(self):
+        return("RefUnit", "RefVal")
+    
+    def getData(self, res):
+        """
+        """
+        get_list = self.getItemList()
+        case_name = res.get("CaseName")
+        item_name = res.get('ItemName')
+        project_name = res.get('Project')
+        filter_dic = {
+                       "Project": project_name,
+                       "IICID__TIID__ItemName__icontains":item_name,
+                       "IICID__TCID__CaseName__icontains":case_name
+                     }
+        try:
+            item_obj = PerfRefTarget.objects.filter(**filter_dic)
+            item_item = item_obj.first()
+            if len(item_obj) == 0:
+                response = {'code':6,'msg':'Case:{0} item:{1} project:{2} not exist, please check!!'.format(case_name, item_name, project_name),'data':""}
+            else:
+                data_dic = {}
+                for item in get_list:
+                    data_dic[item] = getattr(item_item, item)
+                response = {'code': 0, 'msg': 'Success!', 'data': data_dic}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return response
+
+class FindPerfTestCase(GetCaseInfoBase):
+    """
+            查找符合条件的测试用例
+    """   
+    def getData(self, res):
+        """
+        """
+        filter_dic = {}
+        test_level = res.get("Level")
+        case_type = res.get('CaseType')
+        if test_level is not None and test_level.upper() != "ALL":
+            filter_dic["Level"]= test_level
+        if case_type is not None and case_type.upper() != "ALL":
+            filter_dic["CaseType"] = case_type
+        try:
+            item_obj = PerfTestCase.objects.filter(**filter_dic)
+            if len(item_obj) == 0:
+                response = {'code':6,'msg':'Case:{0} item:{1} project:{2} not exist, please check!!'.format(case_name, item_name, project_name),'data':""}
+            else:
+                case_list = []
+                for item in item_obj:
+                    data_dic = {}
+                    data_dic["CaseName"] = item.CaseName
+                    case_list.append(data_dic)
+                response = {'code': 0, 'msg': 'Success!', 'data': case_list}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return response
 
 class AddToolTestItem(APIAuthView):
     '''

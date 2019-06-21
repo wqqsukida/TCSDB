@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/table_data_tables.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:20:01 GMT -->
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>H+ 后台主题UI框架 - 数据表格</title>
+    <meta name="keywords" content="H+后台主题,后台bootstrap框架,会员中心主题,后台HTML,响应式后台">
+    <meta name="description" content="H+是一个完全响应式，基于Bootstrap3最新版本开发的扁平化主题，她采用了主流的左右两栏式布局，使用了Html5+CSS3等现代技术">
+
+    <link rel="shortcut icon" href="../static/favicon.ico">
+    <link href="/static/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="/static/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+
+    <!-- Data Tables -->
+    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+{#    <link href="/static/css/plugins/footable/footable.core.css" rel="stylesheet">#}
+    <link href="/static/css/font-awesome.min93e3.css" rel="stylesheet">
+    <link href="/static/css/animate.min.css" rel="stylesheet">
+    <link href="/static/css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="/static/css/gstyle.css" rel="stylesheet">
+    <link href="/static/css/plugins/switchery/switchery.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+    <!--通知消息处-->
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <ol class="breadcrumb">
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                                <a onclick="window.location.reload()">
+                                    <i class="fa fa-refresh"></i>
+                                </a>
+                                <a class="close-link">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </div>
+                        </ol>
+                    </div>
+
+                    <div class="ibox-content">
+
+                             <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
+                                 <thead>
+                                    <tr>
+
+                                        <th>测试项目ID</th>
+                                        <th>测试项目名称</th>
+                                        <th>测试点</th>
+                                        <th>可访问区间百分比</th>
+                                        <th>数据传输块大小(byte)</th>
+                                        <th>数据块对齐大小(byte)</th>
+                                        <th>IO命令深度</th>
+                                        <th>Read占百分比</th>
+                                        <th>随机百分比</th>
+                                        <th>并行Job的数目</th>
+                                        <th>测试执行时间</th>
+                                        <th>测试开始前的静默时间</th>
+                                        <th>循环执行次数</th>
+                                        <th>所属项目名称</th>
+                                        <th>参考值单位</th>
+                                        <th>参考值</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                 {% if refer_obj %}
+                                    {% for item in queryset %}       	
+                                    	{% for ref in refer_obj %}
+                                        	<tr>
+	                                            <td>{{ item.TIID.id}}</td>
+	                                            <td>{{ item.TIID.ItemName}}</td>
+	                                            <td>{{ item.TIID.CheckPoint}}</td>
+	                                            <td>{{ item.TIID.AccessPercent}}</td>
+	                                            <td>{{ item.TIID.BlockSize}}</td>
+	                                            <td>{{ item.TIID.BlockAlign}}</td>
+	                                            <td>{{ item.TIID.IODepth}}</td>
+	                                            <td>{{ item.TIID.RWMixRead}}</td>
+	                                            <td>{{ item.TIID.RandPercent}}</td>
+	                                            <td>{{ item.TIID.NumJobs}}</td>
+	                                            <td>{{ item.TIID.RunTime}}</td>
+	                                            <td>{{ item.TIID.StartDelay}}</td>
+	                                            <td>{{ item.TIID.LoopCnt}}</td>
+	                                            <td>{{ ref.Project}}</td>
+	                                            <td>{{ ref.RefUnit}}</td>
+	                                            <td>{{ ref.RefVal}}</td>
+                                       
+                                       		 </tr>
+                                    		{% endfor %}
+                                    	{% endfor %}
+                                    {% else %}
+                                    	{% for item in queryset %} 
+                                    		<td>{{ item.TIID.id}}</td>
+	                                            <td>{{ item.TIID.ItemName}}</td>
+	                                            <td>{{ item.TIID.CheckPoint}}</td>
+	                                            <td>{{ item.TIID.AccessPercent}}</td>
+	                                            <td>{{ item.TIID.BlockSize}}</td>
+	                                            <td>{{ item.TIID.BlockAlign}}</td>
+	                                            <td>{{ item.TIID.IODepth}}</td>
+	                                            <td>{{ item.TIID.RWMixRead}}</td>
+	                                            <td>{{ item.TIID.RandPercent}}</td>
+	                                            <td>{{ item.TIID.NumJobs}}</td>
+	                                            <td>{{ item.TIID.RunTime}}</td>
+	                                            <td>{{ item.TIID.StartDelay}}</td>
+	                                            <td>{{ item.TIID.LoopCnt}}</td>
+	                                            <td>N/A</td>
+	                                            <td>N/A</td>
+	                                            <td>N/A</td>
+                                    	
+                                 			{% endfor %}
+                                 	{% endif %}
+                                 </tbody>
+
+                             </table>
+                            <div class="row">
+                                <div class="col-md-6 col-md-offset-3" style="text-align: center">
+                                    <ul class="pagination">
+                                        {{ page_html|safe }}
+                                    </ul>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="/static/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/static/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <script src="/static/js/plugins/jeditable/jquery.jeditable.js"></script>
+    <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+    <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+{#    <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>#}
+    <script src="/static/js/plugins/layer/layer.min.js"></script>
+    <!-- jQuery Validation plugin javascript-->
+    <script src="/static/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="/static/js/plugins/validate/messages_zh.min.js"></script>
+{#    <script src="/static/js/plugins/footable/footable.all.min.js"></script>#}
+    <!-- 自定义js -->
+    <script src="/static/js/content.min.js?v=1.0.0"></script>
+    <!-- Switchery -->
+    <script src="/static/js/plugins/switchery/switchery.js"></script>
+
+    <script>
+
+        $.validator.setDefaults({
+            highlight:function(a){
+                $(a).closest(".form-group").removeClass("has-success").addClass("has-error")
+            },
+            success:function(a){
+                a.closest(".form-group").removeClass("has-error").addClass("has-success")
+            },
+            errorElement:"span",
+            errorPlacement:function(a,b){
+                if(b.is(":radio")||b.is(":checkbox")){a.appendTo(b.parent().parent().parent())}
+                else{a.appendTo(b.parent())}},errorClass:"help-block m-b-none",validClass:"help-block m-b-none"});
+
+        $().ready(function(){
+            $("#commentForm").validate();
+            var a="<i class='fa fa-times-circle'></i> ";
+            /*
+            $("#signupForm").validate({
+                rules:{
+                    firstname:"required",
+                    lastname:"required",
+                    name:"required",
+                    username:{required:true,minlength:2},
+                    password:{required:true,minlength:5},
+                    confirm_password:{required:true,minlength:5,equalTo:"#password"},
+                    email:{required:true,email:true},
+                    topic:{required:"#newsletter:checked",minlength:2},
+                    agree:"required"
+                },
+                messages:{
+                    firstname:a+"请输入你的姓",
+                    lastname:a+"请输入您的名字",
+                    name:a+"请输入你的昵称",
+                    username:{required:a+"请输入您的用户名",minlength:a+"用户名必须两个字符以上"},
+                    password:{required:a+"请输入您的密码",minlength:a+"密码必须5个字符以上"},
+                    confirm_password:{required:a+"请再次输入密码",minlength:a+"密码必须5个字符以上",equalTo:a+"两次输入的密码不一致"},
+                    email:a+"请输入正确的E-mail",
+                    agree:{required:a+"必须同意协议后才能注册",element:"#agree-error"}
+                }
+            });
+  
+            $("#username").focus(function(){
+                var c=$("#firstname").val();
+                var b=$("#lastname").val();
+                if(c&&b&&!this.value){this.value=c+"."+b}
+            }) */
+        });
+
+    </script>
+
+    <script>
+        $(document).ready(function(){$(".dataTables-example").dataTable(
+            {
+                "order": [], //取消加载后的第一列默认排序
+                "aLengthMenu" : [10, 25, 50, 100], //更改显示记录数选项
+                "iDisplayLength" : 10, //默认显示的记录数
+                "paging": false,
+                "searching": false
+            }
+        );var oTable=$("#editable").dataTable();oTable.$("td").editable("http://www.zi-han.net/theme/example_ajax.php",{"callback":function(sValue,y){var aPos=oTable.fnGetPosition(this);oTable.fnUpdate(sValue,aPos[0],aPos[1])},"submitdata":function(value,settings){return{"row_id":this.parentNode.getAttribute("id"),"column":oTable.fnGetPosition(this)[2]}},"width":"90%","height":"100%"})});function fnClickAddRow(){$("#editable").dataTable().fnAddData(["Custom row","New row","New row","New row","New row"])};
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            $('.footable').footable();
+            $('.footable2').footable();
+
+        });
+
+    </script>
+
+    <script>
+        {% if result %}
+        swal("{{ result }}");
+        {% endif %}
+
+    </script>
+
+    <script>
+        function refresh(){
+            window.location.reload();
+        }
+    </script>
+
+    <script>
+        $(' .del_confirm').click(function(){
+            return confirm("确认要执行删除操作吗？");
+        });
+        $(' .js_confirm').click(function(){
+            return confirm("确认执行操作吗？");
+        });
+    </script>
+
+    <script>
+    // 如果通知元素存在,则5秒后淡出
+        if ($(".alert")){
+            $(".alert").fadeOut(3000);
+        }
+    </script>
+
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/table_data_tables.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:20:02 GMT -->
+</html>

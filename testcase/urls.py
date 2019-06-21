@@ -39,10 +39,6 @@ urlpatterns = [
     re_path(r'^api/func_test/get_casepoint/$',api.GetCaseTestPoints.as_view()),
     re_path(r'^api/func_test/get_caseprjinfo/$',api.GetCaseProjectInfo.as_view()),
     re_path(r'^api/func_test/get_prjcaselist/$',api.GetProjectCases.as_view()),
-    #automated performance api
-    re_path(r'^api/perf_test/add_testcase/$',api.AddCaseDesc.as_view()),
-    #automated competible api
-    re_path(r'^api/comp_test/add_item/$',api.AddToolTestItem.as_view()),
     #function web api
     re_path(r'^add_project/(\w+)/$', views.AddProject),
     re_path(r'^test_project/(\w+)/$', views.GetProject),
@@ -60,4 +56,36 @@ urlpatterns = [
     re_path(r'^add_point', views.AddTestPoint),
     re_path(r'^edit_point', views.UpdateTestPoint),
     re_path(r'^del_point', views.DeleteTestPoint),
+    #automated performance api
+    re_path(r'^api/perf_test/add_global/$',api.AddPerfGlobal.as_view()),
+    re_path(r'^api/perf_test/add_item/$',api.AddPerfTestItem.as_view()),
+    re_path(r'^api/perf_test/add_case/$',api.AddPerfTestCase.as_view()),
+    re_path(r'^api/perf_test/add_item_case/$',api.AddItemIntoCase.as_view()),
+    re_path(r'^api/perf_test/add_ref/$',api.AddItemRefVal.as_view()),
+    re_path(r'^api/perf_test/get_item/$',api.GetCaseTestItems.as_view()),
+    re_path(r'^api/perf_test/get_global/$',api.GetPerfGlobal.as_view()),
+    re_path(r'^api/perf_test/get_case/$',api.GetTestCase.as_view()),
+    re_path(r'^api/perf_test/get_case_item/$',api.GetCaseItem.as_view()),
+    re_path(r'^api/perf_test/get_ref/$',api.GetItemRefVal.as_view()),
+    re_path(r'^api/perf_test/find_case/$',api.FindPerfTestCase.as_view()),
+    #performance views
+    re_path(r'^perf_add_project/(\w+)/$', views.AddPerfProject),
+    re_path(r'^perf_test_project/(\w+)/$', views.GetPerfProject),
+    re_path(r'^perf_edit_project/(\w+)/$', views.UpdatePerfProject),
+    re_path(r'^perf_get_global', views.GetPerfGlobal),
+    re_path(r'^perf_add_global', views.AddPerfGlobal),
+    re_path(r'^perf_edit_global', views.UpdatePerfGlobal),
+    re_path(r'^perf_del_global', views.DeletePerfGlobal),
+    re_path(r'^perf_get_item', views.GetPerfTestItem),
+    re_path(r'^perf_add_item', views.AddPerfTestItem),
+    re_path(r'^perf_edit_item', views.UpdatePerfTestItem),
+    re_path(r'^perf_del_item', views.DeletePerfTestItem),
+    re_path(r'^perf_get_case', views.GetPerfTestCase),
+    re_path(r'^perf_add_case', views.AddPerfTestCase),
+    re_path(r'^perf_edit_case', views.UpdatePerfTestCase),
+    re_path(r'^perf_del_case', views.DeletePerfTestCase),
+    re_path(r'^perf_detail_case_info', views.GetPerfCaseInfo),
+    #automated competible api
+    re_path(r'^api/comp_test/add_item/$',api.AddToolTestItem.as_view()),
+
 ]

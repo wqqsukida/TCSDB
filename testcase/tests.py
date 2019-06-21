@@ -9,6 +9,7 @@ class TestCaseTests(TestCase):
     Test RefSpec related API
     """
     def setUp(self):
+        #create function test objects
         r1 = ReferSpec(FileName="UFS", Standard=True, Version="3.0", FilePath="C:\\Spec\\UFS")
         r1.save()
         r2 = ReferSpec(FileName="NVME", Standard=True, Version="3.0", FilePath="C:\\Spec\\Nvme")
@@ -49,6 +50,32 @@ class TestCaseTests(TestCase):
         cs2.save()
         cs3 = CaseStep(Step=1, StepType="MAIN", StepDesc="write some data to drive", ExpectRslt="pass", TID=ts2)
         cs3.save()
+        #create performance test objects
+        perfg1 = PerfGlobal(GlobalName="fio", MaxIOSize=100, Offset=0, NeedPurge=True, Need2XFillDriver=False)
+        perfg1.save()
+        perfg2 = PerfGlobal(GlobalName="bonnie", MaxIOSize=0, Offset=50, NeedPurge=False, Need2XFillDriver=True)
+        perfg2.save()
+        
+        perfitem1 = PerfTestItem(ItemName="test1", CheckPoint="FOB", AccessPercent=100, BlockSize=4096,
+                                 BlockAlign=4096, IODepth=64, RWMixRead=30, RandPercent=0, NumJobs=2,
+                                 RunTime=3600, StartDelay=0, LoopCnt=10)
+        perfitem1.save()
+        perfitem2 = PerfTestItem(ItemName="test2", CheckPoint="SSS", AccessPercent=100, BlockSize=4096,
+                                 BlockAlign=4096, IODepth=64, RWMixRead=30, RandPercent=0, NumJobs=2,
+                                 RunTime=3600, StartDelay=0, LoopCnt=20)
+        perfitem2.save()
+        perfcase1 = PerfTestCase(CaseName="fiotest1", Level="BASIC", CaseType="IOPS", TIID=perfg1)
+        perfcase1.save()
+        perfcase2 = PerfTestCase(CaseName="fiotest2", Level="FULL", CaseType="IOPS", TIID=perfg1)
+        perfcase2.save()
+        perfcaseitem1 = PerfItemInCase(TIID=perfitem1, TCID=perfcase1)
+        perfcaseitem1.save()
+        perfcaseitem2 = PerfItemInCase(TIID=perfitem1, TCID=perfcase2)
+        perfcaseitem2.save()
+        perfcaseitem3 = PerfItemInCase(TIID=perfitem2, TCID=perfcase1)
+        perfcaseitem3.save()
+        perfref1 = PerfRefTarget(Project="taiplus", RefUnit="IOPS", RefVal=10000, IICID=perfcaseitem1)
+        perfref1.save()
         self.c = Client()
 
     def testAddRefSpec(self):
@@ -318,6 +345,137 @@ class TestCaseTests(TestCase):
                             }
                           }
         expect_data = [{'id': 1, 'Project': 'TaiPlus', 'CaseName': 'read1'}]
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+
+    def testAddPerfTestItem(self):
+        """
+        """
+        url = "/testcase/api/perf_test/add_item/"
+        data_dic ={"data": { "ItemName":"utAddPerfTestItem", 
+                            "CheckPoint":"SSS", 
+                            "AccessPercent":"30", 
+                            "BlockSize":"4096",
+                            "BlockAlign":"4096",
+                            "IODepth"   : "256",
+                            "RWMixRead" : "100",
+                            "RandPercent" :"100",
+                            "NumJobs"   : "32",
+                            "RunTime"   : "3600",
+                            "StartDelay": "0",
+                            "LoopCnt"   : "3"
+                            }
+                }
+        CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+
+    def testAddPerfGlobal(self):
+        """
+        """
+        url = "/testcase/api/perf_test/add_global/"
+        data_dic ={"data": { "GlobalName":"utGlobal", 
+                            "MaxIOSize":"100", 
+                            "Offset":"0", 
+                            "NeedPurge":"False",
+                            "Need2XFillDriver":"True",
+                            }
+                }
+        CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+
+    def testAddPerfTestCase(self):
+        """
+        """
+        url = "/testcase/api/perf_test/add_case/"
+        data_dic ={"data": { "CaseName":"utTestCase", 
+                            "Level":"COMMON", 
+                            "CaseType":"LATENCY", 
+                            "GlobalName":"fio",
+                            }
+                }
+        CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+
+    def testAddItemIntoCase(self):
+        """
+        """
+        url = "/testcase/api/perf_test/add_item_case/"
+        data_dic ={"data": { "CaseName":"fiotest1", 
+                            "ItemName":"test1", 
+                            }
+                }
+        CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+
+    def testAddItemRefVal(self):
+        """
+        """
+        url = "/testcase/api/perf_test/add_ref/"
+        data_dic ={"data": { "CaseName":"fiotest2", 
+                            "ItemName":"test1", 
+                            "Project" :"taiplus",
+                            "RefUnit" : "IOPS",
+                            "RefVal"  : "100"
+                            }
+                }
+        CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+    
+    def testGetCaseTestItems(self):
+        """
+        """
+        url = "/testcase/api/perf_test/get_item/"
+        data_dic ={"data": { "CaseName":"fiotest1"
+                            }
+                          }
+        expect_data =  [{'ItemName': 'test1'}, {'ItemName': 'test2'}]
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+    
+    def testGetPerfGlobal(self):
+        """
+        """
+        url = "/testcase/api/perf_test/get_global/"
+        data_dic ={"data": { "GlobalName":"fio"
+                            }
+                          }
+        expect_data =  {'GlobalName': 'fio', 'MaxIOSize': 100, 'Offset': 0, 'NeedPurge': True, 'Need2XFillDriver': False}
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+    
+    def testGetTestCase(self):
+        """
+        """
+        url = "/testcase/api/perf_test/get_case/"
+        data_dic ={"data": { "CaseName":"fiotest1"
+                            }
+                          }
+        expect_data =  {'GlobalName': 'fio', 'CaseName': 'fiotest1', 'CaseType': 'IOPS'}
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+    
+    def testGetCaseItem(self):
+        """
+        """
+        url = "/testcase/api/perf_test/get_case_item/"
+        data_dic ={"data": { "ItemName":"test1"
+                            }
+                          }
+        expect_data =  {'ItemName': 'test1', 'CheckPoint': 'FOB', 'AccessPercent': 100, 'BlockSize': 4096, 'BlockAlign': 4096, 'IODepth': 64, 
+                        'RWMixRead': 30, 'RandPercent': 0, 'NumJobs': 2, 'RunTime': 3600, 'StartDelay': 0, 'LoopCnt': 10}
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+    
+    def testGetItemRefVal(self):
+        """
+        """
+        url = "/testcase/api/perf_test/get_ref/"
+        data_dic ={"data": {"CaseName":"fiotest1",
+                            "ItemName":"test1",
+                            "Project" : "taiplus"
+                            }
+                          }
+        expect_data =  {'RefUnit': 'IOPS', 'RefVal': '10000'}
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+    
+    def testFindPerfTestCase(self):
+        """
+        """
+        url = "/testcase/api/perf_test/find_case/"
+        data_dic ={"data": {"Level":"BASIC",
+                            }
+                          }
+        expect_data =   [{'CaseName': 'fiotest1'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
 
 class CaseFuncsBase(object):
