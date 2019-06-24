@@ -271,10 +271,10 @@ def update_test_run(request):
     if request.method == "GET":
         tid = request.GET.get('tid',None)
         tr_obj = TestRun.objects.filter(id=tid)
-        tr_dict = dict(tr_obj.values('id','TestRunName','JIRAID').first())
+        tr_dict = dict(tr_obj.values('id','TestRunName','JIRAID','Comments').first())
         # trigger_time = tr_obj.first().TriggerTime
         # if trigger_time:
-        #     tr_dict['TriggerTime'] = trigger_time.strftime("%Y-%m-%d %H:%m:%s")
+        #     tr_dict['TriggerTime'] = trigger_time.strftime("%Y-%m-%d  %H:%m:%s")
         # print(tr_dict)
         return HttpResponse(json.dumps(tr_dict))
 
@@ -283,12 +283,14 @@ def update_test_run(request):
         tid = request.POST.get("id")
         tr_name = request.POST.get("TestRunName",None)
         jira_id = request.POST.get("JIRAID",None)
+        comments = request.POST.get("Comments",None)
         # trigger_time = request.POST.get("TriggerTime",None)
         page = request.POST.get("page")
 
         form_data = {
             'TestRunName':tr_name,
             'JIRAID':jira_id,
+            'Comments':comments,
             # 'TriggerTime':trigger_time,
         }
 
