@@ -194,3 +194,71 @@ class HostSoftware(models.Model):
 
     # class Meta:
     #     unique_together = ('OSID', 'ToolName',)
+
+class ScriptSrtInfo(models.Model):
+    '''
+    ScriptSrtInfo信息表
+    '''
+    PKGID = models.ForeignKey(verbose_name='对应的包', to='ScriptPackage', on_delete=models.CASCADE)
+    SrtName = models.CharField('Script名称', max_length=32, null=True, blank=True)
+    GitRepo = models.CharField('Script对应的Repo信息', max_length=128, null=True, blank=True)
+    GitBranch = models.CharField('Script对应的Branch信息', max_length=64, null=True, blank=True)
+    GitCommitID = models.CharField('Script对应的CommitID信息', max_length=16, null=True, blank=True)
+
+    def __str__(self):
+        return self.SrtName
+
+class ScriptPackage(models.Model):
+    '''
+    ScriptPackage表
+    '''
+    PkgName = models.CharField('Package (Folder) Name', max_length=64, unique=True)
+    Project = models.CharField('项目名称', max_length=32, null=True, blank=True)
+    Date = models.DateTimeField('Checkout的日期时间', auto_now_add=True)
+    PkgPath = models.CharField('Package路径', max_length=255, null=True, blank=True)
+    Labels = models.CharField('标签', max_length=64, null=True, blank=True)
+
+    def __str__(self):
+        return self.PkgName
+
+class FWBinary(models.Model):
+    '''
+    FWBinary信息表
+    '''
+    PKGID = models.ForeignKey(verbose_name='对应的包', to='FWPackage', on_delete=models.CASCADE)
+    BinaryType = models.CharField('BIN档类型', max_length=16, null=True, blank=True) #GOLDEN,SIMPLE,CONNECT,AGING,BOOTFW,OEMFW
+    GitRepo = models.CharField('FW对应的Repo信息', max_length=128, null=True, blank=True)
+    GitBranch = models.CharField('FW对应的Branch信息', max_length=64, null=True, blank=True)
+    GitCommitID = models.CharField('FW对应的CommitID信息', max_length=16, null=True, blank=True)
+    BinaryName = models.CharField('BIN档名称',max_length=64,null=True,blank=True)
+
+    def __str__(self):
+        return self.BinaryName
+
+class FWPackage(models.Model):
+    '''
+    FWPackage表
+    '''
+    PkgName = models.CharField('Package (Folder) Name', max_length=64, unique=True)
+    Project = models.CharField('项目名称', max_length=32, null=True, blank=True)
+    External = models.BooleanField('是否是对外发布的版本',default=False)
+    Date = models.DateTimeField('BIN打包日期时间', auto_now_add=True)
+    PkgType = models.CharField('Package类型', max_length=16, null=True, blank=True) #DEBUG，AUTO，TEST，MP，OEM
+    PkgPath = models.CharField('Package路径', max_length=255, null=True, blank=True)
+    Labels = models.CharField('标签', max_length=64, null=True, blank=True)
+
+    def __str__(self):
+        return self.PkgName
+
+class FWRelease(models.Model):
+    '''
+    FWPackage版本信息表
+    '''
+    Name = models.CharField('发布名称',max_length=64,unique=True)
+    PKGID = models.ForeignKey(verbose_name='对应的包', to='FWPackage', on_delete=models.CASCADE)
+    TRName = models.CharField('TestRun Name', max_length=32, null=True, blank=True)
+    Date = models.DateTimeField('发布的时间', auto_now_add=True)
+    Version = models.CharField('发布的版本信息', max_length=32, null=True, blank=True)
+
+    def __str__(self):
+        return self.Name

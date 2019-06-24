@@ -710,3 +710,36 @@ class ChangHostStatus(APIAuthView):
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Service internal error:{0}'.format(str(e)), 'data': {}}
         return HttpResponse(json.dumps(response))
+
+########################################################################################################################
+class AddSrtPkg(APIAuthView):
+    '''
+    新增Script包信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            ScriptPackage.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+
+
+
+########################################################################################################################
+class AddFWPkg(APIAuthView):
+    '''
+    新增FW Bin包信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            FWPackage.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))

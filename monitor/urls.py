@@ -58,6 +58,11 @@ urlpatterns = [
     re_path(r'^api/host/disconnections/$', api.GetDisconnectedHost.as_view()),
     re_path(r'^api/host/get_status/$', api.GetHostStatus.as_view()),
     re_path(r'^api/host/change_status/$', api.ChangHostStatus.as_view()),
+    re_path(r'^api/srt/add_pkg/$',api.AddSrtPkg.as_view()),
+
+
+
+    re_path(r'^api/bin/add_pkg/$',api.AddFWPkg.as_view()),
 
     re_path(r'^duts$', views.duts),
     re_path(r'^dut_update$', views.dut_update),
