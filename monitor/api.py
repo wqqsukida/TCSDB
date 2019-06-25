@@ -7,6 +7,7 @@ from utils.auth_token import APIAuthView,APITokenAuthView
 from django.shortcuts import HttpResponse
 from django.db import transaction
 import json,traceback
+import datetime
 from monitor.models import *
 from django.db.models import Max
 from django.conf import settings
@@ -440,7 +441,6 @@ class ChangeHostBasicInfo(APIAuthView):
         try:
             host_name = res.pop("HostName")
             host_obj = HostInfo.objects.filter(HostName=host_name)
-            print(res)
             host_obj.update(**res)
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
@@ -726,8 +726,101 @@ class AddSrtPkg(APIAuthView):
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
         return HttpResponse(json.dumps(response))
 
+class AddSrtInfo(APIAuthView):
+    '''
+    新增Script信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.pop("PkgName")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            ScriptSrtInfo.objects.create(**res,PKGID=pkg_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class ChgSrtPkgLabels(APIAuthView):
+    '''
+    新增/更新Script Package的标签
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            labels = res.get("Labels")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            pkg_obj.update(Labels=labels)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetSrtPkg(APIAuthView):
+    '''
+    获得Package的信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            data = pkg_obj.values("PkgName","Project","PkgPath","Labels").first()
+            data["Date"] = pkg_obj.first().Date.strftime('%Y-%m-%d %H:%m:%s')
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetPkgSrtList(APIAuthView):
+    '''
+    获得Package下Script的信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            data = pkg_obj.first().scriptsrtinfo_set.values("SrtName","GitRepo",
+                                                            "GitBranch","GitCommitID")
+            response = {'code': 0, 'msg': 'Success!', 'data': list(data)}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
 
 
+class FindSrtPkg(APIAuthView):
+    '''
+    查找对应的Script Package
+    '''
+
+    def post(self, request, *args, **kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            project = res.get("Project")
+            labels = res.get("Labels")
+            timeDelta = res.get("timeDelta")
+            parms_dict = {}
+            if project and project != "ALL":
+                parms_dict["Project"] = project
+            if labels:
+                parms_dict["Labels"] = labels
+
+            data = ScriptPackage.objects.filter(**parms_dict).values()
+            if timeDelta:
+                _timeDelta = datetime.datetime.now() - datetime.timedelta(days=timeDelta)
+                data = data.filter(Date__gt=_timeDelta)
+            data = [i.get("PkgName") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response))
 
 ########################################################################################################################
 class AddFWPkg(APIAuthView):

@@ -43,6 +43,9 @@ class ApiTest(TestCase):
         host_obj.Status = 'BAD'
         host_obj.save()
 
+        pkj_obj = ScriptPackage.objects.create(PkgName="PkgName",Project="Project01",PkgPath="PkgPath01")
+        srt_obj = ScriptSrtInfo.objects.create(PKGID=pkj_obj,SrtName="SrtName01",GitRepo="GitRepo01")
+
     def testAddDUTNodes(self):
         data = {
             "data":{
@@ -468,6 +471,78 @@ class ApiTest(TestCase):
             }
         }
         rep = self.c.post(path='/monitor/api/host/change_status/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testAddSrtPkg(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName02",
+                "Project": "Project02",
+                "PkgPath": "PkgPath02",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/srt/add_pkg/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testAddSrtInfo(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+                "SrtName": "SrtName02",
+                "GitRepo": "GitRepo02",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/srt/add_srtinfo/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testChgSrtPkgLabels(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+                "Labels": "Labels01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/srt/chg_lab/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetSrtPkg(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/srt/get_pkg/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetPkgSrtList(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/srt/get_srts/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testFindSrtPkg(self):
+        data = {
+            "data":{
+                "Project": "Project01",
+                "timeDelta": "1",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/srt/find_pkg/',content_type='application/json'  ,data=data)
         res = json.loads(rep.content)
         print(res)
         self.assertEqual(res.get("code"), 0)

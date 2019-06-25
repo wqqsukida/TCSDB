@@ -59,6 +59,11 @@ urlpatterns = [
     re_path(r'^api/host/get_status/$', api.GetHostStatus.as_view()),
     re_path(r'^api/host/change_status/$', api.ChangHostStatus.as_view()),
     re_path(r'^api/srt/add_pkg/$',api.AddSrtPkg.as_view()),
+    re_path(r'^api/srt/add_srtinfo/$',api.AddSrtInfo.as_view()),
+    re_path(r'^api/srt/chg_lab/$',api.ChgSrtPkgLabels.as_view()),
+    re_path(r'^api/srt/get_pkg/$',api.GetSrtPkg.as_view()),
+    re_path(r'^api/srt/get_srts/$',api.GetPkgSrtList.as_view()),
+    re_path(r'^api/srt/find_pkg/$',api.FindSrtPkg.as_view()),
 
 
 
