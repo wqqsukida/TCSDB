@@ -245,3 +245,196 @@ def os_record(request):
             all_record = sorted(all_record,key=lambda x:x.Changed)
         all_record, page_html = init_paginaion(request, all_record)
         return render(request,'monitor/os_record.html',locals())
+
+def package_list(request):
+    '''
+    script package列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+
+        queryset = ScriptPackage.objects.filter(Q(Q(PkgName__contains=search_q) |
+                                           Q(Project__contains=search_q) |
+                                           Q(Labels__contains=search_q))
+                                          ).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'monitor/package_list.html',locals())
+
+def add_package(request):
+    if request.method == "POST":
+        pkg_name = request.POST.get("PkgName")
+        project = request.POST.get("Project")
+        pkg_path = request.POST.get("PkgPath")
+        page = request.POST.get("page")
+        if pkg_name:
+            try:
+                ScriptPackage.objects.create(PkgName=pkg_name,Project=project,PkgPath=pkg_path)
+                result = {"code": 0, "message": "Package创建成功!"}
+            except Exception as e:
+                result = {"code": 1, "message": str(e)}
+        else:
+            result = {"code": 1, "message": "必须指定名称!"}
+        return HttpResponseRedirect('/monitor/package_list?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page))
+
+def update_package(request):
+    if request.method == "GET":
+        pid = request.GET.get('tid',None)
+        pkg_obj = ScriptPackage.objects.filter(id=pid)
+        pkg_dict = pkg_obj.values('id','PkgName','Project','PkgPath','Labels').first()
+        # print(pkg_dict)
+        return HttpResponse(json.dumps(dict(pkg_dict)))
+
+    elif request.method == "POST":
+        pid = request.POST.get("id")
+        pkg_name = request.POST.get("PkgName",None)
+        project = request.POST.get("Project",None)
+        pkg_path = request.POST.get("PkgPath",None)
+        labels = request.POST.get("Labels",None)
+
+        page = request.POST.get("page")
+
+        form_data = {
+            'PkgName':pkg_name,
+            'Project':project,
+            'PkgPath':pkg_path,
+            'Labels':labels,
+        }
+
+        pkg_obj = ScriptPackage.objects.get(id=pid)
+        try:
+            for k ,v in form_data.items():
+                setattr(pkg_obj,k,v)
+                pkg_obj.save()
+            result = {"code": 0, "message": "Package更新成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/package_list?status={0}&message={1}&page={2}'.
+                            format(result.get("code", ""),
+                                   result.get("message", ""),
+                                   page))
+
+def del_package(request):
+    if request.method == "GET":
+        pid = request.GET.get("pid")
+        page = request.GET.get("page")
+        try:
+            ScriptPackage.objects.get(id=pid).delete()
+            result = {"code": 0, "message": "Package删除成功!"}
+        except Exception as e:
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/package_list?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page))
+
+def script_list(request,pid):
+    '''
+    script列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+        package_obj = ScriptPackage.objects.get(id=pid)
+        queryset = ScriptSrtInfo.objects.filter(Q(Q(SrtName__contains=search_q))
+                                          ,PKGID=package_obj).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'monitor/script_list.html',locals())
+
+def add_script(request):
+    if request.method == "POST":
+        pid = request.POST.get("pid")
+        srt_name = request.POST.get("SrtName")
+        git_repo = request.POST.get("GitRepo")
+        git_branch = request.POST.get("GitBranch")
+        git_commitid = request.POST.get("GitCommitID")
+        page = request.POST.get("page")
+        if srt_name:
+            try:
+                ScriptSrtInfo.objects.create(SrtName=srt_name,GitRepo=git_repo,GitBranch=git_branch
+                                             ,GitCommitID=git_commitid,PKGID_id=pid)
+                result = {"code": 0, "message": "Script创建成功!"}
+            except Exception as e:
+                result = {"code": 1, "message": str(e)}
+        else:
+            result = {"code": 1, "message": "必须指定名称!"}
+        return HttpResponseRedirect('/monitor/script_list/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page,pid))
+
+def update_script(request):
+    if request.method == "GET":
+        sid = request.GET.get('sid',None)
+        script_obj = ScriptSrtInfo.objects.filter(id=sid)
+        s_dict = dict(script_obj.values('id','SrtName','GitRepo','GitBranch','GitCommitID').first())
+
+        return HttpResponse(json.dumps(s_dict))
+
+    elif request.method == "POST":
+        pid = request.POST.get("pid")
+        sid = request.POST.get("id")
+        srt_name = request.POST.get("SrtName",None)
+        git_repo = request.POST.get("GitRepo",None)
+        git_branch = request.POST.get("GitBranch",None)
+        git_commitid = request.POST.get("GitCommitID",None)
+
+        page = request.POST.get("page")
+
+        form_data = {
+            'SrtName':srt_name,
+            'GitRepo':git_repo,
+            'GitBranch':git_branch,
+            'GitCommitID':git_commitid,
+        }
+
+        srt_obj = ScriptSrtInfo.objects.get(id=sid)
+        try:
+            for k ,v in form_data.items():
+                setattr(srt_obj,k,v)
+                srt_obj.save()
+            result = {"code": 0, "message": "Script更新成功！"}
+        except Exception as e:
+            print(traceback.format_exc())
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/cccs/script_list/{3}/?status={0}&message={1}&page={2}'.
+                            format(result.get("code", ""),
+                                   result.get("message", ""),
+                                   page,pid))
+
+def del_script(request):
+    if request.method == "GET":
+        pid = request.GET.get("pid")
+        sid = request.GET.get("sid")
+        page = request.GET.get("page")
+        try:
+            ScriptSrtInfo.objects.get(id=sid).delete()
+            result = {"code": 0, "message": "Script删除成功!"}
+        except Exception as e:
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/cccs/script_list/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page,pid))

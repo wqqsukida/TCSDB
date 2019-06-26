@@ -77,4 +77,15 @@ urlpatterns = [
     re_path(r'^dut_record', views.dut_record),
     re_path(r'^host_record', views.host_record),
     re_path(r'^os_record', views.os_record),
+
+    re_path(r'^package_list$', views.package_list),
+    re_path(r'^package_add$', views.add_package),
+    re_path(r'^package_update$', views.update_package),
+    re_path(r'^package_del$', views.del_package),
+    re_path(r'^script_list/(?P<pid>\d*)/$', views.script_list),
+    re_path(r'^script_add$', views.add_package),
+    re_path(r'^script_update$', views.update_package),
+    re_path(r'^script_del$', views.del_package),
+
+
 ]
