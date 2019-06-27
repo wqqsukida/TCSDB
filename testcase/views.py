@@ -1076,3 +1076,358 @@ def UpdatePerfProject(request, projectName):
         return HttpResponseRedirect('/testcase/perf_test_project/'+pjName+'/?status={0}&message={1}'.
                                     format(result.get("code", ""),
                                     result.get("message", "")))
+def GetCompItem(request):
+    """
+    获取兼容性测试项目信息
+    """
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_case_name = request.GET.get('scase', '').strip()
+        search_case_type  = request.GET.get('stype', '').strip()
+        filter_dic = {}
+        if search_case_name != "":
+            filter_dic["Name__icontains"] = search_case_name
+        if search_case_type != "":
+            filter_dic["Automated"] = search_case_type
+        case_list = CompTestItem.objects.filter(**filter_dic).distinct()
+        global_obj = PerfGlobal.objects.all()
+        queryset, page_html = init_paginaion(request, case_list)
+        return render(request,'testcase/comp_get_item.html',locals())
+
+def AddCompItem(request):
+    """
+    添加兼容性测试项目
+    """
+    result = {}
+    if request.method == "POST":
+        itemname   = request.POST.get("itemname",None)
+        itemdesc   = request.POST.get("itemdesc",None)
+        osrequired = request.POST.get("osrequired",None)
+        automated  = request.POST.get("automated",None)
+        toolname   = request.POST.get("toolname",None)
+        toolversion = request.POST.get("toolversion",None)
+        toolpath   = request.POST.get("toolpath",None)
+        toolparam  = request.POST.get("toolparam",None)
+        comments   = request.POST.get("comments",None)
+        print("itemname:%s, itemdesc:%s,osrequired:%s, automated:%s,toolname:%s"
+              %(itemname, itemdesc, osrequired, automated, toolname))
+        print("toolversion:%s, toolpath:%s,toolparam:%s, comments:%s"
+              %(toolversion, toolpath, toolparam, comments))
+        try:
+            with transaction.atomic():
+                item_obj = CompTestItem(Name=itemname, Description=itemdesc, OSRequired=osrequired, Automated=automated, ToolName=toolname,
+                                          ToolVersion=toolversion, ToolPath=toolpath, ToolParam=toolparam, Comments=comments)
+                item_obj.save()
+            result = {"code": 0, "message": "创建测试项目成功"}
+        except Exception as e:
+            result = {"code": 1, "message": e}
+            print(e)
+
+        return HttpResponseRedirect('/testcase/comp_get_item?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def UpdateCompItem(request):
+    """
+    更新兼容性测试项目
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        item_obj = CompTestItem.objects.filter(id=id)
+        item_dict = item_obj.values().first()
+        if item_dict:
+            res = dict(item_dict)
+        print("case_dict:%s" %item_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        itemid = request.POST.get("id")
+        itemname= request.POST.get("itemname",None)
+        itemdesc= request.POST.get("itemdesc",None)
+        osrequired= request.POST.get("osrequired",None)
+        automated= request.POST.get("automated",None)
+        toolname= request.POST.get("toolname",None)
+        toolversion= request.POST.get("toolversion",None)
+        toolpath= request.POST.get("toolpath",None)
+        toolparam= request.POST.get("toolparam",None)
+        comments= request.POST.get("comments",None)
+        form_data = {
+            'id'           :itemid,
+            'Name'         :itemname,
+            'Description'  :itemdesc,
+            'OSRequired'   :osrequired,
+            'Automated'    :automated,
+            'ToolName'     :toolname,
+            'ToolVersion'  :toolversion,
+            'ToolPath'     :toolpath,
+            'ToolParam'    :toolparam,
+            'Comments'     :comments,
+        }
+        item_obj = CompTestItem.objects.get(id=itemid)
+        try:
+            for k ,v in form_data.items():
+                setattr(item_obj,k,v)
+            item_obj.save()
+            result = {"code": 0, "message": "更新项目成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/comp_get_item?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def DeleteCompItem(request):
+    """
+    删除兼容性项目的信息
+    """
+    if request.method == "GET":
+        itemid =request.GET.get("id",None)
+        try:
+            with transaction.atomic():
+                CompTestItem.objects.filter(id=itemid).delete()
+                result = {"code": 0, "message": "删除Comp项目成功！"}
+        except Exception as e:
+            result = {"code": 1, "message":e }
+
+        return HttpResponseRedirect('/testcase/comp_get_item?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                   result.get("message", "")))
+
+def GetCompCase(request):
+    """
+    获取兼容性测试用例信息
+    """
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_case_name = request.GET.get('scase', '').strip()
+        search_case_type  = request.GET.get('stype', '').strip()
+        filter_dic = {}
+        if search_case_name != "":
+            filter_dic["Name__icontains"] = search_case_name
+        if search_case_type != "":
+            filter_dic["Automated"] = search_case_type
+        case_list = CompTestItem.objects.filter(**filter_dic).distinct()
+        global_obj = PerfGlobal.objects.all()
+        queryset, page_html = init_paginaion(request, case_list)
+        return render(request,'testcase/comp_get_case.html',locals())
+
+def AddCompCase(request):
+    """
+    添加兼容性测试用例
+    """
+    result = {}
+    if request.method == "POST":
+        casename   = request.POST.get("casename",None)
+        supportos  = request.POST.get("supportos",None)
+        osversion  = request.POST.get("osversion",None)
+        hwbrand    = request.POST.get("hwbrand",None)
+        hwmodel    = request.POST.get("hwmodel",None)
+        hwlabel    = request.POST.get("hwlabel",None)
+        dutlabel   = request.POST.get("dutlabel",None)
+        ttid       = request.POST.get("ttid",None)
+        print("casename:%s, supportos:%s,osversion:%s, hwbrand:%s,hwmodel:%s"
+              %(casename, supportos, osversion, hwbrand, hwmodel))
+        print("hwlabel:%s, dutlabel:%s" %(hwlabel, dutlabel))
+        item_obj = CompTestItem.objects.all()
+        add_item = CompTestItem.objects.get(pk=ttid)
+        try:
+            with transaction.atomic():
+                case_obj = CompTestCase(Name=casename, SupportOS=supportos, OSVersion=osversion, HWBrandReq=hwbrand, HWModelReq=hwmodel,
+                                        HWReqLables=hwlabel, DUTReqLables=dutlabel, TTID=add_item)
+                case_obj.save()
+            result = {"code": 0, "message": "创建测试用例成功"}
+        except Exception as e:
+            result = {"code": 1, "message": e}
+            print(e)
+
+        return HttpResponseRedirect('/testcase/comp_get_case?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def UpdateCompCase(request):
+    """
+    更新兼容性测试用例
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        case_obj = CompTestCase.objects.filter(id=id)
+        case_dict = case_obj.values().first()
+        if case_dict:
+            res = dict(case_dict)
+        print("case_dict:%s" %case_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        itemid = request.POST.get("id")
+        casename= request.POST.get("casename",None)
+        supportos= request.POST.get("supportos",None)
+        osversion= request.POST.get("osversion",None)
+        hwbrand= request.POST.get("hwbrand",None)
+        hwmodel= request.POST.get("hwmodel",None)
+        hwlabel= request.POST.get("hwlabel",None)
+        dutlabel= request.POST.get("dutlabel",None)
+        ttid = request.POST.get("ttid",None)
+        form_data = {
+            'id'           :itemid,
+            'Name'         :casename,
+            'SupportOS'    :supportos,
+            'OSVersion'    :osversion,
+            'HWBrandReq'   :hwbrand,
+            'HWModelReq'   :hwmodel,
+            'HWReqLables'  :hwlabel,
+            'DUTReqLables' :dutlabel,
+            "TTID"         : ttid,
+        }
+        case_obj = CompTestCase.objects.get(id=itemid)
+        try:
+            for k ,v in form_data.items():
+                if k == "TTID":
+                    ii_obj = CompTestItem.objects.get(pk=ttid)
+                setattr(case_obj,k,v)
+            case_obj.save()
+            result = {"code": 0, "message": "更新用例成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/comp_get_case?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def DeleteCompCase(request):
+    """
+    删除兼容性用例的信息
+    """
+    if request.method == "GET":
+        itemid =request.GET.get("id",None)
+        try:
+            with transaction.atomic():
+                CompTestItem.objects.filter(id=itemid).delete()
+                result = {"code": 0, "message": "删除Comp用例成功！"}
+        except Exception as e:
+            result = {"code": 1, "message":e }
+
+        return HttpResponseRedirect('/testcase/comp_get_case?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                   result.get("message", "")))
+
+def AddCompProject(request, projectname):
+    """
+    新增项目兼容性测试用例信息
+    """
+    result = {}
+    print("project name:%s" %projectname)
+    if request.method == "GET":
+        res = {}
+        project_obj = CompProject.objects.all()
+        project_dict = project_obj.values().first()
+        if project_dict:
+            res = dict(project_dict)
+        print("case_dict:%s" %project_dict)
+        return HttpResponse(json.dumps(res))
+    elif request.method == "POST":
+        pjname = request.POST.get("pjname",None)
+        status = request.POST.get("status",None)
+        caseid = request.POST.get("tcid",None)
+        pj_obj = CompTestCase.objects.all()
+        #check pjname
+        if pjname != projectname:
+            result = {"code": 1, "message": "project name error"}
+        else:
+            #check input case id
+            try:
+                caseObj = CompTestCase.objects.get(pk=caseid)
+                try:
+                    with transaction.atomic():
+                        pj_obj = CompProject(Project=pjname, Status=status.upper(), TCID=caseObj)
+                        pj_obj.save()   
+                    result = {"code": 0, "message": "添加用例成功"}
+                except Exception as e:
+                    result = {"code": 1, "message": e}
+                    print(e)
+            except Exception as e:
+                result = {"code": 1, "message": e}
+                print(e)
+        return HttpResponseRedirect('/testcase/comp_test_project/'+projectname+'/?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
+
+def GetCompProject(request, projectname):
+    """
+    获取项目兼容性测试用例信息
+    """
+    case_template = 'testcase/comp_test_project.html'
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_case = request.GET.get('casename', '').strip()
+        search_status = request.GET.get('searchstatus', '').strip()
+        filter_dic = {}
+        if search_case != "":
+            filter_dic["TCID__CaseName__icontains"] = search_case
+        if search_status !="":
+            filter_dic["Status__icontains"] = search_status
+        #add project filter
+        filter_dic["Project"] = projectname.replace('\'', '')
+        print("filter dic:%s" % filter_dic)
+        case_list = CompProject.objects.filter(**filter_dic).distinct()
+        detail_list = CompTestCase.objects.all()
+        queryset, page_html = init_paginaion(request, case_list)
+        return render(request,case_template,locals())
+
+def UpdateCompProject(request, projectname):
+    """
+    更新项目兼容性测试用例信息
+    """
+    if request.method == "GET":
+        res = {}
+        id = request.GET.get("id",None)
+        project_obj = CompProject.objects.filter(id=id)
+        case_dict = project_obj.values().first()
+        if case_dict:
+            res = dict(case_dict)
+        print("case_dict:%s" %case_dict)
+        return HttpResponse(json.dumps(res))
+
+    elif request.method == "POST":
+        result = {}
+        pjid = request.POST.get("id")
+        pjName = request.POST.get("pjname",None)
+        status = request.POST.get("status",None)
+        tcid = request.POST.get("tcid",None)
+        form_data = {
+                    'id'     :pjid,
+                    'Project':pjName,
+                    'Status' :status,
+                    'TCID'   :tcid,
+        }
+        pj_obj = CompProject.objects.get(id=pjid)
+        try:
+            for k ,v in form_data.items():
+                if k == "TCID":
+                    ii_obj = CompTestCase.objects.get(pk=tcid)
+                    setattr(pj_obj, k, ii_obj)
+                else:
+                    setattr(pj_obj,k,v)
+            pj_obj.save()
+            result = {"code": 0, "message": "更新用例成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": e}
+
+        return HttpResponseRedirect('/testcase/comp_test_project/'+pjName+'/?status={0}&message={1}'.
+                                    format(result.get("code", ""),
+                                    result.get("message", "")))
