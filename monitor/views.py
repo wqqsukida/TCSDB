@@ -289,7 +289,7 @@ def add_package(request):
 
 def update_package(request):
     if request.method == "GET":
-        pid = request.GET.get('tid',None)
+        pid = request.GET.get('pid',None)
         pkg_obj = ScriptPackage.objects.filter(id=pid)
         pkg_dict = pkg_obj.values('id','PkgName','Project','PkgPath','Labels').first()
         # print(pkg_dict)
@@ -418,7 +418,7 @@ def update_script(request):
             print(traceback.format_exc())
             result = {"code": 1, "message": str(e)}
 
-        return HttpResponseRedirect('/cccs/script_list/{3}/?status={0}&message={1}&page={2}'.
+        return HttpResponseRedirect('/monitor/script_list/{3}/?status={0}&message={1}&page={2}'.
                             format(result.get("code", ""),
                                    result.get("message", ""),
                                    page,pid))
@@ -434,7 +434,7 @@ def del_script(request):
         except Exception as e:
             result = {"code": 1, "message": str(e)}
 
-        return HttpResponseRedirect('/cccs/script_list/{3}/?status={0}&message={1}&page={2}'.
+        return HttpResponseRedirect('/monitor/script_list/{3}/?status={0}&message={1}&page={2}'.
                                     format(result.get("code", ""),
                                            result.get("message", ""),
                                            page,pid))

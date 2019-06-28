@@ -65,11 +65,11 @@
                         <ol class="breadcrumb">
                             <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
                             <li>
-                                <a href="/cccs/test_cycles"><span class="g_nav_font">TestCycle列表</span></a>
+                                <a href="/monitor/package_list"><span class="g_nav_font">Package列表</span></a>
                             </li>
 
                             <li class="active">
-                                {{ tc_obj.CycleName }}的TestRun详情
+                                {{ package_obj.PkgName }}的Script详情
                               </li>
                             <div class="ibox-tools">
                                 <a onclick="refresh()">
@@ -88,7 +88,7 @@
 
                                 <div class="col-sm-1">
                                     <a href="#" data-toggle="modal" data-target="#AddModal" class="btn btn-warning add-btn">
-                                        <i class="fa fa-plus"></i> 创建TestRun
+                                        <i class="fa fa-plus"></i> 创建Script
                                     </a>
                                 </div>
                                 <div class="col-sm-8"></div>
@@ -106,49 +106,25 @@
                              <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
                                  <thead>
                                     <tr>
-                                        <th>TestRun名称</th>
-                                        <th>计划触发时间</th>
-                                        <th>开始时间</th>
-                                        <th>结束时间</th>
-                                        <th>状态</th>
-                                        <th>JIRA ID</th>
-                                        <th>DUT Group ID</th>
-                                        <th>FW Package</th>
-                                        <th>Script Package</th>
-                                        <th>备注</th>
+                                        <th>Script名称</th>
+                                        <th>Repo信息</th>
+                                        <th>Branch信息</th>
+                                        <th>CommitID</th>
                                         <th>操作</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for tr in queryset %}
+                                    {% for s in queryset %}
                                         <tr>
-                                            <td>{{ tr.TestRunName }}</td>
-                                            <td>{{ tr.TriggerTime| date:'Y-m-d H:i:s' }}</td>
-                                            <td>{{ tr.StartTime| date:'Y-m-d H:i:s' }}</td>
-                                            <td>{{ tr.EndTime| date:'Y-m-d H:i:s' }}</td>
-                                            <td>
-                                                {% if tr.Status == "NOTSTART" %}
-                                                    <a class="alert-btn alert-info">{{ tr.Status }}</a>
-                                                {% elif tr.Status == "FINISHED" %}
-                                                    <a class="alert-btn alert-success">{{ tr.Status }}</a>
-                                                {% elif tr.Status == "FAILED" %}
-                                                    <a class="alert-btn alert-danger">{{ tr.Status }}</a>
-                                                {% elif tr.Status == "CANCELED" %}
-                                                    <a class="alert-btn alert-warning">{{ tr.Status }}</a>
-                                                {% elif tr.Status == "RUNNING" %}
-                                                    <a class="alert-btn alert-primary">{{ tr.Status }}</a>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ tr.JIRAID }}</td>
-                                            <td>{{ tr.DUTGRPID }}</td>
-                                            <td>{{ tr.FWPkgName }}</td>
-                                            <td>{{ tr.SrtPkgName }}</td>
-                                            <td>{{ tr.Comments }}</td>
+                                            <td>{{ s.SrtName }}</td>
+                                            <td>{{ s.GitRepo }}</td>
+                                            <td>{{ s.GitBranch }}</td>
+                                            <td>{{ s.GitCommitID }}</td>
                                             <td class="tooltip-demo" style="font-size: 20px">
-                                                <a class="edit-btn" tid={{ tr.id }}  data-toggle="modal" data-target="#EditModal" title="更新TestRun" style="margin-right: 15px">
+                                                <a class="edit-btn" sid={{ s.id }}  data-toggle="modal" data-target="#EditModal" title="更新Script" style="margin-right: 15px">
                                                     <i class="fa fa-wrench"></i>
                                                 </a>
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/cccs/test_run/del/?tc_id={{ tc_obj.id }}&tr_id={{ tr.id }}&page={{ page }}" class="del_confirm" title="删除TestRun" style="margin-right: 15px">
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/script_del?pid={{ package_obj.id }}&sid={{ s.id }}&page={{ page }}" class="del_confirm" title="删除TestRun" style="margin-right: 15px">
                                                     <i class="fa fa-trash-o"></i>
                                                 </a>
                                             </td>
@@ -175,29 +151,35 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加TestRun</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加Script</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/cccs/test_run/add/" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/script_add" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
-                        <input class="hide" type="text" name="tc_id" value="{{ tc_obj.id }}">
+                        <input class="hide" type="text" name="pid" value="{{ package_obj.id }}">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">TestRun名称：</label>
+                            <label class="col-sm-3 control-label">Script名称：</label>
                             <div class="col-sm-8">
-                                <input name="TestRunName" class="form-control" type="text">
+                                <input name="SrtName" class="form-control" type="text">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">计划触发时间：</label>
+                            <label class="col-sm-3 control-label">Repo信息：</label>
                             <div class="col-sm-8">
-                                <input name="TriggerTime" class="form-control" type="datetime-local">
+                                <input name="GitRepo" class="form-control" type="text">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">JIRA ID：</label>
+                            <label class="col-sm-3 control-label">Branch信息：</label>
                             <div class="col-sm-8">
-                                <input name="JIRAID" class="form-control" type="text">
+                                <input name="GitBranch" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">CommitID信息：</label>
+                            <div class="col-sm-8">
+                                <input name="GitCommitID" class="form-control" type="text">
                             </div>
                         </div>
 
@@ -217,13 +199,13 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">更新TestRun</h4>
+                    <h4 class="modal-title" id="myModalLabel">更新Script</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/cccs/test_run/update/" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/script_update" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
-                        <input class="hide" type="text" name="tc_id" value="{{ tc_obj.id }}">
+                        <input class="hide" type="text" name="pid" value="{{ package_obj.id }}">
                         <div class="form-group hide">
                             <label class="col-sm-2 control-label">ID：</label>
                             <div class="col-sm-9">
@@ -232,30 +214,27 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">TestRun名称：</label>
+                            <label class="col-sm-3 control-label">Script名称：</label>
                             <div class="col-sm-8">
-                                <input name="TestRunName" class="form-control" id="mod_TestRunName" type="text">
+                                <input name="SrtName" class="form-control" id="mod_SrtName" type="text">
                             </div>
                         </div>
-                        <!--
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">计划触发时间：</label>
+                            <label class="col-sm-3 control-label">Repo信息：</label>
                             <div class="col-sm-8">
-                                <input name="TriggerTime" class="form-control" id="mod_TriggerTime" type="datetime-local">
+                                <input name="GitRepo" class="form-control" id="mod_GitRepo" type="text">
                             </div>
                         </div>
-                        -->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">JIRA ID：</label>
+                            <label class="col-sm-3 control-label">Branch信息：</label>
                             <div class="col-sm-8">
-                                <input name="JIRAID" class="form-control" id="mod_JIRAID" type="text">
+                                <input name="GitBranch" class="form-control" id="mod_GitBranch" type="text">
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">备注信息：</label>
+                            <label class="col-sm-3 control-label">CommitID信息：</label>
                             <div class="col-sm-8">
-                                <textarea name="Comments" class="form-control" id="mod_Comments" type="text"></textarea>
+                                <input name="GitCommitID" class="form-control" id="mod_GitCommitID" type="text">
                             </div>
                         </div>
 
@@ -352,26 +331,26 @@
 
     <script>
         $("table").on("click",".edit-btn",function () {
-            tid = $(this).attr('tid');
+            sid = $(this).attr('sid');
             $("#mod_id").val("");
-            $("#mod_TestRunName").val("");
-            $("#mod_JIRAID").val("");
-            $("#mod_Comments").val("");
-            //$("#mod_TriggerTime").val("");
+            $("#mod_SrtName").val("");
+            $("#mod_GitRepo").val("");
+            $("#mod_GitBranch").val("");
+            $("#mod_GitCommitID").val("");
 
             $.ajax({
-                url: "/cccs/test_run/update/",
+                url: "/monitor/script_update",
                 type: "GET",
-                data: {tid: tid},
+                data: {sid: sid},
                 dataType: 'JSON',
                 success: function (arg) {
                     if (arg) {
                         //console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_TestRunName").val(arg.TestRunName);
-                        $("#mod_JIRAID").val(arg.JIRAID);
-                        $("#mod_Comments").val(arg.Comments);
-                        //$("#mod_TriggerTime").val(arg.TriggerTime);
+                        $("#mod_SrtName").val(arg.SrtName);
+                        $("#mod_GitRepo").val(arg.GitRepo);
+                        $("#mod_GitBranch").val(arg.GitBranch);
+                        $("#mod_GitCommitID").val(arg.GitCommitID);
                     }
                 }
             })

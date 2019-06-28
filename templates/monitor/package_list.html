@@ -113,7 +113,11 @@
                                  <tbody>
                                     {% for p in queryset %}
                                         <tr>
-                                            <td>{{ p.PkgName }}</td>
+                                            <td class="tooltip-demo">
+                                                <a data-toggle="tooltip" data-placement="bottom" title="查看ScriptInfo" class="btn-sm btn-white" href="/monitor/script_list/{{ p.id }}/">
+                                                    {{ p.PkgName }}
+                                                </a>
+                                            </td>
                                             <td>{{ p.Project }}</td>
                                             <td>{{ p.Date | date:'Y-m-d H:i:s'}}</td>
                                             <td>{{ p.PkgPath }}</td>
@@ -132,10 +136,10 @@
 {#                                            </td>#}
                                             <td>{{ p.Labels }}</td>
                                             <td class="tooltip-demo" style="font-size: 20px">
-                                                <a class="edit-btn" tid={{ tr.id }}  data-toggle="modal" data-target="#EditModal" title="更新TestRun" style="margin-right: 15px">
+                                                <a class="edit-btn" pid={{ p.id }}  data-toggle="modal" data-target="#EditModal" title="更新Package" style="margin-right: 15px">
                                                     <i class="fa fa-wrench"></i>
                                                 </a>
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/cccs/test_run/del/?tc_id={{ tc_obj.id }}&tr_id={{ tr.id }}&page={{ page }}" class="del_confirm" title="删除TestRun" style="margin-right: 15px">
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/package_del?pid={{ p.id }}&page={{ page }}" class="del_confirm" title="删除Package" style="margin-right: 15px">
                                                     <i class="fa fa-trash-o"></i>
                                                 </a>
                                             </td>
@@ -162,29 +166,28 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加TestRun</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加Package</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/cccs/test_run/add/" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/package_add" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
-                        <input class="hide" type="text" name="tc_id" value="{{ tc_obj.id }}">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">TestRun名称：</label>
+                            <label class="col-sm-3 control-label">Package名称：</label>
                             <div class="col-sm-8">
-                                <input name="TestRunName" class="form-control" type="text">
+                                <input name="PkgName" class="form-control" type="text">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">计划触发时间：</label>
+                            <label class="col-sm-3 control-label">项目名称：</label>
                             <div class="col-sm-8">
-                                <input name="TriggerTime" class="form-control" type="datetime-local">
+                                <input name="Project" class="form-control" type="text">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">JIRA ID：</label>
+                            <label class="col-sm-3 control-label">Package路径：</label>
                             <div class="col-sm-8">
-                                <input name="JIRAID" class="form-control" type="text">
+                                <input name="PkgPath" class="form-control" type="text">
                             </div>
                         </div>
 
@@ -207,10 +210,9 @@
                     <h4 class="modal-title" id="myModalLabel">更新TestRun</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/cccs/test_run/update/" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/package_update" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
-                        <input class="hide" type="text" name="tc_id" value="{{ tc_obj.id }}">
                         <div class="form-group hide">
                             <label class="col-sm-2 control-label">ID：</label>
                             <div class="col-sm-9">
@@ -219,30 +221,29 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">TestRun名称：</label>
+                            <label class="col-sm-3 control-label">Package名称：</label>
                             <div class="col-sm-8">
-                                <input name="TestRunName" class="form-control" id="mod_TestRunName" type="text">
+                                <input name="PkgName" class="form-control" id="mod_PkgName" type="text">
                             </div>
                         </div>
-                        <!--
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">计划触发时间：</label>
+                            <label class="col-sm-3 control-label">项目名称：</label>
                             <div class="col-sm-8">
-                                <input name="TriggerTime" class="form-control" id="mod_TriggerTime" type="datetime-local">
-                            </div>
-                        </div>
-                        -->
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">JIRA ID：</label>
-                            <div class="col-sm-8">
-                                <input name="JIRAID" class="form-control" id="mod_JIRAID" type="text">
+                                <input name="Project" class="form-control" id="mod_Project" type="text">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">备注信息：</label>
+                            <label class="col-sm-3 control-label">Package路径：</label>
                             <div class="col-sm-8">
-                                <textarea name="Comments" class="form-control" id="mod_Comments" type="text"></textarea>
+                                <input name="PkgPath" class="form-control" id="mod_PkgPath" type="text">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">标签：</label>
+                            <div class="col-sm-8">
+                                <input name="Labels" class="form-control" id="mod_Labels" type="text">
                             </div>
                         </div>
 
@@ -339,25 +340,27 @@
 
     <script>
         $("table").on("click",".edit-btn",function () {
-            tid = $(this).attr('tid');
+            pid = $(this).attr('pid');
             $("#mod_id").val("");
-            $("#mod_TestRunName").val("");
-            $("#mod_JIRAID").val("");
-            $("#mod_Comments").val("");
+            $("#mod_PkgName").val("");
+            $("#mod_Project").val("");
+            $("#mod_PkgPath").val("");
+            $("#mod_Labels").val("");
             //$("#mod_TriggerTime").val("");
 
             $.ajax({
-                url: "/cccs/test_run/update/",
+                url: "/monitor/package_update",
                 type: "GET",
-                data: {tid: tid},
+                data: {pid: pid},
                 dataType: 'JSON',
                 success: function (arg) {
                     if (arg) {
                         //console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_TestRunName").val(arg.TestRunName);
-                        $("#mod_JIRAID").val(arg.JIRAID);
-                        $("#mod_Comments").val(arg.Comments);
+                        $("#mod_PkgName").val(arg.PkgName);
+                        $("#mod_Project").val(arg.Project);
+                        $("#mod_PkgPath").val(arg.PkgPath);
+                        $("#mod_Labels").val(arg.Labels);
                         //$("#mod_TriggerTime").val(arg.TriggerTime);
                     }
                 }

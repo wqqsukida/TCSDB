@@ -58,6 +58,7 @@ urlpatterns = [
     re_path(r'^api/host/disconnections/$', api.GetDisconnectedHost.as_view()),
     re_path(r'^api/host/get_status/$', api.GetHostStatus.as_view()),
     re_path(r'^api/host/change_status/$', api.ChangHostStatus.as_view()),
+
     re_path(r'^api/srt/add_pkg/$',api.AddSrtPkg.as_view()),
     re_path(r'^api/srt/add_srtinfo/$',api.AddSrtInfo.as_view()),
     re_path(r'^api/srt/chg_lab/$',api.ChgSrtPkgLabels.as_view()),
@@ -65,9 +66,15 @@ urlpatterns = [
     re_path(r'^api/srt/get_srts/$',api.GetPkgSrtList.as_view()),
     re_path(r'^api/srt/find_pkg/$',api.FindSrtPkg.as_view()),
 
-
-
     re_path(r'^api/bin/add_pkg/$',api.AddFWPkg.as_view()),
+    re_path(r'^api/bin/add_bin/$',api.AddFWBin.as_view()),
+    re_path(r'^api/bin/add_rel/$',api.AddFWRel.as_view()),
+    re_path(r'^api/bin/chg_lab/$',api.ChgFWPkgLabels.as_view()),
+    re_path(r'^api/bin/get_bins/$',api.GetFWBins.as_view()),
+    re_path(r'^api/bin/get_pkgs/$',api.GetFWPackes.as_view()),
+    re_path(r'^api/bin/get_rels/$',api.GetFWRels.as_view()),
+    re_path(r'^api/bin/find_pkg/$',api.FindFWPkgList.as_view()),
+    re_path(r'^api/bin/find_rel/$',api.FindFWRelList.as_view()),
 
     re_path(r'^duts$', views.duts),
     re_path(r'^dut_update$', views.dut_update),
@@ -83,9 +90,9 @@ urlpatterns = [
     re_path(r'^package_update$', views.update_package),
     re_path(r'^package_del$', views.del_package),
     re_path(r'^script_list/(?P<pid>\d*)/$', views.script_list),
-    re_path(r'^script_add$', views.add_package),
-    re_path(r'^script_update$', views.update_package),
-    re_path(r'^script_del$', views.del_package),
+    re_path(r'^script_add$', views.add_script),
+    re_path(r'^script_update$', views.update_script),
+    re_path(r'^script_del$', views.del_script),
 
 
 ]
