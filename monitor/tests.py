@@ -46,6 +46,14 @@ class ApiTest(TestCase):
         pkj_obj = ScriptPackage.objects.create(PkgName="PkgName",Project="Project01",PkgPath="PkgPath01")
         srt_obj = ScriptSrtInfo.objects.create(PKGID=pkj_obj,SrtName="SrtName01",GitRepo="GitRepo01")
 
+        fw_pkg = FWPackage.objects.create(PkgName="PkgName01",Project="Project01",External=True,
+                                          PkgType="DEBUG",PkgPath="PkgPath01")
+        fw_bin = FWBinary.objects.create(PKGID=fw_pkg,BinaryName="BinaryName01",GitRepo="GitRepo01",
+                                         GitBranch="GitBranch01",GitCommitID="GitCommitID01",
+                                         BinaryType="GOLDEN")
+        fw_rel = FWRelease.objects.create(PKGID=fw_pkg,TRName="TRName01",Date="2019-06-30 12:30:30",
+                                          Version="Version01",Name="Name01")
+
     def testAddDUTNodes(self):
         data = {
             "data":{
@@ -546,3 +554,119 @@ class ApiTest(TestCase):
         res = json.loads(rep.content)
         print(res)
         self.assertEqual(res.get("code"), 0)
+
+    def testAddFWPkg(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName02",
+                "Project": "Project02",
+                "External": True,
+                "PkgType": "DEBUG",
+                "PkgPath": "PkgPath02"
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/add_pkg/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testAddFWBin(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+                "BinaryType": "GOLDEN",
+                "GitRepo": "GitRepo02",
+                "GitBranch": "GitBranch02",
+                "GitCommitID": "GitCommitID02",
+                "BinaryName": "BinaryName02"
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/add_bin/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testAddFWRel(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+                "Name": "Name02",
+                "TRName": "TRName02",
+                "Date": "2019-06-30 11:30:29",
+                "Version": "Version02"
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/add_rel/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testChgFWPkgLabels(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+                "Labels": "Labels01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/chg_lab/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetFWBins(self):
+        data = {
+            "data":{
+                "PkgName": "PkgName01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/get_bins/',content_type='application/json'  ,data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetFWPackes(self):
+        data = {
+            "data": {
+                "PkgName": "PkgName01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/get_pkgs/', content_type='application/json', data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetFWRels(self):
+        data = {
+            "data": {
+                "RelName": "Name01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/get_rels/', content_type='application/json', data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testFindFWPkgList(self):
+        data = {
+            "data": {
+                "Project": "ALL",
+                "PkgType": "DEBUG"
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/find_pkg/', content_type='application/json', data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testFindFWRelList(self):
+        data = {
+            "data": {
+                "PkgName": "ALL",
+                "TestRunName": "TRName01",
+            }
+        }
+        rep = self.c.post(path='/monitor/api/bin/find_rel/', content_type='application/json', data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+

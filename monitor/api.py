@@ -894,7 +894,7 @@ class GetFWBins(APIAuthView):
         try:
             pkg_name = res.get("PkgName")
             pkg_obj = FWPackage.objects.filter(PkgName=pkg_name)
-            data = pkg_obj.first().fwbinary_set.values("SrtName","GitRepo","BinaryType",
+            data = pkg_obj.first().fwbinary_set.values("BinaryName","BinaryType","GitRepo",
                                                        "GitBranch","GitCommitID")
             response = {'code': 0, 'msg': 'Success!', 'data': list(data)}
         except Exception as e:
