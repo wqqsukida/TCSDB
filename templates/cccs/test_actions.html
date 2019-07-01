@@ -46,10 +46,22 @@
                     <div class="ibox-title">
                         <ol class="breadcrumb">
                             <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
-                            <li><a href="/monitor/hosts"><span class="g_nav_font">主机列表</span></a></li>
-                            <li><a href="/monitor/asset_detail?id={{ host_obj.id }}"><span class="g_nav_font">{{ host_obj.HostName }}</span></a></li>
-                            <li><a href="/monitor/host_record?id={{ host_obj.id}}"><span class="g_nav_font">{{ host_obj.HostName }}变更记录</span></a></li>
-                            <li class="active">{{ host_obj.HostName }}-{{ os_obj.OSType }}变更记录</li>
+                            <li>
+                                <a href="/cccs/test_cycles"><span class="g_nav_font">TestCycle列表</span></a>
+                            </li>
+                            {% if tp_id %}
+                                <li>
+                                    <a href="/cccs/test_plans/{{ tp_obj.CycleID.id }}/">
+                                        <span class="g_nav_font">{{ tp_obj.CycleID.CycleName }}的TestPlan详情</span>
+                                    </a>
+                                </li>
+                                <li class="active">{{ tp_obj.CaseName }}操作记录</li>
+                            {% elif tc_id %}
+                                <li class="active">{{ tc_obj.CycleName }}操作记录</li>
+                            {% else %}
+                                <li class="active">操作记录</li>
+                            {% endif %}
+
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -66,9 +78,13 @@
 
                     <div class="ibox-content">
                         <div class="col-sm-12 m-b-xs" style="padding-bottom: 10px;">
-                            <form method="get">
-                                <input class="hide" type="text" name="id" value="{{ os_id }}">
-
+                            {% if tc_obj %}
+                                <form method="get" action="/cccs/test_actions/{{ tc_obj.id }}//">
+                            {% elif tp_obj %}
+                                <form method="get" action="/cccs/test_actions//{{ tp_obj.id }}/">
+                            {% else %}
+                                <form method="get" action="/cccs/test_actions///">
+                            {% endif %}
                                 <div class="col-sm-5">
 
                                 </div>
@@ -95,34 +111,26 @@
                                  <thead>
                                     <tr>
                                         <th>操作类型</th>
-                                        <th>描述</th>
+                                        <th>原值</th>
+                                        <th>新值</th>
                                         <th>日期</th>
+                                        <th>所属TestCycle</th>
+                                        <th>所属TestPlan</th>
                                         <th>操作者</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for r in all_record %}
+                                    {% for a in queryset %}
                                         <tr>
                                             <td>
-                                                {% if r|class_name == 'HostDriver' %}
-                                                    <a class="btn btn-info btn-xs">Driver change</a>
-                                                {% elif  r|class_name == 'HostSoftware'  %}
-                                                    <a class="btn btn-success btn-xs">Software change</a>
-                                                {% endif %}
+                                                <a class="btn btn-white btn-sm">{{ a.get_ActionType_display}}</a>
                                             </td>
-                                            <td>
-                                                {% if r|class_name == 'HostDriver' %}
-                                                    Hardware: <a class="btn btn-white btn-xs">{{ r.Hardware }}</a>
-                                                    DriverName:<a class="btn btn-white btn-xs">{{ r.DriverName }}</a>
-                                                    DriverVersion:<a class="btn btn-white btn-xs">{{ r.DriverVersion }}</a>
-                                                {% elif  r|class_name == 'HostSoftware'  %}
-                                                    ToolName:<a class="btn btn-white btn-xs">{{ r.ToolName }}</a>
-                                                    ToolVer:<a class="btn btn-white btn-xs">{{ r.ToolVer }}</a>
-                                                {% endif %}
-                                            </td>
-                                            <td>{{ r.Changed | date:"Y-m-d H:i:s" }}</td>
-                                            <td>{{ r.Operator }}</td>
-
+                                            <td>{{ a.OriginalVal }} <i class="fa fa-arrow-right"></i></td>
+                                            <td>{{ a.NewVal }}</td>
+                                            <td>{{ a.ActionTime | date:"Y-m-d H:i:s" }}</td>
+                                            <td>{{ a.CycleID.CycleName }}</td>
+                                            <td>{{ a.PlanID.CaseName }}</td>
+                                            <td>{{ a.ActionOP }}</td>
                                         </tr>
                                     {% endfor %}
                                  </tbody>
@@ -227,6 +235,59 @@
         if ($(".alert")){
             $(".alert").fadeOut(3000);
         }
+    </script>
+
+
+    <script>
+        $("table").on("click",".mod-user-btn",function () {
+            user_id = $(this).attr('uid');
+            $("#mod_id").val("");
+            $("#mod_email").val("");
+            $("#mod_mobile").val("");
+            $("#mod_phone").val("");
+            $("#is_admin").prop("checked",false);
+            $("#mod_roles option").prop("selected",false);
+
+            $.ajax({
+                url: "/rbac/users_edit",
+                type: "GET",
+                data: {user_id: user_id},
+                dataType: 'JSON',
+                success: function (arg) {
+                    if (arg) {
+                        console.log(arg);
+                        $("#mod_id").val(arg.id);
+                        $("#mod_email").val(arg.email);
+                        $("#mod_mobile").val(arg.mobile);
+                        $("#mod_phone").val(arg.phone);
+                        if(arg.is_admin){
+                            $("#is_admin").prop("checked",true);
+                        }
+                        $.each(arg.roles,function (k,v) {
+                            $("#mod_roles [value=" + v + "]").prop("selected",true);
+                        });
+
+                    }
+                }
+            })
+        })
+    </script>
+
+    <script>
+        $("table").on('click','.mod-pwd-btn',function () {
+            user_id = $(this).attr('uid');
+            $("#user_id").val("");
+
+            $.ajax({
+                url: "/rbac/users_pwd",
+                type: "GET",
+                data: {user_id: user_id},
+                dataType: 'JSON',
+                success:function (arg) {
+                    if(arg){$("#user_id").val(arg)}
+                }
+            })
+        })
     </script>
 
 </body>

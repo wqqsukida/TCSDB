@@ -7,6 +7,7 @@ from utils.auth_token import APIAuthView,APITokenAuthView
 from django.shortcuts import HttpResponse
 from django.db import transaction
 import json,traceback
+import datetime
 from monitor.models import *
 from django.db.models import Max
 from django.conf import settings
@@ -65,6 +66,22 @@ class ChangeDUTHost(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class ChangeDUTBasicInfo(APIAuthView):
+    '''
+    修改DUT基本信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            sn = res.pop('SerialNum')
+            dut_obj = DUTInfo.objects.filter(SerialNum=sn)
+            dut_obj.update(**res)
+            response = {'code': 0, 'msg': 'Success!', 'data': True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
         return HttpResponse(json.dumps(response))
 
 class AddDUTMonitorRec(APIAuthView):
@@ -415,6 +432,23 @@ class ChangeHostDriverInfo(APIAuthView):
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
         return HttpResponse(json.dumps(response))
 
+class ChangeHostBasicInfo(APIAuthView):
+    '''
+    修改Host机器的基本信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            host_name = res.pop("HostName")
+            host_obj = HostInfo.objects.filter(HostName=host_name)
+            host_obj.update(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+
 class AddHostMonitorRec(APIAuthView):
     '''
     新增一条Host机器的健康状态监控记录
@@ -675,4 +709,288 @@ class ChangHostStatus(APIAuthView):
         except Exception as e:
             print(traceback.format_exc())
             response = {'code': 5, 'msg': 'Service internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response))
+
+########################################################################################################################
+class AddSrtPkg(APIAuthView):
+    '''
+    新增Script包信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            ScriptPackage.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class AddSrtInfo(APIAuthView):
+    '''
+    新增Script信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.pop("PkgName")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            ScriptSrtInfo.objects.create(**res,PKGID=pkg_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class ChgSrtPkgLabels(APIAuthView):
+    '''
+    新增/更新Script Package的标签
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            labels = res.get("Labels")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            pkg_obj.update(Labels=labels)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetSrtPkg(APIAuthView):
+    '''
+    获得Package的信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            data = pkg_obj.values("PkgName","Project","PkgPath","Labels").first()
+            data["Date"] = pkg_obj.first().Date.strftime('%Y-%m-%d %H:%m:%s')
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetPkgSrtList(APIAuthView):
+    '''
+    获得Package下Script的信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            pkg_obj = ScriptPackage.objects.filter(PkgName=pkg_name)
+            data = pkg_obj.first().scriptsrtinfo_set.values("SrtName","GitRepo",
+                                                            "GitBranch","GitCommitID")
+            response = {'code': 0, 'msg': 'Success!', 'data': list(data)}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+
+class FindSrtPkg(APIAuthView):
+    '''
+    查找对应的Script Package
+    '''
+    def post(self, request, *args, **kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            project = res.get("Project")
+            labels = res.get("Labels")
+            timeDelta = res.get("timeDelta")
+            parms_dict = {}
+            if project and project != "ALL":
+                parms_dict["Project"] = project
+            if labels:
+                parms_dict["Labels"] = labels
+
+            data = ScriptPackage.objects.filter(**parms_dict).values()
+            if timeDelta:
+                _timeDelta = datetime.datetime.now() - datetime.timedelta(days=timeDelta)
+                data = data.filter(Date__gt=_timeDelta)
+            data = [i.get("PkgName") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response))
+
+########################################################################################################################
+class AddFWPkg(APIAuthView):
+    '''
+    新增FW Bin包信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            FWPackage.objects.create(**res)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class AddFWBin(APIAuthView):
+    '''
+    新增FWBinary信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.pop("PkgName")
+            pkg_obj = FWPackage.objects.filter(PkgName=pkg_name)
+            FWBinary.objects.create(**res,PKGID=pkg_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class AddFWRel(APIAuthView):
+    '''
+    新增FW Release信息记录
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.pop("PkgName")
+            pkg_obj = FWPackage.objects.filter(PkgName=pkg_name)
+            FWRelease.objects.create(**res,PKGID=pkg_obj.first())
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class ChgFWPkgLabels(APIAuthView):
+    '''
+    新增/改变FW Package的标签
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            labels = res.get("Labels")
+            pkg_obj = FWPackage.objects.filter(PkgName=pkg_name)
+            pkg_obj.update(Labels=labels)
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetFWBins(APIAuthView):
+    '''
+    获得Package的Bin信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            pkg_obj = FWPackage.objects.filter(PkgName=pkg_name)
+            data = pkg_obj.first().fwbinary_set.values("SrtName","GitRepo","BinaryType",
+                                                       "GitBranch","GitCommitID")
+            response = {'code': 0, 'msg': 'Success!', 'data': list(data)}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetFWPackes(APIAuthView):
+    '''
+    获得Package的信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            pkg_obj = FWPackage.objects.filter(PkgName=pkg_name)
+            data = pkg_obj.values("PkgName","Project","External","PkgType","PkgPath","Labels").first()
+            data["Date"] = pkg_obj.first().Date.strftime('%Y-%m-%d %H:%m:%s')
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetFWRels(APIAuthView):
+    '''
+    获得Release的信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            rel_name = res.get("RelName")
+            pkg_obj = FWRelease.objects.filter(Name=rel_name)
+            data = pkg_obj.values("Name","TRName","Version").first()
+            data["Date"] = pkg_obj.first().Date.strftime('%Y-%m-%d %H:%m:%s')
+            data["PkgName"] = pkg_obj.first().PKGID.PkgName
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class FindFWPkgList(APIAuthView):
+    '''
+    获得符合条件的FW Package列表
+    '''
+    def post(self, request, *args, **kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            project = res.get("Project")
+            external = res.get("External")
+            pkg_type = res.get("PkgType")
+            labels = res.get("Labels")
+            timeDelta = res.get("timeDelta")
+            parms_dict = {}
+            if project and project != "ALL":
+                parms_dict["Project"] = project
+            if external:
+                parms_dict["External"] = external
+            if pkg_type and pkg_type != "ALL":
+                parms_dict["PkgType"] = pkg_type
+            if labels:
+                parms_dict["Labels"] = labels
+
+            data = FWPackage.objects.filter(**parms_dict).values()
+            if timeDelta:
+                _timeDelta = datetime.datetime.now() - datetime.timedelta(days=timeDelta)
+                data = data.filter(Date__gt=_timeDelta)
+            data = [i.get("PkgName") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
+        return HttpResponse(json.dumps(response))
+
+class FindFWRelList(APIAuthView):
+    '''
+    获得符合条件的FW Release列表
+    '''
+    def post(self, request, *args, **kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+            pkg_name = res.get("PkgName")
+            test_run_name = res.get("TestRunName")
+            timeDelta = res.get("timeDelta")
+            data = FWRelease.objects.all().values()
+            if pkg_name and pkg_name != "ALL":
+                data = data.filter(PKGID__PkgName=pkg_name)
+            if test_run_name:
+                data = data.filter(TRName=test_run_name)
+            if timeDelta:
+                _timeDelta = datetime.datetime.now() - datetime.timedelta(days=timeDelta)
+                data = data.filter(Date__gt=_timeDelta)
+            data = [i.get("Name") for i in data]
+            response = {'code': 0, 'msg': 'Success!', 'data': data}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
         return HttpResponse(json.dumps(response))
