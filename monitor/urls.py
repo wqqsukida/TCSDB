@@ -94,5 +94,19 @@ urlpatterns = [
     re_path(r'^script_update$', views.update_script),
     re_path(r'^script_del$', views.del_script),
 
+    re_path(r'^fw_packages$', views.fw_packages),
+    re_path(r'^add_fwpkg$', views.add_fwpkg),
+    re_path(r'^update_fwpkg$', views.update_fwpkg),
+    re_path(r'^del_fwpkg$', views.del_fwpkg),
+    re_path(r'^fw_binarys/(?P<pid>\d*)/$', views.fw_binarys),
+    re_path(r'^add_fwbin$', views.add_fwbin),
+    re_path(r'^update_fwbin$', views.update_fwbin),
+    re_path(r'^del_fwbin$', views.del_fwbin),
+    re_path(r'^fw_releases/(?P<pid>\d*)/$', views.fw_releases),
+    re_path(r'^add_fwrel$', views.add_fwrel),
+    re_path(r'^update_fwrel$', views.update_fwrel),
+    re_path(r'^del_fwrel$', views.del_fwrel),
+
+
 
 ]

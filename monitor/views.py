@@ -438,3 +438,353 @@ def del_script(request):
                                     format(result.get("code", ""),
                                            result.get("message", ""),
                                            page,pid))
+
+def fw_packages(request):
+    '''
+    fw包列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+
+        queryset = FWPackage.objects.filter(Q(Q(PkgName__contains=search_q) |
+                                           Q(Project__contains=search_q) |
+                                           Q(PkgType__contains=search_q) |
+                                           Q(Labels__contains=search_q))
+                                          ).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'monitor/fw_packages.html',locals())
+
+def add_fwpkg(request):
+    '''
+    添加fw包
+    :param request:
+    :return:
+    '''
+    if request.method == "POST":
+        pkg_name = request.POST.get("PkgName")
+        project = request.POST.get("Project")
+        external = request.POST.get("External")
+        external = 1 if external == "on" else 0
+        pkg_type = request.POST.get("PkgType")
+        pkg_path = request.POST.get("PkgPath")
+        page = request.POST.get("page")
+        if pkg_name:
+            try:
+                FWPackage.objects.create(PkgName=pkg_name,Project=project,PkgPath=pkg_path,
+                                         External=external,PkgType=pkg_type)
+                result = {"code": 0, "message": "FWPackage创建成功!"}
+            except Exception as e:
+                result = {"code": 1, "message": str(e)}
+        else:
+            result = {"code": 1, "message": "必须指定名称!"}
+        return HttpResponseRedirect('/monitor/fw_packages?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page))
+
+def update_fwpkg(request):
+    '''
+    更新fw包
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        pid = request.GET.get('pid',None)
+        pkg_obj = FWPackage.objects.filter(id=pid)
+        pkg_dict = pkg_obj.values('id','PkgName','Project','External',
+                                  'PkgType','PkgPath','Labels').first()
+        # print(pkg_dict)
+        return HttpResponse(json.dumps(dict(pkg_dict)))
+
+    elif request.method == "POST":
+        pid = request.POST.get("id")
+        pkg_name = request.POST.get("PkgName",None)
+        project = request.POST.get("Project",None)
+        external = request.POST.get("External",None)
+        pkg_type = request.POST.get("PkgType",None)
+        pkg_path = request.POST.get("PkgPath",None)
+        labels = request.POST.get("Labels",None)
+
+        page = request.POST.get("page")
+
+        form_data = {
+            'PkgName':pkg_name,
+            'Project':project,
+            'External':1 if external == 'on' else 0,
+            'PkgType':pkg_type,
+            'PkgPath':pkg_path,
+            'Labels':labels,
+        }
+
+        pkg_obj = FWPackage.objects.get(id=pid)
+        try:
+            for k ,v in form_data.items():
+                setattr(pkg_obj,k,v)
+                pkg_obj.save()
+            result = {"code": 0, "message": "FWPackage更新成功！"}
+        except Exception as e:
+            print(e)
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/fw_packages?status={0}&message={1}&page={2}'.
+                            format(result.get("code", ""),
+                                   result.get("message", ""),
+                                   page))
+
+def del_fwpkg(request):
+    '''
+    删除fw包
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        pid = request.GET.get("pid")
+        page = request.GET.get("page")
+        try:
+            FWPackage.objects.get(id=pid).delete()
+            result = {"code": 0, "message": "FWPackage删除成功!"}
+        except Exception as e:
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/fw_packages?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page))
+
+def fw_binarys(request,pid):
+    '''
+    fw binarys列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+        package_obj = FWPackage.objects.get(id=pid)
+        queryset = FWBinary.objects.filter(Q(Q(BinaryName__contains=search_q)|Q(BinaryType__contains=search_q))
+                                          ,PKGID=package_obj).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'monitor/fw_binarys.html',locals())
+
+def add_fwbin(request):
+    '''
+    添加fwbin
+    :param request:
+    :return:
+    '''
+    if request.method == "POST":
+        pid = request.POST.get("pid")
+        bin_name = request.POST.get("BinaryName")
+        bin_type = request.POST.get("BinaryType")
+        git_repo = request.POST.get("GitRepo")
+        git_branch = request.POST.get("GitBranch")
+        git_commitid = request.POST.get("GitCommitID")
+        page = request.POST.get("page")
+        if bin_name:
+            try:
+                FWBinary.objects.create(BinaryName=bin_name,BinaryType=bin_type,GitRepo=git_repo,
+                                        GitBranch=git_branch,GitCommitID=git_commitid,PKGID_id=pid)
+                result = {"code": 0, "message": "FWBinary创建成功!"}
+            except Exception as e:
+                result = {"code": 1, "message": str(e)}
+        else:
+            result = {"code": 1, "message": "必须指定名称!"}
+        return HttpResponseRedirect('/monitor/fw_binarys/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page,pid))
+
+def update_fwbin(request):
+    '''
+    更新fwbin
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        bid = request.GET.get('bid', None)
+        bin_obj = FWBinary.objects.filter(id=bid)
+        b_dict = dict(bin_obj.values('id', 'BinaryName', 'BinaryType', 'GitRepo',
+                                     'GitBranch', 'GitCommitID').first())
+
+        return HttpResponse(json.dumps(b_dict))
+
+    elif request.method == "POST":
+        pid = request.POST.get("pid")
+        bid = request.POST.get("id")
+        bin_name = request.POST.get("BinaryName", None)
+        bin_type = request.POST.get("BinaryType", None)
+        git_repo = request.POST.get("GitRepo", None)
+        git_branch = request.POST.get("GitBranch", None)
+        git_commitid = request.POST.get("GitCommitID", None)
+
+        page = request.POST.get("page")
+
+        form_data = {
+            'BinaryName': bin_name,
+            'BinaryType': bin_type,
+            'GitRepo': git_repo,
+            'GitBranch': git_branch,
+            'GitCommitID': git_commitid,
+        }
+
+        bin_obj = FWBinary.objects.get(id=bid)
+        try:
+            for k, v in form_data.items():
+                setattr(bin_obj, k, v)
+                bin_obj.save()
+            result = {"code": 0, "message": "FWBinary更新成功！"}
+        except Exception as e:
+            print(traceback.format_exc())
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/fw_binarys/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page, pid))
+
+def del_fwbin(request):
+    '''
+    删除fwbin
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        pid = request.GET.get("pid")
+        bid = request.GET.get("bid")
+        page = request.GET.get("page")
+        try:
+            FWBinary.objects.get(id=bid).delete()
+            result = {"code": 0, "message": "FWBinary删除成功!"}
+        except Exception as e:
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/fw_binarys/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page,pid))
+
+def fw_releases(request,pid):
+    '''
+    fw_release列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+        package_obj = FWPackage.objects.get(id=pid)
+        queryset = FWRelease.objects.filter(Q(Q(Name__contains=search_q)|Q(TRName__contains=search_q)
+                                              | Q(Version__contains=search_q))
+                                          ,PKGID=package_obj).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'monitor/fw_releases.html',locals())
+
+def add_fwrel(request):
+    '''
+    添加fwrel
+    :param request:
+    :return:
+    '''
+    if request.method == "POST":
+        pid = request.POST.get("pid")
+        tr_name = request.POST.get("TRName")
+        rel_name = request.POST.get("Name")
+        date = request.POST.get("Date")
+        version = request.POST.get("Version")
+
+        page = request.POST.get("page")
+        if rel_name:
+            try:
+                FWRelease.objects.create(Name=rel_name,TRName=tr_name,Date=date,Version=version
+                                         ,PKGID_id=pid)
+                result = {"code": 0, "message": "FWRelease创建成功!"}
+            except Exception as e:
+                result = {"code": 1, "message": str(e)}
+        else:
+            result = {"code": 1, "message": "必须指定名称!"}
+        return HttpResponseRedirect('/monitor/fw_releases/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page,pid))
+
+def update_fwrel(request):
+    '''
+    更新fwrel
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        rid = request.GET.get('rid', None)
+        rel_obj = FWRelease.objects.filter(id=rid)
+        r_dict = dict(rel_obj.values('id', 'Name', 'TRName', 'Version').first())
+
+        return HttpResponse(json.dumps(r_dict))
+
+    elif request.method == "POST":
+        pid = request.POST.get("pid")
+        rid = request.POST.get("id")
+        rel_name = request.POST.get("Name", None)
+        tr_name = request.POST.get("TRName", None)
+        version = request.POST.get("Version", None)
+
+        page = request.POST.get("page")
+
+        form_data = {
+            'Name': rel_name,
+            'TRName': tr_name,
+            'Version': version,
+        }
+
+        rel_obj = FWRelease.objects.get(id=rid)
+        try:
+            for k, v in form_data.items():
+                setattr(rel_obj, k, v)
+                rel_obj.save()
+            result = {"code": 0, "message": "FWRelease更新成功！"}
+        except Exception as e:
+            print(traceback.format_exc())
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/fw_releases/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page, pid))
+
+def del_fwrel(request):
+    '''
+    删除fwrel
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        pid = request.GET.get("pid")
+        rid = request.GET.get("rid")
+        page = request.GET.get("page")
+        try:
+            FWRelease.objects.get(id=rid).delete()
+            result = {"code": 0, "message": "FWRelease删除成功!"}
+        except Exception as e:
+            result = {"code": 1, "message": str(e)}
+
+        return HttpResponseRedirect('/monitor/fw_releases/{3}/?status={0}&message={1}&page={2}'.
+                                    format(result.get("code", ""),
+                                           result.get("message", ""),
+                                           page,pid))
