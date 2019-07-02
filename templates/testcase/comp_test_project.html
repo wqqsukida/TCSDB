@@ -105,7 +105,6 @@
                                         <th>平台机型要求</th>
                                         <th>平台其他要求</th>
                                         <th>DUT要求</th>
-                                        <th>用例相关测试项</th>
                                         <th>用例状态</th>
                                         <th>操作(更新/删除)</th>
                                     </tr>
@@ -113,15 +112,17 @@
                                  <tbody>
                                     {% for tscase in queryset %}
                                         <tr>
-                                        	<td>{{ tscase.TCID.id}}</td>
-                                            <td>{{ tscase.TCID.Name}}</td>
-                                            <td>{{ tscase.TCID.SupportOS}}</td>
-                                            <td>{{ tscase.TCID.OSVersion}}</td>
-                                            <td>{{ tscase.TCID.HWBrandReq}}</td>
-                                            <td>{{ tscase.TCID.HWModelReq}}</td>
-                                            <td>{{ tscase.TCID.HWReqLables}}</td>
-                                            <td>{{ tscase.TCID.DUTReqLables}}</td>
-                                            <td>{{ tscase.TCID.TIID.id}} : {{ tscase.TCID.TIID.Name }}</td>
+                                           	{% for ttcase in tscase.TCID.values %}
+                                           		<td>{{ ttcase.id}}</td>
+                                            	<td>{{ ttcase.Name}}</td>
+                                           	 	<td>{{ ttcase.SupportOS}}</td>
+                                            	<td>{{ ttcase.OSVersion}}</td>
+                                            	<td>{{ ttcase.HWBrandReq}}</td>
+                                            	<td>{{ ttcase.HWModelReq}}</td>
+                                            	<td>{{ ttcase.HWReqLables}}</td>
+                                            	<td>{{ ttcase.DUTReqLables}}</td>
+											 {% endfor %}
+                                        	
 											<td>{{ tscase.Status }}</td>
                                             <td style="font-size: 20px">
                                               
@@ -174,11 +175,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">测试用例：</label>
                             <div class="col-sm-8">
-                            <select class="form-control"  name="iicid" id="mod_iicid">
-                             	{% for case in pj_obj %}
-                                     <option value="{{ case.id }}"> {{ case.id }}:{{ case.Name }}</option>
-                                {% endfor %}
-                                </select>
+                                <input id="add_tcid" name="tcid" class="form-control" type="text">
                             </div>
                         </div>
                         <hr width="100%" />
@@ -221,17 +218,6 @@
                             <label class="col-sm-3 control-label">用例状态：</label>
                             <div class="col-sm-8">
                                 <input id="mod_status" name="status" class="form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">相关联的项目用例ID：</label>
-                            <div class="col-sm-8">
-                            <select class="form-control"  name="tcid" id="mod_tcid">
-                             	{% for ii in pj_obj %}
-                                     <option value="{{ ii.id }}"> {{ ii.id }}:{{ ii.Name }}</option>
-                                {% endfor %}
-                                </select>
                             </div>
                         </div>
 
@@ -364,15 +350,14 @@
         if ($(".alert")){
             $(".alert").fadeOut(3000);
         }
-    </script>
-
+	</script>
+	
      <script>
         $("table").on("click",".mod-user-btn",function () {
             mpjid = $(this).attr('projectid');
             $("#mod_id").val("");
             $("#mod_pjname").val("");
             $("#mod_status").val("");
-            $("#mod_tcid option").prop("selected", false);
             $.ajax({
                 url: "/testcase/comp_edit_project/{{ projectname }}/",
                 type: "GET",
@@ -384,9 +369,6 @@
                         $("#mod_id").val(arg.id);
                         $("#mod_pjname").val(arg.Project);
                         $("#mod_status").val(arg.Status);
-                        $.each(arg.TCID,function (k,v) {
-                            $("#mod_tcid [value=" + v + "]").prop("selected",true);
-                        });
                     }
                 }
             })

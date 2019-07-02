@@ -214,7 +214,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close close_mod_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">修改Perf测试项目信息</h4>
+                    <h4 class="modal-title" id="myModalLabel">修改Perf测试 用例信息</h4>
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal m-t" id="itemForm" action="/testcase/perf_edit_case" role="form" method="post" enctype="multipart/form-data">
@@ -398,7 +398,7 @@
             $("#mod_casename").val("");
             $("#mod_caselevel").val("");
             $("#mod_casetype").val("");
-            $("#mod_caseinitid option").prop("selected", false);
+            $("#mod_caseinitid").val("");
             $.ajax({
                 url: "/testcase/perf_edit_case",
                 type: "GET",
@@ -411,10 +411,7 @@
                         $("#mod_casename").val(arg.CaseName);
                         $("#mod_caselevel").val(arg.Level);
                         $("#mod_casetype").val(arg.CaseType);
-                         $.each(arg.TIID,function (k,v) {
-                            $("#mod_caseinitid [value=" + v + "]").prop("selected",true);
-                        });
-                   
+                        $("#mod_caseinitid").val(arg.TIID_id);
                     }
                 }
             })

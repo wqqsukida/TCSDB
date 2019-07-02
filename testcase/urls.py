@@ -91,7 +91,7 @@ urlpatterns = [
     re_path(r'^api/comp_test/mod_prj_status/$',api.UpdateToolProjectStatus.as_view()),
     re_path(r'^api/comp_test/get_case/$',api.GetToolTestCase.as_view()),
     re_path(r'^api/comp_test/get_item/$',api.GetToolTestItem.as_view()),
-    re_path(r'^api/comp_test/find_prj_case/$',api.FindProjTestCases.as_view()),
+    re_path(r'^api/comp_test/find_prj_case/$',api.FindCompProjTestCases.as_view()),
     #compatible web api
     re_path(r'^comp_get_item', views.GetCompItem),
     re_path(r'^comp_add_item', views.AddCompItem),

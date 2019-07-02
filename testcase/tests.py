@@ -76,6 +76,15 @@ class TestCaseTests(TestCase):
         perfcaseitem3.save()
         perfref1 = PerfRefTarget(Project="taiplus", RefUnit="IOPS", RefVal=10000, IICID=perfcaseitem1)
         perfref1.save()
+        comptestitem = CompTestItem(Name="comp1", Description="comp1 test", OSRequired="linux", Automated=True, ToolName="fio",
+                                    ToolVersion="3.1", ToolPath="c:\\tools", ToolParam="--size = 200G", Comments="")
+        comptestitem.save()
+        comptestcase = CompTestCase(Name="compcase1", SupportOS="linux", OSVersion="centos7.2", HWBrandReq="hwband",
+                                    HWModelReq="hwmodel", HWReqLables="hwlabel", DUTReqLables="dutlabel", TTID=comptestitem)
+        comptestcase.save()
+        compprj = CompProject(Project="tai", Status="todo")
+        compprj.save()
+        compprj.TCID.set([comptestcase])
         self.c = Client()
 
     def testAddRefSpec(self):
@@ -100,7 +109,7 @@ class TestCaseTests(TestCase):
         self.assertEqual(res_data["code"], 5)
 #         self.assertEqual(eval(res_data)["data"], 3)
 #         self.assertEqual(eval(res_data)["code"], 0)
-       
+         
     def testAddTestPoint(self):
         """
         """
@@ -122,7 +131,7 @@ class TestCaseTests(TestCase):
                        }
         res_data = obj.sendCmd()
         self.assertEqual(res_data["code"], 5)
-
+  
     def testAddCaseDesc(self):
         """
         """
@@ -133,7 +142,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, 3, self.c, self.assertEqual, self.assertTrue)
-      
+        
     def testUpdateCaseStep(self):
         """
         """
@@ -161,7 +170,7 @@ class TestCaseTests(TestCase):
                              }
                  }
         CaseFuncsBase(url, data_dic2, None, self.c, self.assertEqual, self.assertTrue)       
- 
+   
     def testUpdateCaseVersion(self):
         """
         """
@@ -171,7 +180,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-      
+        
     def testUpdateCaseSrtInfo(self):
         """
         """
@@ -184,7 +193,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-      
+        
     def testUpdateCaseOwnership(self):
         """
         """
@@ -195,7 +204,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-  
+    
     def testUpdateCaseProject(self):
         """
         """
@@ -206,7 +215,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-          
+            
         url = "/testcase/api/func_test/mod_caseproject/"
         data_dic ={"data": { "CaseName":"write1", 
                             "Project"    : "TaiPlus",
@@ -214,7 +223,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-  
+    
     def testUpdateCaseCategory(self):
         """
         """
@@ -228,7 +237,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-      
+        
     def testUpdateCaseLabels(self):
         """
         """
@@ -238,7 +247,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-  
+    
     def testUpdateCaseDepInfo(self):
         """
         """
@@ -254,7 +263,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-     
+       
     def testGetCaseScriptInfo(self):
         """
         """
@@ -265,7 +274,7 @@ class TestCaseTests(TestCase):
         expect_data = {'CaseName': 'read1', 'ScriptName': 'basicread.py', 
                        'ScriptPath': 'ibm-l2/dataTransfer', 'ScriptParams': '--doPdb True'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-  
+    
     def testGetCaseSrtOwner(self):
         """
         """
@@ -275,7 +284,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data = {'Owner': 'cuimei', 'BackupOwner': 'xuhui'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-   
+     
     def testGetCaseDetailedInfo(self):
         """
         """
@@ -290,7 +299,7 @@ class TestCaseTests(TestCase):
                        'SWRequired': 'sw', 'VSRequired': 'Y', 'DrvSupported': 'drive', 'OSSupported': 'windows', \
                        'OEMSupported': 'lenovo', 'SKUSupported': '8160'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-   
+    
     def testGetCaseStepInfo(self):
         """
         """
@@ -298,12 +307,10 @@ class TestCaseTests(TestCase):
         data_dic ={"data": { "CaseName":"read1"
                             }
                           }
-        expect_data = [{'id': 1, 'Step': 1, 'StepType': 'MAIN',
-                        'StepDesc': 'write some data', 'ExpectRslt': 'pass'}, 
-                       {'id': 2, 'Step': 2, 'StepType': 'MAIN', 'StepDesc': 'read and compare data', 
-                        'ExpectRslt': 'pass'}]
+        expect_data = [{'id': 1, 'Step': '1', 'StepType': 'MAIN', 'StepDesc': 'write some data', 'ExpectRslt': 'pass'},
+                       {'id': 2, 'Step': '2', 'StepType': 'MAIN', 'StepDesc': 'read and compare data', 'ExpectRslt': 'pass'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-       
+        
     def testGetCaseTestPoints(self):
         """
         """
@@ -315,7 +322,7 @@ class TestCaseTests(TestCase):
                        {'id': 1, 'TestDesc': 'basicread', 'SelectFrom': 'fdafdafdaf', 'PageNo': 10, 'FileName': 'NVME', 'Version': '3.0'}, 
                        {'id': 2, 'TestDesc': 'basicwrite', 'SelectFrom': 'bbbbb', 'PageNo': 10, 'FileName': 'NVME', 'Version': '3.0'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
- 
+   
     def testGetCaseProjectInfo(self):
         """
         """
@@ -325,7 +332,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data = [{'Project': 'TaiPlus', 'Status': 'TODO'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-     
+       
     def testGetProjectCases(self):
         """
         """
@@ -337,7 +344,7 @@ class TestCaseTests(TestCase):
         expect_data = [{'id': 1, 'Project': 'TaiPlus', 'CaseName': 'read1'}, 
                        {'id': 2, 'Project': 'TaiPlus', 'CaseName': 'write1'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-         
+           
         url = "/testcase/api/func_test/get_prjcaselist/"
         data_dic ={"data": { "Project":"TaiPlus",
                             "Status"  : "TODO",
@@ -346,7 +353,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data = [{'id': 1, 'Project': 'TaiPlus', 'CaseName': 'read1'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-
+  
     def testAddPerfTestItem(self):
         """
         """
@@ -366,7 +373,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-
+  
     def testAddPerfGlobal(self):
         """
         """
@@ -379,7 +386,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-
+  
     def testAddPerfTestCase(self):
         """
         """
@@ -391,7 +398,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-
+  
     def testAddItemIntoCase(self):
         """
         """
@@ -401,7 +408,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-
+  
     def testAddItemRefVal(self):
         """
         """
@@ -414,7 +421,7 @@ class TestCaseTests(TestCase):
                             }
                 }
         CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
-    
+      
     def testGetCaseTestItems(self):
         """
         """
@@ -424,7 +431,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data =  [{'ItemName': 'test1'}, {'ItemName': 'test2'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-    
+      
     def testGetPerfGlobal(self):
         """
         """
@@ -434,7 +441,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data =  {'GlobalName': 'fio', 'MaxIOSize': 100, 'Offset': 0, 'NeedPurge': True, 'Need2XFillDriver': False}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-    
+      
     def testGetTestCase(self):
         """
         """
@@ -444,7 +451,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data =  {'GlobalName': 'fio', 'CaseName': 'fiotest1', 'CaseType': 'IOPS'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-    
+      
     def testGetCaseItem(self):
         """
         """
@@ -455,7 +462,7 @@ class TestCaseTests(TestCase):
         expect_data =  {'ItemName': 'test1', 'CheckPoint': 'FOB', 'AccessPercent': 100, 'BlockSize': 4096, 'BlockAlign': 4096, 'IODepth': 64, 
                         'RWMixRead': 30, 'RandPercent': 0, 'NumJobs': 2, 'RunTime': 3600, 'StartDelay': 0, 'LoopCnt': 10}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-    
+      
     def testGetItemRefVal(self):
         """
         """
@@ -467,7 +474,7 @@ class TestCaseTests(TestCase):
                           }
         expect_data =  {'RefUnit': 'IOPS', 'RefVal': '10000'}
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
-    
+      
     def testFindPerfTestCase(self):
         """
         """
@@ -476,6 +483,82 @@ class TestCaseTests(TestCase):
                             }
                           }
         expect_data =   [{'CaseName': 'fiotest1'}]
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+      
+    def testAddToolTestItem(self):
+        """
+        """
+        url = "/testcase/api/comp_test/add_item/"
+        data_dic ={"data": { "Name":"comp2", 
+                            "Description":"comp2 test", 
+                            "OSRequired":"linux", 
+                            "Automated":"True",
+                            "ToolName":"benchmark",
+                            "ToolVersion":"3.2",
+                            "ToolPath" : "c:\\tools",
+                            "ToolParam": "--percent 10",
+                            "Comments" : "uttest"
+                            }
+                }
+        obj = CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+      
+    def testAddToolTestCase(self):
+        """
+        """
+        url = "/testcase/api/comp_test/add_case/"
+        data_dic ={"data": { "Name":"comp2case",
+                            "SupportOS":"linux", 
+                            "OSVersion":"fedora7.2", 
+                            "HWBrandReq":"hwbrand2",
+                            "HWModelReq":"hwmodel2",
+                            "HWReqLables":"hwlabel2",
+                            "DUTReqLables" :"dutlabel2",
+                            "TTID" : "1",
+                            }
+                }
+        obj = CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)    
+ 
+    def testUpdateToolProjectStatus(self):
+        """
+        """
+        url = "/testcase/api/comp_test/mod_prj_status/"
+        data_dic ={"data": { "CaseName":"compcase1", 
+                            "Project"  : "tai",
+                            "Status"  :"ready"
+                            }
+                }
+        CaseFuncsBase(url, data_dic, None, self.c, self.assertEqual, self.assertTrue)
+ 
+    def testGetToolTestCase(self):
+        """
+        """
+        url = "/testcase/api/comp_test/get_case/"
+        data_dic ={"data": {"Name":"compcase1",
+                            }
+                          }
+        expect_data =  {'Name': 'compcase1', 'SupportOS': 'linux', 'OSVersion': 'centos7.2', 'HWBrandReq': 'hwband', 'HWModelReq': 'hwmodel', 
+                        'HWReqLables': 'hwlabel','DUTReqLables': 'dutlabel'}
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+ 
+    def testGetToolTestItem(self):
+        """
+        """
+        url = "/testcase/api/comp_test/get_item/"
+        data_dic ={"data": {"Name":"comp1",
+                            }
+                          }
+        expect_data =  {'Name': 'comp1', 'Description': 'comp1 test', 'OSRequired': 'linux', 'Automated': True, 'ToolName': 'fio',
+                        'ToolVersion': '3.1', 'ToolPath': 'c:\\tools', 'ToolParam': '--size = 200G', 'Comments': ''}
+        CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
+
+    def testFindCompProjTestCases(self):
+        """
+        """
+        url = "/testcase/api/comp_test/find_prj_case/"
+        data_dic ={"data": {"Project":"all",
+                            }
+                          }
+        expect_data =   [{'Name': 'compcase1'}]
         CaseFuncsBase(url, data_dic, expect_data, self.c, self.assertEqual)
 
 class CaseFuncsBase(object):
@@ -509,6 +592,7 @@ class CaseFuncsBase(object):
         res_data = self.sendCmd()
         #check return code
         self.checkFun(res_data["code"], 0)
+        print(res_data["data"])
         #check return result
         if self.expect_data is None:
             if self.assertFun is None:

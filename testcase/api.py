@@ -739,34 +739,53 @@ class AddToolTestCase(AddDataBase):
     新增兼容性用例项
     '''
     def addData(self, res):
-        try:
-            item_obj = CompTestCase.objects.create(**res)
-            response = {'code':0,'msg':'Success!','data':True}
-        except Exception as e:
-            response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
-        return response
+        item_id = res.pop('TTID')
+        item_obj = CompTestItem.objects.get(pk=item_id)
+        res["TTID"] = item_obj
+        if item_obj is None:
+            response = {'code':6,'msg':'item:%s not exist' %item_id,'data':False}
+        else:
+            try:
+                item_obj = CompTestCase.objects.create(**res)
+                response = {'code':0,'msg':'Success!','data':True}
+            except Exception as e:
+                response = {'code':5, 'msg':'Service internal error:{0}'.format(str(e)),'data':False}
+            return response
 
 class UpdateToolProjectStatus(UpdateCaseBase):
     '''
-    更新兼容性测试项目的用例状态
+    新增/更新兼容性测试项目的用例状态
     '''
     def updateData(self, res):
         try:
             with transaction.atomic():
                 case_name = res.pop('CaseName')
                 prj_name = res.pop('Project')
-                case_obj = CompProject.objects.filter(Project=prj_name, TCID__Name__icontains=case_name).first()
-                if len(case_obj) == 0:#add a new test case step
+                status   = res.pop('Status')
+                new_case_obj = CompTestCase.objects.filter(Name=case_name).first()
+                case_obj = CompProject.objects.filter(Project=prj_name, TCID__Name__icontains=case_name)
+                print("case_obj is:%s" % case_obj)
+                if case_obj is None:#add a new test case into project
+                    prj_obj = CompProject(Project=prj_name, Status=status)
+                    prj_obj.save()
+                    prj_obj.TCID.add(new_case_obj) 
                     response = {'code':6,'msg':'case:%s for project:%s not exist' %(case_name, prj_name),'data':False}
                 else:
-                    case_obj.update(**res)
-                    response = {'code':0,'msg':'Success!','data':True}
+                    pj_ins = case_obj.first()
+                    if pj_ins.Project == prj_name and pj_ins.Status == status:
+                        response = {'code':8,'msg':'Case:{0} modify project:{1} fail, same with current value'.format(case_name, prj_name),'data':False}
+                    else:
+                        setattr(pj_ins, "Project", prj_name)
+                        setattr(pj_ins, "Status", status)
+                        pj_ins.TCID.set([new_case_obj])
+                        pj_ins.save()
+                        response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Server internal error:{0}'.format(str(e)),'data':False}
         return response
 
-class GetToolTestCase(UpdateCaseBase):
+class GetToolTestCase(GetCaseInfoBase):
     '''
 获取兼容性测试用例的详情
     '''
@@ -793,7 +812,7 @@ class GetToolTestCase(UpdateCaseBase):
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
         return response
 
-class GetToolTestItem(UpdateCaseBase):
+class GetToolTestItem(GetCaseInfoBase):
     '''
     获取兼容性测试项目的详情
     '''
@@ -821,7 +840,7 @@ class GetToolTestItem(UpdateCaseBase):
             response = {'code': 5, 'msg': 'Server internal error:{0}'.format(str(e)), 'data': {}}
         return response
 
-class FindProjTestCases(GetCaseInfoBase):
+class FindCompProjTestCases(GetCaseInfoBase):
     '''
     获取满足搜索条件的测试用例信息
     '''
@@ -829,21 +848,21 @@ class FindProjTestCases(GetCaseInfoBase):
         """
         """
         filter_dic = {}
-        prj_name = res.get("prj")
-        case_type = res.get('CaseType')
+        prj_name = res.get("Project")
+        case_status = res.get('Status')
         if prj_name is not None and prj_name.upper() != "ALL":
             filter_dic["Project"]= prj_name
-        if case_type is not None and case_type.upper() != "ALL":
-            filter_dic["CaseType"] = case_type
+        if case_status is not None and case_status.upper() != "ALL":
+            filter_dic["Status"] = case_status
         try:
             item_obj = CompProject.objects.filter(**filter_dic)
             if len(item_obj) == 0:
-                response = {'code':6,'msg':'Case:{0} project:{1} not exist, please check!!'.format(case_type, prj_name),'data':""}
+                response = {'code':6,'msg':'Case:{0} project:{1} not exist, please check!!'.format(case_status, prj_name),'data':""}
             else:
                 case_list = []
                 for item in item_obj:
                     data_dic = {}
-                    data_dic["Name"] = item.Name
+                    data_dic["Name"] = item.TCID.first().Name
                     case_list.append(data_dic)
                 response = {'code': 0, 'msg': 'Success!', 'data': case_list}
         except Exception as e:

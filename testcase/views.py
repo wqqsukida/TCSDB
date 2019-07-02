@@ -1091,9 +1091,12 @@ def GetCompItem(request):
         if search_case_name != "":
             filter_dic["Name__icontains"] = search_case_name
         if search_case_type != "":
+            if search_case_type.upper() == "TRUE":
+                search_case_type = bool(search_case_type)
+            else:
+                search_case_type = bool("")
             filter_dic["Automated"] = search_case_type
         case_list = CompTestItem.objects.filter(**filter_dic).distinct()
-        global_obj = PerfGlobal.objects.all()
         queryset, page_html = init_paginaion(request, case_list)
         return render(request,'testcase/comp_get_item.html',locals())
 
@@ -1209,14 +1212,17 @@ def GetCompCase(request):
         if status.isdigit():
             result = {"code":int(status),"message":message}
         search_case_name = request.GET.get('scase', '').strip()
-        search_case_type  = request.GET.get('stype', '').strip()
+        search_os  = request.GET.get('sos', '').strip()
+        search_os_ver  = request.GET.get('sosver', '').strip()
         filter_dic = {}
         if search_case_name != "":
             filter_dic["Name__icontains"] = search_case_name
-        if search_case_type != "":
-            filter_dic["Automated"] = search_case_type
-        case_list = CompTestItem.objects.filter(**filter_dic).distinct()
-        global_obj = PerfGlobal.objects.all()
+        if search_os != "":
+            filter_dic["SupportOS"] = search_os
+        if search_os_ver != "":
+            filter_dic["OSVersion"] = search_os_ver
+        case_list = CompTestCase.objects.filter(**filter_dic).distinct()
+        item_obj = CompTestItem.objects.all()
         queryset, page_html = init_paginaion(request, case_list)
         return render(request,'testcase/comp_get_case.html',locals())
 
@@ -1237,7 +1243,6 @@ def AddCompCase(request):
         print("casename:%s, supportos:%s,osversion:%s, hwbrand:%s,hwmodel:%s"
               %(casename, supportos, osversion, hwbrand, hwmodel))
         print("hwlabel:%s, dutlabel:%s" %(hwlabel, dutlabel))
-        item_obj = CompTestItem.objects.all()
         add_item = CompTestItem.objects.get(pk=ttid)
         try:
             with transaction.atomic():
@@ -1289,12 +1294,15 @@ def UpdateCompCase(request):
             'DUTReqLables' :dutlabel,
             "TTID"         : ttid,
         }
-        case_obj = CompTestCase.objects.get(id=itemid)
+        case_obj = CompTestCase.objects.get(pk=itemid)
         try:
             for k ,v in form_data.items():
                 if k == "TTID":
                     ii_obj = CompTestItem.objects.get(pk=ttid)
-                setattr(case_obj,k,v)
+                    setattr(case_obj,k,ii_obj)
+                else:
+                    setattr(case_obj, k, v)
+                
             case_obj.save()
             result = {"code": 0, "message": "更新用例成功！"}
         except Exception as e:
@@ -1340,7 +1348,6 @@ def AddCompProject(request, projectname):
         pjname = request.POST.get("pjname",None)
         status = request.POST.get("status",None)
         caseid = request.POST.get("tcid",None)
-        pj_obj = CompTestCase.objects.all()
         #check pjname
         if pjname != projectname:
             result = {"code": 1, "message": "project name error"}
@@ -1350,8 +1357,10 @@ def AddCompProject(request, projectname):
                 caseObj = CompTestCase.objects.get(pk=caseid)
                 try:
                     with transaction.atomic():
-                        pj_obj = CompProject(Project=pjname, Status=status.upper(), TCID=caseObj)
-                        pj_obj.save()   
+                        pj_obj = CompProject(Project=pjname, Status=status.upper())
+                        pj_obj.save()
+                        pj_obj.TCID.add(caseObj)
+                           
                     result = {"code": 0, "message": "添加用例成功"}
                 except Exception as e:
                     result = {"code": 1, "message": e}
@@ -1377,14 +1386,15 @@ def GetCompProject(request, projectname):
         search_status = request.GET.get('searchstatus', '').strip()
         filter_dic = {}
         if search_case != "":
-            filter_dic["TCID__CaseName__icontains"] = search_case
+            filter_dic["TCID__Name__icontains"] = search_case
         if search_status !="":
             filter_dic["Status__icontains"] = search_status
         #add project filter
         filter_dic["Project"] = projectname.replace('\'', '')
         print("filter dic:%s" % filter_dic)
         case_list = CompProject.objects.filter(**filter_dic).distinct()
-        detail_list = CompTestCase.objects.all()
+        print("case _list:%s" % case_list)
+        cases_obj = CompTestCase.objects.all()
         queryset, page_html = init_paginaion(request, case_list)
         return render(request,case_template,locals())
 
@@ -1407,19 +1417,19 @@ def UpdateCompProject(request, projectname):
         pjid = request.POST.get("id")
         pjName = request.POST.get("pjname",None)
         status = request.POST.get("status",None)
-        tcid = request.POST.get("tcid",None)
+#         tcid = request.POST.get("tcid",None)
         form_data = {
                     'id'     :pjid,
                     'Project':pjName,
                     'Status' :status,
-                    'TCID'   :tcid,
+#                     'TCID'   :tcid,
         }
         pj_obj = CompProject.objects.get(id=pjid)
         try:
             for k ,v in form_data.items():
                 if k == "TCID":
-                    ii_obj = CompTestCase.objects.get(pk=tcid)
-                    setattr(pj_obj, k, ii_obj)
+                    print("####")
+                    pj_obj.TCID.set(v)
                 else:
                     setattr(pj_obj,k,v)
             pj_obj.save()

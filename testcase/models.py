@@ -196,7 +196,7 @@ class CompTestItem(models.Model):
     """
     Compatibility test item
     """
-    Name          = models.CharField(max_length=40)
+    Name          = models.CharField(max_length=40, unique=True)
     Description   = models.CharField(max_length=80)
     OSRequired    = models.CharField(max_length=10)
     Automated     = models.BooleanField()
@@ -215,7 +215,7 @@ class CompTestCase(models.Model):
     """
     Compatibility test case
     """
-    Name          = models.CharField(max_length=40)
+    Name          = models.CharField(max_length=40, unique=True)
     SupportOS     = models.CharField(max_length=10)
     OSVersion     = models.CharField(max_length=40)
     HWBrandReq    = models.CharField(max_length=10)
@@ -240,4 +240,4 @@ class CompProject(models.Model):
         verbose_name_plural = "Compatibility test project"
 
     def __str__(self):
-        return self.id
+        return str(self.id)

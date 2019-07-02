@@ -79,9 +79,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="searchtype" class="sr-only">自动化</label>
+                                        <label for="searchos" class="sr-only">支持的OS</label>
                                         <div class="col-md-2">
-                                            <input type="text" name="stype" placeholder="是否自动化脚本" id="slevel" class="form-control">
+                                            <input type="text" name="sos" placeholder="支持的OS" id="sos" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="searchosver" class="sr-only">OS版本</label>
+                                        <div class="col-md-2">
+                                            <input type="text" name="sosver" placeholder="OS版本" id="sosver" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-1">
@@ -189,19 +195,19 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">平台机型要求</label>
                             <div class="col-sm-8">
-                                <input id="hwbrand" name="hwbrand" class="form-control" type="text">
+                                <input id="hwmodel" name="hwmodel" class="form-control" type="text">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">平台其他要求</label>
                             <div class="col-sm-8">
-                                <input id="hwbrand" name="hwbrand" class="form-control" type="text">
+                                <input id="hwlabel" name="hwlabel" class="form-control" type="text">
                             </div>
                         </div>
                          <div class="form-group">
                             <label class="col-sm-3 control-label">DUT要求</label>
                             <div class="col-sm-8">
-                                <input id="hwbrand" name="hwbrand" class="form-control" type="text">
+                                <input id="dutlabel" name="dutlabel" class="form-control" type="text">
                             </div>
                         </div>
 						<div class="form-group">
@@ -291,7 +297,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">用例相关的测试项目</label>
                             <div class="col-sm-8">
-                                <select class="form-control"  name="caseinitid" id="mod_caseinitid">
+                                <select class="form-control"  name="ttid" id="mod_ttid">
                                     {% for i in item_obj %}
                                         <option value="{{ i.id }}"> {{ i.id }}:{{ i.Name }}</option>
                                     {% endfor %}
@@ -442,7 +448,8 @@
             $("#mod_hwmodel").val("");
             $("#mod_hwlabel").val("");
             $("#mod_dutlabel").val("");
-            $("#mod_ttid option").prop("selected", false);
+            $("#mod_ttid").val("");
+            
             $.ajax({
                 url: "/testcase/comp_edit_case",
                 type: "GET",
@@ -459,10 +466,7 @@
                         $("#mod_hwmodel").val(arg.HWModelReq);
                         $("#mod_hwlabel").val(arg.HWReqLables);
                         $("#mod_dutlabel").val(arg.DUTReqLables);
-                         $.each(arg.TTID,function (k,v) {
-                            $("#mod_ttid [value=" + v + "]").prop("selected",true);
-                        });
-                   
+                        $("#mod_ttid").val(arg.TTID_id);
                     }
                 }
             })
