@@ -102,7 +102,7 @@ class CaseStep(models.Model):
     StepChoice  = (('PRE', "BeforeTest"),
                     ('POST' , "AfterTest"),
                     ('MAIN', "Test"),)
-    Step         = models.IntegerField()
+    Step         = models.CharField(max_length=20)
     StepType     = models.CharField(choices=StepChoice, max_length=10)
     StepDesc     = models.CharField(max_length=80)
     ExpectRslt   = models.CharField(max_length=80)
@@ -191,3 +191,53 @@ class PerfRefTarget(models.Model):
 
     def __str__(self):
         return self.Project
+
+class CompTestItem(models.Model):
+    """
+    Compatibility test item
+    """
+    Name          = models.CharField(max_length=40, unique=True)
+    Description   = models.CharField(max_length=80)
+    OSRequired    = models.CharField(max_length=10)
+    Automated     = models.BooleanField()
+    ToolName      = models.CharField(max_length=20)
+    ToolVersion   = models.CharField(max_length=10)
+    ToolPath      = models.CharField(max_length=80)
+    ToolParam     = models.CharField(max_length=40)
+    Comments      = models.CharField(max_length=80)
+    class Meta:
+        verbose_name_plural = "Compatibility test item"
+
+    def __str__(self):
+        return self.Name
+
+class CompTestCase(models.Model):
+    """
+    Compatibility test case
+    """
+    Name          = models.CharField(max_length=40, unique=True)
+    SupportOS     = models.CharField(max_length=10)
+    OSVersion     = models.CharField(max_length=40)
+    HWBrandReq    = models.CharField(max_length=10)
+    HWModelReq    = models.CharField(max_length=10)
+    HWReqLables   = models.CharField(max_length=80)
+    DUTReqLables  = models.CharField(max_length=80)
+    TTID          = models.ForeignKey(CompTestItem, related_name="com_item_case", on_delete=models.CASCADE)
+    class Meta:
+        verbose_name_plural = "Compatibility test case"
+
+    def __str__(self):
+        return self.Name
+
+class CompProject(models.Model):
+    """
+    Compatibility test project
+    """
+    Project       = models.CharField(max_length=20)
+    Status        = models.CharField(max_length=10)
+    TCID          = models.ManyToManyField(CompTestCase, related_name="com_case_project")
+    class Meta:
+        verbose_name_plural = "Compatibility test project"
+
+    def __str__(self):
+        return str(self.id)

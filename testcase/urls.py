@@ -87,5 +87,21 @@ urlpatterns = [
     re_path(r'^perf_detail_case_info', views.GetPerfCaseInfo),
     #automated competible api
     re_path(r'^api/comp_test/add_item/$',api.AddToolTestItem.as_view()),
-
+    re_path(r'^api/comp_test/add_case/$',api.AddToolTestCase.as_view()),
+    re_path(r'^api/comp_test/mod_prj_status/$',api.UpdateToolProjectStatus.as_view()),
+    re_path(r'^api/comp_test/get_case/$',api.GetToolTestCase.as_view()),
+    re_path(r'^api/comp_test/get_item/$',api.GetToolTestItem.as_view()),
+    re_path(r'^api/comp_test/find_prj_case/$',api.FindCompProjTestCases.as_view()),
+    #compatible web api
+    re_path(r'^comp_get_item', views.GetCompItem),
+    re_path(r'^comp_add_item', views.AddCompItem),
+    re_path(r'^comp_edit_item', views.UpdateCompItem),
+    re_path(r'^comp_del_item', views.DeleteCompItem),
+    re_path(r'^comp_get_case', views.GetCompCase),
+    re_path(r'^comp_add_case', views.AddCompCase),
+    re_path(r'^comp_edit_case', views.UpdateCompCase),
+    re_path(r'^comp_del_case', views.DeleteCompCase),
+    re_path(r'^comp_add_project/(\w+)/$', views.AddCompProject),
+    re_path(r'^comp_test_project/(\w+)/$', views.GetCompProject),
+    re_path(r'^comp_edit_project/(\w+)/$', views.UpdateCompProject),
 ]

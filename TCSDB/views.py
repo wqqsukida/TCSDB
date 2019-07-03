@@ -25,7 +25,7 @@ from django.conf import settings
 from utils.filter_row import Row
 from django.forms.models import model_to_dict
 from utils.log import logger
-from testcase.models import TestProject, PerfRefTarget
+from testcase.models import TestProject, PerfRefTarget, CompProject
 #========================================================================#
 def init_paginaion(request,queryset):
     # 初始化分页器
@@ -144,10 +144,10 @@ def index(request):
     user_role = user_dict['role']
     project_all = TestProject.objects.all()
     perf_all = PerfRefTarget.objects.all()
-#     com_all = 
+    com_all = CompProject.objects.all()
     project_list = filterPrj(project_all)
     perf_prj_list = filterPrj(perf_all)
-#     com_prj_list = filterPrj(com_all)
+    com_prj_list = filterPrj(com_all)
         
     # print('---当前登录用户/角色--->',username,user_role)
     return render(request,'index.html',locals())

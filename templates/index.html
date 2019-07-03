@@ -204,18 +204,21 @@
                             <li>
                                 <a href="#"><i class="fa fa-desktop"></i>兼容性测试<span class="fa arrow"></span></a>
                                 <ul class="nav nav-third-level">
+                                   	<li>
+                                     	<a class="J_menuItem" href="/testcase/comp_get_item">Comp测试项目</a> 
+                                    </li>
+                                    <li>
+                                       <a class="J_menuItem" href="/testcase/comp_get_case">Comp测试用例</a> 
+                                    </li>
                                     <li>
                                     <a href="#">项目测试用例<span class="fa arrow"></span></a>
                                         <ul class="nav nav-fourth-level">  
                                             {% for project  in project_list %}      
                                                 <li>
-                                                    <a class="J_menuItem" href="/testcase/test_com_project/{{ project }}/"> {{ project }}</a> 
+                                                    <a class="J_menuItem" href="/testcase/comp_test_project/{{ project }}/"> {{ project }}</a> 
                                                 </li>
                                             {% endfor %}
                                        </ul>
-                                    </li>
-                                    <li>
-                                       <a class="J_menuItem" href="/testcase/test_com_detail_cases">详细测试用例</a> 
                                     </li>
                                     </ul>
                             </li>

@@ -43,7 +43,7 @@
                 <div class="ibox">
                     <div class="ibox-title">
                         <ol class="breadcrumb">
-                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B>Perf测试用例列表 </h5>
+                            <h5><a href="/index_v3/">首页</a><B style="color:#ccc">/</B>Comp测试用例列表 </h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -79,15 +79,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="searchlevel" class="sr-only">归属类</label>
+                                        <label for="searchos" class="sr-only">支持的OS</label>
                                         <div class="col-md-2">
-                                            <input type="text" name="slevel" placeholder="请输入用例级别" id="slevel" class="form-control">
+                                            <input type="text" name="sos" placeholder="支持的OS" id="sos" class="form-control">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="searchpt" class="sr-only">包含测试点</label>
+                                        <label for="searchosver" class="sr-only">OS版本</label>
                                         <div class="col-md-2">
-                                            <input type="text" name="stype" placeholder="请输入用例类型" id="stype" class="form-control">
+                                            <input type="text" name="sosver" placeholder="OS版本" id="sosver" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-1">
@@ -106,38 +106,33 @@
                                     <tr>
                                         <th>用例索引</th>
                                         <th>用例名称</th>
-                                        <th>用例级别</th>
-                                        <th>用例类型</th>
-                                        <th>全局变量索引</th>
-                                        <th>全局名称</th>
-                                        <th>全局最大IO</th>
-                                        <th>全局起始偏移</th>
-                                        <th>是否需要Purge</th>
-                                        <th>是否需要2次Fill盘</th>
+                                        <th>支持操作系统</th>
+                                        <th>操作系统版本</th>
+                                        <th>平台品牌要求</th>
+                                        <th>平台机型要求</th>
+                                        <th>平台其他要求</th>
+                                        <th>DUT要求</th>
+                                        <th>对应测试项目</th>
                                         <th>操作(详细信息/更新/删除)</th>
                                     </tr>
                                  </thead>
                                  <tbody>
                                     {% for item in queryset %}
                                      <tr>
-                                            <td>{{ item.id}}</td>
-                                            <td>{{ item.CaseName}}</td>
-                                            <td>{{ item.Level}}</td>
-                                            <td>{{ item.CaseType}}</td>
-                                            <td>{{ item.TIID.id}}</td>
-                                            <td>{{ item.TIID.GlobalName}}</td>
-                                            <td>{{ item.TIID.MaxIOSize}}</td>
-                                            <td>{{ item.TIID.Offset}}</td>
-                                            <td>{{ item.TIID.NeedPurge}}</td>
-                                            <td>{{ item.TIID.Need2XFillDriver}}</td>
+                                            <td>{{ item.id }}</td>
+                                            <td>{{ item.Name }}</td>
+                                            <td>{{ item.SupportOS }}</td>
+                                            <td>{{ item.OSVersion }}</td>
+                                            <td>{{ item.HWBrandReq }}</td>
+                                            <td>{{ item.HWModelReq }}</td>
+                                            <td>{{ item.HWReqLables }}</td>
+                                            <td>{{ item.DUTReqLables }}</td>
+                                            <td>{{ item.TTID.id}}: {{ item.TTID.Name }}</td>
                                             <td style="font-size: 20px">
-                                            	<a class="mod-user-btn2" title="测试项目详情" href="/testcase/perf_detail_case_info?id={{ item.id }}">
-                                                <i class="fa fa-book"></i>
-                                                </a>
-                                                <a class="mod-user-btn" title="修改Perf测试用例信息" iid="{{ item.id }}" data-toggle="modal" data-target="#UpdateModal">
+                                                <a class="mod-user-btn" title="修改Comp测试用例信息" iid="{{ item.id }}" data-toggle="modal" data-target="#UpdateModal">
                                                     <i class="fa fa-cog"></i>
                                                 </a>
-                                                <a href="/testcase/perf_del_case?id={{ item.id }}" title="删除Perf测试用例信息" class="del_confirm" style="margin-left: 15px">
+                                                <a href="/testcase/comp_del_case?id={{ item.id }}" title="删除Comp测试用例信息" class="del_confirm" style="margin-left: 15px">
                                                     <i class="fa fa-user-times"></i>
                                                 </a>
                                             </td>
@@ -164,10 +159,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加Perf测试用例信息</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加Comp测试用例信息</h4>
                     </div>
                     <div class="panel-body">
-                    <form class="form-horizontal m-t" id="itemForm" action="/testcase/perf_add_case" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="itemForm" action="/testcase/comp_add_case" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
                         <div class="form-group">
@@ -178,26 +173,49 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">用例级别</label>
+                            <label class="col-sm-3 control-label">支持操作系统</label>
                             <div class="col-sm-8">
-                                <input id="caselevel" name="caselevel" class="form-control" type="text">
+                                <input id="supportos" name="supportos" class="form-control" type="text">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">用例类型</label>
+                            <label class="col-sm-3 control-label">操作系统版本</label>
                             <div class="col-sm-8">
-                                <input id="casetype" name="casetype" class="form-control" type="text">
+                                <input id="osversion" name="osversion" class="form-control" type="text">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">引用的全局索引</label>
+                            <label class="col-sm-3 control-label">平台品牌要求</label>
                             <div class="col-sm-8">
-                                <input id="caseinitid" name="caseinitid" class="form-control" type="text">
+                                <input id="hwbrand" name="hwbrand" class="form-control" type="text">
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">平台机型要求</label>
+                            <div class="col-sm-8">
+                                <input id="hwmodel" name="hwmodel" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">平台其他要求</label>
+                            <div class="col-sm-8">
+                                <input id="hwlabel" name="hwlabel" class="form-control" type="text">
+                            </div>
+                        </div>
+                         <div class="form-group">
+                            <label class="col-sm-3 control-label">DUT要求</label>
+                            <div class="col-sm-8">
+                                <input id="dutlabel" name="dutlabel" class="form-control" type="text">
+                            </div>
+                        </div>
+						<div class="form-group">
+                            <label class="col-sm-3 control-label">相关测试项目</label>
+                            <div class="col-sm-8">
+                                <input id="ttid" name="ttid" class="form-control" type="text">
+                            </div>
+                        </div>
                         <hr width="100%" />
                         <div class="col-sm-12">
                             <div class="col-sm-5"> </div>
@@ -214,10 +232,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close close_mod_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">修改Perf测试 用例信息</h4>
+                    <h4 class="modal-title" id="myModalLabel">修改Comp测试项目信息</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="itemForm" action="/testcase/perf_edit_case" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="itemForm" action="/testcase/comp_edit_case" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
 
                         <div class="form-group">
@@ -235,25 +253,53 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">用例级别</label>
+                            <label class="col-sm-3 control-label">支持操作系统</label>
                             <div class="col-sm-8">
-                                <input id="mod_caselevel" name="caselevel" class="form-control" type="text">
+                                <input id="mod_supportos" name="supportos" class="form-control" type="text">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">用例类型</label>
+                            <label class="col-sm-3 control-label">操作系统版本</label>
                             <div class="col-sm-8">
-                                <input id="mod_casetype" name="casetype" class="form-control" type="text">
+                                <input id="mod_osversion" name="osversion" class="form-control" type="text">
+                            </div>
+                        </div>
+                        
+                       <div class="form-group">
+                            <label class="col-sm-3 control-label">平台品牌要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_hwbrand" name="hwbrand" class="form-control" type="text">
+                            </div>
+                        </div>
+                       
+                       <div class="form-group">
+                            <label class="col-sm-3 control-label">平台机型要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_hwmodel" name="hwmodel" class="form-control" type="text">
+                            </div>
+                        </div>
+                       
+                       <div class="form-group">
+                            <label class="col-sm-3 control-label">平台其他要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_hwlabel" name="hwlabel" class="form-control" type="text">
+                            </div>
+                        </div>
+                        
+                       <div class="form-group">
+                            <label class="col-sm-3 control-label">DUT要求</label>
+                            <div class="col-sm-8">
+                                <input id="mod_dutlabel" name="dutlabel" class="form-control" type="text">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">用例引用的全局索引</label>
+                            <label class="col-sm-3 control-label">用例相关的测试项目</label>
                             <div class="col-sm-8">
-                                <select class="form-control"  name="caseinitid" id="mod_caseinitid">
-                                    {% for g in global_obj %}
-                                        <option value="{{ g.id }}"> {{ g.id }}:{{ g.GlobalName }}</option>
+                                <select class="form-control"  name="ttid" id="mod_ttid">
+                                    {% for i in item_obj %}
+                                        <option value="{{ i.id }}"> {{ i.id }}:{{ i.Name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -396,11 +442,16 @@
             miid = $(this).attr('iid');
             $("#mod_id").val("");
             $("#mod_casename").val("");
-            $("#mod_caselevel").val("");
-            $("#mod_casetype").val("");
-            $("#mod_caseinitid").val("");
+            $("#mod_supportos").val("");
+            $("#mod_osversion").val("");
+            $("#mod_hwbrand").val("");
+            $("#mod_hwmodel").val("");
+            $("#mod_hwlabel").val("");
+            $("#mod_dutlabel").val("");
+            $("#mod_ttid").val("");
+            
             $.ajax({
-                url: "/testcase/perf_edit_case",
+                url: "/testcase/comp_edit_case",
                 type: "GET",
                 data: {id: miid},
                 dataType: 'JSON',
@@ -408,10 +459,14 @@
                     if (arg) {
                         console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_casename").val(arg.CaseName);
-                        $("#mod_caselevel").val(arg.Level);
-                        $("#mod_casetype").val(arg.CaseType);
-                        $("#mod_caseinitid").val(arg.TIID_id);
+                        $("#mod_casename").val(arg.Name);
+                        $("#mod_supportos").val(arg.SupportOS);
+                        $("#mod_osversion").val(arg.OSVersion);
+                        $("#mod_hwbrand").val(arg.HWBrandReq);
+                        $("#mod_hwmodel").val(arg.HWModelReq);
+                        $("#mod_hwlabel").val(arg.HWReqLables);
+                        $("#mod_dutlabel").val(arg.DUTReqLables);
+                        $("#mod_ttid").val(arg.TTID_id);
                     }
                 }
             })
