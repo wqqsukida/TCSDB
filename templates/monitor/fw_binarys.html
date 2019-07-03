@@ -65,11 +65,11 @@
                         <ol class="breadcrumb">
                             <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
                             <li>
-                                <a href="/monitor/package_list"><span class="g_nav_font">Package列表</span></a>
+                                <a href="/monitor/fw_packages"><span class="g_nav_font">FWPackage列表</span></a>
                             </li>
 
                             <li class="active">
-                                {{ package_obj.PkgName }}的Script详情
+                                {{ package_obj.PkgName }}下的Binary详情
                               </li>
                             <div class="ibox-tools">
                                 <a onclick="refresh()">
@@ -88,7 +88,7 @@
 
                                 <div class="col-sm-1">
                                     <a href="#" data-toggle="modal" data-target="#AddModal" class="btn btn-warning add-btn">
-                                        <i class="fa fa-plus"></i> 创建Script
+                                        <i class="fa fa-plus"></i> 创建FWBinary
                                     </a>
                                 </div>
                                 <div class="col-sm-8"></div>
@@ -106,7 +106,8 @@
                              <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
                                  <thead>
                                     <tr>
-                                        <th>Script名称</th>
+                                        <th>BIN档名称</th>
+                                        <th>BIN档类型</th>
                                         <th>Repo信息</th>
                                         <th>Branch信息</th>
                                         <th>CommitID</th>
@@ -114,17 +115,18 @@
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for s in queryset %}
+                                    {% for b in queryset %}
                                         <tr>
-                                            <td>{{ s.SrtName }}</td>
-                                            <td>{{ s.GitRepo }}</td>
-                                            <td>{{ s.GitBranch }}</td>
-                                            <td>{{ s.GitCommitID }}</td>
+                                            <td>{{ b.BinaryName }}</td>
+                                            <td>{{ b.BinaryType }}</td>
+                                            <td>{{ b.GitRepo }}</td>
+                                            <td>{{ b.GitBranch }}</td>
+                                            <td>{{ b.GitCommitID }}</td>
                                             <td class="tooltip-demo" style="font-size: 20px">
-                                                <a class="edit-btn" sid={{ s.id }}  data-toggle="modal" data-target="#EditModal" title="更新Script" style="margin-right: 15px">
+                                                <a class="edit-btn" bid={{ b.id }}  data-toggle="modal" data-target="#EditModal" title="更新FWBinary" style="margin-right: 15px">
                                                     <i class="fa fa-wrench"></i>
                                                 </a>
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/script_del?pid={{ package_obj.id }}&sid={{ s.id }}&page={{ page }}" class="del_confirm" title="删除TestRun" style="margin-right: 15px">
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/del_fwbin?pid={{ package_obj.id }}&bid={{ b.id }}&page={{ page }}" class="del_confirm" title="删除FWBinary" style="margin-right: 15px">
                                                     <i class="fa fa-trash-o"></i>
                                                 </a>
                                             </td>
@@ -151,17 +153,30 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加Script</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加FWBinary</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/script_add" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/add_fwbin" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
                         <input class="hide" type="text" name="pid" value="{{ package_obj.id }}">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Script名称：</label>
+                            <label class="col-sm-3 control-label">BIN档名称：</label>
                             <div class="col-sm-8">
-                                <input name="SrtName" class="form-control" type="text">
+                                <input name="BinaryName" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">BIN档类型：</label>
+                            <div class="col-sm-8">
+                                <select name="BinaryType" class="form-control">
+                                    <option value="GOLDEN">GOLDEN</option>
+                                    <option value="SIMPLE">SIMPLE</option>
+                                    <option value="CONNECT">CONNECT</option>
+                                    <option value="AGING">AGING</option>
+                                    <option value="BOOTFW">BOOTFW</option>
+                                    <option value="OEMFW">OEMFW</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -199,10 +214,10 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">更新Script</h4>
+                    <h4 class="modal-title" id="myModalLabel">更新FWBinary</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/script_update" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/update_fwbin" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
                         <input class="hide" type="text" name="pid" value="{{ package_obj.id }}">
@@ -214,9 +229,22 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Script名称：</label>
+                            <label class="col-sm-3 control-label">BIN档名称：</label>
                             <div class="col-sm-8">
-                                <input name="SrtName" class="form-control" id="mod_SrtName" type="text">
+                                <input name="BinaryName" class="form-control" id="mod_BinaryName" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">BIN档类型：</label>
+                            <div class="col-sm-8">
+                                <select name="BinaryType" class="form-control" id="mod_BinaryType">
+                                    <option value="GOLDEN">GOLDEN</option>
+                                    <option value="SIMPLE">SIMPLE</option>
+                                    <option value="CONNECT">CONNECT</option>
+                                    <option value="AGING">AGING</option>
+                                    <option value="BOOTFW">BOOTFW</option>
+                                    <option value="OEMFW">OEMFW</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -331,26 +359,28 @@
 
     <script>
         $("table").on("click",".edit-btn",function () {
-            sid = $(this).attr('sid');
+            bid = $(this).attr('bid');
             $("#mod_id").val("");
-            $("#mod_SrtName").val("");
+            $("#mod_BinaryName").val("");
             $("#mod_GitRepo").val("");
             $("#mod_GitBranch").val("");
             $("#mod_GitCommitID").val("");
+            $("#mod_BinaryType option").prop("selected",false);
 
             $.ajax({
-                url: "/monitor/script_update",
+                url: "/monitor/update_fwbin",
                 type: "GET",
-                data: {sid: sid},
+                data: {bid: bid},
                 dataType: 'JSON',
                 success: function (arg) {
                     if (arg) {
                         //console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_SrtName").val(arg.SrtName);
+                        $("#mod_BinaryName").val(arg.BinaryName);
                         $("#mod_GitRepo").val(arg.GitRepo);
                         $("#mod_GitBranch").val(arg.GitBranch);
                         $("#mod_GitCommitID").val(arg.GitCommitID);
+                        $("#mod_BinaryType [value=" + arg.BinaryType + "]").prop("selected",true);
                     }
                 }
             })
