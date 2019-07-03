@@ -64,8 +64,12 @@
                     <div class="ibox-title">
                         <ol class="breadcrumb">
                             <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
+                            <li>
+                                <a href="/monitor/fw_packages"><span class="g_nav_font">FWPackage列表</span></a>
+                            </li>
+
                             <li class="active">
-                                ScriptPackage列表
+                                {{ package_obj.PkgName }}下的Binary详情
                               </li>
                             <div class="ibox-tools">
                                 <a onclick="refresh()">
@@ -84,7 +88,7 @@
 
                                 <div class="col-sm-1">
                                     <a href="#" data-toggle="modal" data-target="#AddModal" class="btn btn-warning add-btn">
-                                        <i class="fa fa-plus"></i> 创建Package
+                                        <i class="fa fa-plus"></i> 创建FWBinary
                                     </a>
                                 </div>
                                 <div class="col-sm-8"></div>
@@ -102,44 +106,27 @@
                              <table class="table table-striped table-bordered table-hover dataTables-example" data-page-size="20">
                                  <thead>
                                     <tr>
-                                        <th>Package名称</th>
-                                        <th>项目名称</th>
-                                        <th>Checkout时间</th>
-                                        <th>路径</th>
-                                        <th>标签</th>
+                                        <th>BIN档名称</th>
+                                        <th>BIN档类型</th>
+                                        <th>Repo信息</th>
+                                        <th>Branch信息</th>
+                                        <th>CommitID</th>
                                         <th>操作</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for p in queryset %}
+                                    {% for b in queryset %}
                                         <tr>
-                                            <td class="tooltip-demo">
-                                                <a data-toggle="tooltip" data-placement="bottom" title="查看ScriptInfo" class="btn-sm btn-white" href="/monitor/script_list/{{ p.id }}/">
-                                                    {{ p.PkgName }}
-                                                </a>
-                                            </td>
-                                            <td>{{ p.Project }}</td>
-                                            <td>{{ p.Date | date:'Y-m-d H:i:s'}}</td>
-                                            <td>{{ p.PkgPath }}</td>
-{#                                            <td>#}
-{#                                                {% if tr.Status == "NOTSTART" %}#}
-{#                                                    <a class="alert-btn alert-info">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "FINISHED" %}#}
-{#                                                    <a class="alert-btn alert-success">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "FAILED" %}#}
-{#                                                    <a class="alert-btn alert-danger">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "CANCELED" %}#}
-{#                                                    <a class="alert-btn alert-warning">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "RUNNING" %}#}
-{#                                                    <a class="alert-btn alert-primary">{{ tr.Status }}</a>#}
-{#                                                {% endif %}#}
-{#                                            </td>#}
-                                            <td>{{ p.Labels }}</td>
+                                            <td>{{ b.BinaryName }}</td>
+                                            <td>{{ b.BinaryType }}</td>
+                                            <td>{{ b.GitRepo }}</td>
+                                            <td>{{ b.GitBranch }}</td>
+                                            <td>{{ b.GitCommitID }}</td>
                                             <td class="tooltip-demo" style="font-size: 20px">
-                                                <a class="edit-btn" pid={{ p.id }}  data-toggle="modal" data-target="#EditModal" title="更新Package" style="margin-right: 15px">
+                                                <a class="edit-btn" bid={{ b.id }}  data-toggle="modal" data-target="#EditModal" title="更新FWBinary" style="margin-right: 15px">
                                                     <i class="fa fa-wrench"></i>
                                                 </a>
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/package_del?pid={{ p.id }}&page={{ page }}" class="del_confirm" title="删除Package" style="margin-right: 15px">
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/del_fwbin?pid={{ package_obj.id }}&bid={{ b.id }}&page={{ page }}" class="del_confirm" title="删除FWBinary" style="margin-right: 15px">
                                                     <i class="fa fa-trash-o"></i>
                                                 </a>
                                             </td>
@@ -166,28 +153,48 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">添加Package</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加FWBinary</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/package_add" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/add_fwbin" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
+                        <input class="hide" type="text" name="pid" value="{{ package_obj.id }}">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Package名称：</label>
+                            <label class="col-sm-3 control-label">BIN档名称：</label>
                             <div class="col-sm-8">
-                                <input name="PkgName" class="form-control" type="text">
+                                <input name="BinaryName" class="form-control" type="text">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">项目名称：</label>
+                            <label class="col-sm-3 control-label">BIN档类型：</label>
                             <div class="col-sm-8">
-                                <input name="Project" class="form-control" type="text">
+                                <select name="BinaryType" class="form-control">
+                                    <option value="GOLDEN">GOLDEN</option>
+                                    <option value="SIMPLE">SIMPLE</option>
+                                    <option value="CONNECT">CONNECT</option>
+                                    <option value="AGING">AGING</option>
+                                    <option value="BOOTFW">BOOTFW</option>
+                                    <option value="OEMFW">OEMFW</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Package路径：</label>
+                            <label class="col-sm-3 control-label">Repo信息：</label>
                             <div class="col-sm-8">
-                                <input name="PkgPath" class="form-control" type="text">
+                                <input name="GitRepo" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Branch信息：</label>
+                            <div class="col-sm-8">
+                                <input name="GitBranch" class="form-control" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">CommitID信息：</label>
+                            <div class="col-sm-8">
+                                <input name="GitCommitID" class="form-control" type="text">
                             </div>
                         </div>
 
@@ -207,12 +214,13 @@
             <div class="modal-content animated bounceInDown">
                 <div class="modal-header">
                     <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="myModalLabel">更新Package</h4>
+                    <h4 class="modal-title" id="myModalLabel">更新FWBinary</h4>
                 </div>
                 <div class="panel-body">
-                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/package_update" role="form" method="post" enctype="multipart/form-data">
+                    <form class="form-horizontal m-t" id="signupForm" action="/monitor/update_fwbin" role="form" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input class="hide" type="text" name="page" value="{{ page }}">
+                        <input class="hide" type="text" name="pid" value="{{ package_obj.id }}">
                         <div class="form-group hide">
                             <label class="col-sm-2 control-label">ID：</label>
                             <div class="col-sm-9">
@@ -221,29 +229,40 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Package名称：</label>
+                            <label class="col-sm-3 control-label">BIN档名称：</label>
                             <div class="col-sm-8">
-                                <input name="PkgName" class="form-control" id="mod_PkgName" type="text">
+                                <input name="BinaryName" class="form-control" id="mod_BinaryName" type="text">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">项目名称：</label>
+                            <label class="col-sm-3 control-label">BIN档类型：</label>
                             <div class="col-sm-8">
-                                <input name="Project" class="form-control" id="mod_Project" type="text">
+                                <select name="BinaryType" class="form-control" id="mod_BinaryType">
+                                    <option value="GOLDEN">GOLDEN</option>
+                                    <option value="SIMPLE">SIMPLE</option>
+                                    <option value="CONNECT">CONNECT</option>
+                                    <option value="AGING">AGING</option>
+                                    <option value="BOOTFW">BOOTFW</option>
+                                    <option value="OEMFW">OEMFW</option>
+                                </select>
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Package路径：</label>
+                            <label class="col-sm-3 control-label">Repo信息：</label>
                             <div class="col-sm-8">
-                                <input name="PkgPath" class="form-control" id="mod_PkgPath" type="text">
+                                <input name="GitRepo" class="form-control" id="mod_GitRepo" type="text">
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">标签：</label>
+                            <label class="col-sm-3 control-label">Branch信息：</label>
                             <div class="col-sm-8">
-                                <input name="Labels" class="form-control" id="mod_Labels" type="text">
+                                <input name="GitBranch" class="form-control" id="mod_GitBranch" type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">CommitID信息：</label>
+                            <div class="col-sm-8">
+                                <input name="GitCommitID" class="form-control" id="mod_GitCommitID" type="text">
                             </div>
                         </div>
 
@@ -340,28 +359,28 @@
 
     <script>
         $("table").on("click",".edit-btn",function () {
-            pid = $(this).attr('pid');
+            bid = $(this).attr('bid');
             $("#mod_id").val("");
-            $("#mod_PkgName").val("");
-            $("#mod_Project").val("");
-            $("#mod_PkgPath").val("");
-            $("#mod_Labels").val("");
-            //$("#mod_TriggerTime").val("");
+            $("#mod_BinaryName").val("");
+            $("#mod_GitRepo").val("");
+            $("#mod_GitBranch").val("");
+            $("#mod_GitCommitID").val("");
+            $("#mod_BinaryType option").prop("selected",false);
 
             $.ajax({
-                url: "/monitor/package_update",
+                url: "/monitor/update_fwbin",
                 type: "GET",
-                data: {pid: pid},
+                data: {bid: bid},
                 dataType: 'JSON',
                 success: function (arg) {
                     if (arg) {
                         //console.log(arg);
                         $("#mod_id").val(arg.id);
-                        $("#mod_PkgName").val(arg.PkgName);
-                        $("#mod_Project").val(arg.Project);
-                        $("#mod_PkgPath").val(arg.PkgPath);
-                        $("#mod_Labels").val(arg.Labels);
-                        //$("#mod_TriggerTime").val(arg.TriggerTime);
+                        $("#mod_BinaryName").val(arg.BinaryName);
+                        $("#mod_GitRepo").val(arg.GitRepo);
+                        $("#mod_GitBranch").val(arg.GitBranch);
+                        $("#mod_GitCommitID").val(arg.GitCommitID);
+                        $("#mod_BinaryType [value=" + arg.BinaryType + "]").prop("selected",true);
                     }
                 }
             })

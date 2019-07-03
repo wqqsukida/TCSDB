@@ -257,7 +257,7 @@ class FWRelease(models.Model):
     Name = models.CharField('发布名称',max_length=64,unique=True)
     PKGID = models.ForeignKey(verbose_name='对应的包', to='FWPackage', on_delete=models.CASCADE)
     TRName = models.CharField('TestRun Name', max_length=32, null=True, blank=True)
-    Date = models.DateTimeField('发布的时间', auto_now_add=True)
+    Date = models.DateTimeField('发布的时间', null=True, blank=True)
     Version = models.CharField('发布的版本信息', max_length=32, null=True, blank=True)
 
     def __str__(self):
