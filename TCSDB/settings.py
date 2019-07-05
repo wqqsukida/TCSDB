@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'testcase.apps.TestcaseConfig',
     'rbac.apps.RbacConfig',
     'cccs.apps.CccsConfig',
+    'result.apps.ResultConfig',
 ]
 
 MIDDLEWARE = [
@@ -173,7 +174,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 # STATIC_ROOT = os.path.join(BASE_DIR,'static')
-SERVER_IP = '10.0.2.20'
 API_TOKEN = "7d6766a6s5f76safas657889hj78kf91"
 ############################ 权限管理相关 ################################
 PERMISSION_MENU_KEY = "w*d6v&ns8qq_y#1f"
