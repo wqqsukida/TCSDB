@@ -189,6 +189,7 @@ VALID_URL= [
     '^/monitor/api/',
     '^/testcase/api/',
     '^/cccs/api/',
+    '^/result/api/',
 ]
 
 APPEND_SLASH=False

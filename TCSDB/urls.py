@@ -24,6 +24,7 @@ urlpatterns = [
     re_path(r'^monitor/',include('monitor.urls')),
     re_path(r'^testcase/',include('testcase.urls')),
     re_path(r'^cccs/',include('cccs.urls')),
+    re_path(r'^result/',include('result.urls')),
     re_path(r'^api/auth/', LoginAuth.as_view()),
     re_path(r'^login/', views.login),
     re_path(r'^get_code/', get_code_img.get_code),

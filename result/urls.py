@@ -19,5 +19,11 @@ from result import views
 from result import api
 
 urlpatterns = [
-
+    re_path(r'^api/func/add_res/$', api.AddCycleResults.as_view()),
+    re_path(r'^api/func/add_case_res/$', api.AddCaseResult.as_view()),
+    re_path(r'^api/func/add_case_dbginfo/$', api.AddCaseDbgInfo.as_view()),
+    re_path(r'^api/func/get_sum/$', api.GetTestSummary.as_view()),
+    re_path(r'^api/func/get_logroot/$', api.GetTestLogPath.as_view()),
+    re_path(r'^api/func/get_ress/$', api.GetTestResultDetail.as_view()),
+    re_path(r'^api/func/get_fail_ress/$', api.GetTestFailDetail.as_view()),
 ]
