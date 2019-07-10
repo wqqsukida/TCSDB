@@ -57,10 +57,9 @@ class AddCaseResult(APIAuthView):
             fw_log = res.get("FWLog")
 
             rs_obj = ResultSummary.objects.get(TRName=tr_name)
-
             with transaction.atomic():
                 rd_obj = ResultDetail.objects.filter(TRID=rs_obj,TCName=tc_name)
-                rd_obj.update(Result=result,StratTime=start,EndTime=end,SerialNum=sn,
+                rd_obj.update(Result=result,StartTime=start,EndTime=end,SerialNum=sn,
                               ScriptLog=srt_log,FWLog=fw_log)
                 rs_obj.NotRunCnt -= 1
                 if result == 'PASS':
@@ -151,11 +150,11 @@ class GetTestResultDetail(APIAuthView):
             query_set = rs_obj.resultdetail_set.all()
             data = []
             for q in query_set:
-                data.append({"TCName":q.TCName,"Result":q.Result,
-                             "StartTime":q.StartTime.strftime('%Y-%m-%d %H:%m:%s'),
-                             "EndTime": q.EndTime.strftime('%Y-%m-%d %H:%m:%s'),
-                             "SerialNum":q.SerialNum,"ScriptLog":q.ScriptLog,
-                             "FWLog":q.FWLog})
+                q_dict = {"TCName":q.TCName,"Result":q.Result,"SerialNum":q.SerialNum,
+                          "ScriptLog":q.ScriptLog,"FWLog":q.FWLog}
+                if q.StartTime:q_dict["StartTime"] = q.StartTime.strftime('%Y-%m-%d %H:%m:%s')
+                if q.EndTime:q_dict["EndTime"] = q.EndTime.strftime('%Y-%m-%d %H:%m:%s')
+                data.append(q_dict)
             response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:
             print(traceback.format_exc())
