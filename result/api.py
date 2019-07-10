@@ -182,3 +182,117 @@ class GetTestFailDetail(APIAuthView):
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
         return HttpResponse(json.dumps(response))
+
+############################################################################################################
+
+class AddCycleTestResult(APIAuthView):
+    '''
+    新增性能测试结果
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class ChgCaseRecord(APIAuthView):
+    '''
+    更新测试结果具体信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class ChgItemRecord(APIAuthView):
+    '''
+    更新测试项具体结果信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetRsltSummary(APIAuthView):
+    '''
+    获得测试结果统计信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetCaseRsltInfo(APIAuthView):
+    '''
+    获得测试结果用例相关信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetTestRunCases(APIAuthView):
+    '''
+    获得该轮测试所有的测试用例
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetTestRunItems(APIAuthView):
+    '''
+    获得该轮测试用例对应的测试项列表
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))
+
+class GetItemResult(APIAuthView):
+    '''
+    获得该轮测试项的测试结果信息
+    '''
+    def post(self,request,*args,**kwargs):
+        res = json.loads(request.body.decode('utf-8')).get("data")
+        try:
+
+            response = {'code':0,'msg':'Success!','data':True}
+        except Exception as e:
+            print(traceback.format_exc())
+            response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
+        return HttpResponse(json.dumps(response))

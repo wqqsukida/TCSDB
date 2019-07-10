@@ -26,4 +26,13 @@ urlpatterns = [
     re_path(r'^api/func/get_logroot/$', api.GetTestLogPath.as_view()),
     re_path(r'^api/func/get_ress/$', api.GetTestResultDetail.as_view()),
     re_path(r'^api/func/get_fail_ress/$', api.GetTestFailDetail.as_view()),
+
+    re_path(r'^api/perf/add_res/$', api.AddCycleTestResult.as_view()),
+    re_path(r'^api/perf/chg_case_rec/$', api.ChgCaseRecord.as_view()),
+    re_path(r'^api/perf/chg_item_rec/$', api.ChgItemRecord.as_view()),
+    re_path(r'^api/perf/get_sum/$', api.GetRsltSummary.as_view()),
+    re_path(r'^api/perf/get_case_info/$', api.GetCaseRsltInfo.as_view()),
+    re_path(r'^api/perf/get_cases/$', api.GetTestRunCases.as_view()),
+    re_path(r'^api/perf/get_items/$', api.GetTestRunItems.as_view()),
+    re_path(r'^api/perf/get_item_res/$', api.GetItemResult.as_view()),
 ]
