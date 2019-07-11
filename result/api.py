@@ -192,8 +192,17 @@ class AddCycleTestResult(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
-
-            response = {'code':0,'msg':'Success!','data':True}
+            tr_name = res.get("TRName")
+            log_root = res.get("LogRoot")
+            tr_obj = TestRun.objects.get(TestRunName=tr_name)
+            total_cases = tr_obj.TCID.testplan_set.count()
+            with transaction.atomic():
+                res_sum = PerfResultSummary.objects.create(TRName=tr_name,TotalCases=total_cases,
+                                             LogRoot=log_root)
+                for tp in tr_obj.TCID.testplan_set.all():
+                    pd_obj = PerfResultDetail.objects.create(TRID=res_sum,TCName=tp.CaseName)
+                    PerfResultItem.objects.create(RRID=pd_obj)
+            response = {'code':0,'msg':'Success!','data':{"TestResultID":res_sum.id}}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -206,8 +215,24 @@ class ChgCaseRecord(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
+            tr_id = res.get("TRID")
+            tc_name = res.get("TCName")
+            start = res.get("StartTime")
+            end = res.get("EndTime")
+            sn = res.get("SerialNum")
+            srt_log = res.get("ScriptLog")
+            fw_log = res.get("FWLog")
+            stat_log = res.get("StatLog")
 
-            response = {'code':0,'msg':'Success!','data':True}
+            rs_obj = PerfResultSummary.objects.get(id=tr_id)
+            with transaction.atomic():
+                rd_obj = PerfResultDetail.objects.filter(TRID=rs_obj,TCName=tc_name)
+                rd_obj.update(StartTime=start,EndTime=end,SerialNum=sn,
+                              ScriptLog=srt_log,FWLog=fw_log,StatLog=stat_log)
+                rs_obj.RunCases += 1
+                rs_obj.save()
+
+            response = {'code':0,'msg':'Success!','data':{"ResultRecordID":rd_obj.first().id}}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -220,6 +245,19 @@ class ChgItemRecord(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
+            rr_id = res.get("RRID")
+            item_name = res.get("ItemName")
+            unit = res.get("Unit")
+            value = res.get("Value")
+            raw_data = res.get("RawData")
+
+            rd_obj = PerfResultDetail.objects.get(id=rr_id)
+            with transaction.atomic():
+                ri_obj = PerfResultItem.objects.filter(RRID=rd_obj)
+                ri_obj.update(ItemName=item_name,Unit=unit,Value=value,RawData=raw_data)
+
+                rd_obj.TRID.RunItems += 1
+                rd_obj.TRID.save()
 
             response = {'code':0,'msg':'Success!','data':True}
         except Exception as e:
@@ -234,8 +272,12 @@ class GetRsltSummary(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
+            tr_name = res.get("TRName")
+            rs_obj = PerfResultSummary.objects.filter(TRName=tr_name)
+            data = rs_obj.values('TRName','TotalCases','TotalItems','RunCases','RunItems',
+                                 'LogRoot').first()
 
-            response = {'code':0,'msg':'Success!','data':True}
+            response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -248,8 +290,15 @@ class GetCaseRsltInfo(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
+            tr_name = res.get("TRName")
+            tc_name = res.get("TCName")
+            rd_obj = PerfResultDetail.objects.get(TCName=tc_name,TRID__TRName=tr_name)
+            data = {"SerialNum":rd_obj.SerialNum,"ScriptLog":rd_obj.ScriptLog,
+                    "FWLog":rd_obj.FWLog,"StatLog":rd_obj.StatLog}
+            if rd_obj.StartTime:data["StartTime"] = rd_obj.StartTime.strftime('%Y-%m-%d %H:%m:%s')
+            if rd_obj.EndTime:data["EndTime"] = rd_obj.EndTime.strftime('%Y-%m-%d %H:%m:%s')
 
-            response = {'code':0,'msg':'Success!','data':True}
+            response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -262,8 +311,10 @@ class GetTestRunCases(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
-
-            response = {'code':0,'msg':'Success!','data':True}
+            tr_name = res.get("TRName")
+            tp_objs = TestRun.objects.get(TestRunName=tr_name).TCID.testplan_set.all()
+            data = [tp.CaseName for tp in tp_objs]
+            response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -274,10 +325,13 @@ class GetTestRunItems(APIAuthView):
     获得该轮测试用例对应的测试项列表
     '''
     def post(self,request,*args,**kwargs):
-        res = json.loads(request.body.decode('utf-8')).get("data")
+        res = json.loads(request.body.  decode('utf-8')).get("data")
         try:
-
-            response = {'code':0,'msg':'Success!','data':True}
+            tr_name = res.get("TRName")
+            tc_name = res.get("TCName")
+            rd_obj = PerfResultDetail.objects.get(TRID__TRName=tr_name,TCName=tc_name)
+            data = [item.ItemName for item in rd_obj.perfresultitem_set.all()]
+            response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -290,8 +344,13 @@ class GetItemResult(APIAuthView):
     def post(self,request,*args,**kwargs):
         res = json.loads(request.body.decode('utf-8')).get("data")
         try:
-
-            response = {'code':0,'msg':'Success!','data':True}
+            tr_name = res.get("TRName")
+            tc_name = res.get("TCName")
+            item_name = res.get("ItemName")
+            ri_obj = PerfResultItem.objects.filter(RRID__TCName=tc_name,RRID__TRID__TRName=tr_name,
+                                                   ItemName=item_name)
+            data = ri_obj.values("Unit","Value","RawData").first()
+            response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}

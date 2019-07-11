@@ -52,10 +52,10 @@ class PerfResultSummary(models.Model):
     性能测试结果概要
     '''
     TRName = models.CharField('TestRun名称',max_length=32,blank=True,null=True)
-    TotalCases = models.IntegerField('用例总数',blank=True,null=True)
-    TotalItems = models.IntegerField('用例项总数',blank=True,null=True)
-    RunCases = models.IntegerField('已经完成用例数',blank=True,null=True)
-    RunItems = models.IntegerField('已经完成项数',blank=True,null=True)
+    TotalCases = models.IntegerField('用例总数',default=0)
+    TotalItems = models.IntegerField('用例项总数',default=0)
+    RunCases = models.IntegerField('已经完成用例数',default=0)
+    RunItems = models.IntegerField('已经完成项数',default=0)
     LogRoot = models.CharField('日志根目录', max_length=128, blank=True, null=True)
 
     def __str__(self):
@@ -67,7 +67,7 @@ class PerfResultDetail(models.Model):
     '''
     TRID = models.ForeignKey(verbose_name='PerfResultSummary ID',to='PerfResultSummary',on_delete=models.CASCADE)
     TCName = models.CharField('TestCase名称',max_length=64,blank=True,null=True)
-    StratTime = models.DateTimeField('用例开始时间	',blank=True,null=True)
+    StartTime = models.DateTimeField('用例开始时间	',blank=True,null=True)
     EndTime = models.DateTimeField('用例结束时间',blank=True,null=True)
     SerialNum = models.CharField('DUT SN', max_length=64, blank=True, null=True)
     ScriptLog = models.CharField('脚本Log的相对路径+文件名', max_length=128, blank=True, null=True)
