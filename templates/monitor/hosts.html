@@ -164,7 +164,7 @@
                                             <td>{{ host.DeviceType }}</td>
                                             <td>{{ host.JoininDate | date:"Y-m-d H:i:s" }}</td>
                                             <td>
-                                                {% if host.Status == 'IDEL' %}
+                                                {% if host.Status == 'IDLE' %}
                                                     <a class="btn btn-sm btn-success">{{ host.Status }}</a>
                                                 {% elif host.Status == 'BUSY' %}
                                                     <a class="btn btn-sm btn-info">{{ host.Status }}</a>

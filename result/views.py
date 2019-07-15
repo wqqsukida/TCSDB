@@ -23,3 +23,22 @@ def init_paginaion(request,queryset):
     page_html = page_obj.page_html()
 
     return query_set,page_html
+
+def func_res(request):
+    '''
+    func test 任务结果列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+
+        queryset = ResultSummary.objects.filter(TRName__contains=search_q).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'result/func_res.html',locals())

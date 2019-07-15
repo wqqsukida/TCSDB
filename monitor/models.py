@@ -14,7 +14,7 @@ class DUTInfo(models.Model):
     RawCapacity = models.CharField('物理容量',max_length=16,null=True,blank=True)
     UserCapacity = models.CharField('用户可见容量',max_length=16,null=True,blank=True)
     Manufactured = models.DateTimeField('生产年月	',null=True,blank=True)
-    Status = models.CharField('当前设备状态', max_length=16,null=True,blank=True) #Idle,Busy,Debug,Unplugged
+    Status = models.CharField('当前设备状态', max_length=16,null=True,blank=True) #IDLE,BUSY,DEBUG,UNPLUGGED
     Notes = models.TextField('备注',null=True,blank=True)
     HostName = models.CharField('当前SSD所在Host机器名称', max_length=32, null=True, blank=True)
     SlotID = models.ForeignKey(verbose_name='当前SSD在Host机器的卡槽位置',to='SlotInfo',on_delete=models.SET_NULL,null=True, blank=True)
@@ -106,7 +106,7 @@ class HostInfo(models.Model):
     DRAMType = models.CharField('内存类型', max_length=16, null=True, blank=True)
     DRAMSize = models.CharField('内存大小', max_length=16, null=True, blank=True)
     MaxDRAMSize = models.CharField('最大内存大小', max_length=16, null=True, blank=True)
-    MAC = models.CharField('网卡MAC地址', max_length=16, null=True, blank=True)
+    MAC = models.CharField('网卡MAC地址', max_length=32, null=True, blank=True)
     IPV4Addr = models.CharField('IP地址', max_length=16, null=True, blank=True)
     NICType = models.CharField('网络接口卡', max_length=16, null=True, blank=True) #100M,1000M,10GB
     WIFISupported = models.BooleanField('是否支持wifi',default=False)
@@ -115,7 +115,7 @@ class HostInfo(models.Model):
     MaxAICSlot = models.IntegerField('最大可插入AIC SSD数量',null=True,blank=True)
     MaxU2Slot = models.IntegerField('最大可插入U.2 SSD数量',null=True,blank=True)
     JoininDate = models.DateTimeField('加入测试池时间',null=True,blank=True)
-    Status = models.CharField('主机状态',max_length=16,default='IDEL') #IDEL,BUSY,BAD,RETIRED
+    Status = models.CharField('主机状态',max_length=16,default='IDLE') #IDLE,BUSY,BAD,RETIRED
 
     def __str__(self):
         return self.HostName

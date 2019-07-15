@@ -259,7 +259,7 @@ class ChgItemRecord(APIAuthView):
                 rd_obj.TRID.RunItems += 1
                 rd_obj.TRID.save()
 
-            response = {'code':0,'msg':'Success!','data':True}
+            response = {'code':0,'msg':'Success!','data':{"ResultItemID":ri_obj.first().id}}
         except Exception as e:
             print(traceback.format_exc())
             response = {'code':5,'msg':'Service internal error:{0}'.format(str(e)),'data':{}}
@@ -274,8 +274,9 @@ class GetRsltSummary(APIAuthView):
         try:
             tr_name = res.get("TRName")
             rs_obj = PerfResultSummary.objects.filter(TRName=tr_name)
-            data = rs_obj.values('TRName','TotalCases','TotalItems','RunCases','RunItems',
+            data = rs_obj.values('TotalCases','TotalItems','RunCases','RunItems',
                                  'LogRoot').first()
+            data["TestResultID"] = rs_obj.first().id
 
             response = {'code':0,'msg':'Success!','data':data}
         except Exception as e:

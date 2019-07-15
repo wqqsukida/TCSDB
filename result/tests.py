@@ -23,8 +23,7 @@ class ApiTest(TestCase):
         cycle_obj2 = TestCycle.objects.create(CycleName='cyclename02', Project='Project02', CycleLevel="SMK")
         plan_obj2_1 = TestPlan.objects.create(CycleID=cycle_obj2,CaseName='TCName01',LoopCnt=2)
         tr_obj_2 = TestRun.objects.create(TCID=cycle_obj2,TestRunName='TRName02',TriggerTime=datetime.datetime.now(),
-                                        JIRAID='JIRAID01')
-
+                                        JIRAID='JIRAID02')
         # cycle_obj1 = TestCycle.objects.create(CycleName='cyclename01',Project='Project01',CycleLevel="SMK")
         # plan_obj1 = TestPlan.objects.create(CycleID=cycle_obj1,CaseName='TCName01',LoopCnt=2)
         # plan_obj2 = TestPlan.objects.create(CycleID=cycle_obj1,CaseName='TCName02',LoopCnt=2)
@@ -39,6 +38,10 @@ class ApiTest(TestCase):
         rd_obj3 = ResultDetail.objects.create(TRID=rs_obj,TCName="TCName03",Result="NotRun")
         rd_obj4 = ResultDetail.objects.create(TRID=rs_obj,TCName="TCName04",Result="NotRun")
         rd_obj5 = ResultDetail.objects.create(TRID=rs_obj,TCName="TCName05",Result="FAIL")
+
+        prs_obj = PerfResultSummary.objects.create(TRName='TRName01',LogRoot="LogRoot01")
+        prd_obj = PerfResultDetail.objects.create(TRID=prs_obj,TCName="TCName01")
+        prt_obj = PerfResultItem.objects.create(RRID=prd_obj,ItemName="ItemName01")
 
     def testAddCycleResults(self):
         data = {
@@ -127,6 +130,112 @@ class ApiTest(TestCase):
             }
         }
         rep = self.c.post(path='/result/api/func/get_fail_ress/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+############################################################################################################
+
+    def testAddCycleTestResult(self):
+        data = {
+            "data":{
+                "TRName":"TRName02",
+                "LogRoot":"LogRoot02",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/add_res/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testChgCaseRecord(self):
+        data = {
+            "data":{
+                "TRID":1,
+                "TCName":"TCName01",
+                "StartTime":"2019-07-12 08:08:08",
+                "EndTime":"2019-07-12 08:08:08",
+                "SerialNum":"SerialNum01",
+                "ScriptLog":"ScriptLog01",
+                "FWLog":"FWLog01",
+                "StatLog":"StatLog01",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/chg_case_rec/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testChgItemRecord(self):
+        data = {
+            "data":{
+                "RRID":1,
+                "ItemName":"ItemName01",
+                "Unit":"Unit01",
+                "Value":10,
+                "RawData":"RawData01",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/chg_item_rec/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetRsltSummary(self):
+        data = {
+            "data":{
+                "TRName":"TRName01",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/get_sum/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetCaseRsltInfo(self):
+        data = {
+            "data":{
+                "TRName":"TRName01",
+                "TCName":"TCName01",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/get_case_info/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    # def testGetTestRunCases(self):
+    #     data = {
+    #         "data":{
+    #             "TRName":"TRName01",
+    #         }
+    #     }
+    #     rep = self.c.post(path='/result/api/perf/get_cases/',content_type='application/json',data=data)
+    #     res = json.loads(rep.content)
+    #     print(res)
+    #     self.assertEqual(res.get("code"), 0)
+
+    def testGetTestRunItems(self):
+        data = {
+            "data":{
+                "TRName":"TRName01",
+                "TCName":"TCName01",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/get_items/',content_type='application/json',data=data)
+        res = json.loads(rep.content)
+        print(res)
+        self.assertEqual(res.get("code"), 0)
+
+    def testGetItemResult(self):
+        data = {
+            "data":{
+                "TRName":"TRName01",
+                "TCName":"TCName01",
+                "ItemName":"ItemName01",
+            }
+        }
+        rep = self.c.post(path='/result/api/perf/get_item_res/',content_type='application/json',data=data)
         res = json.loads(rep.content)
         print(res)
         self.assertEqual(res.get("code"), 0)

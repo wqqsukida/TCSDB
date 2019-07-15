@@ -161,13 +161,13 @@
                                             <td>{{ dut.DeviceType }}</td>
                                             <td>{{ dut.ModelNum }}</td>
                                             <td>
-                                                {% if dut.Status == 'Idle' %}
+                                                {% if dut.Status == 'IDLE' %}
                                                     <a class="btn btn-sm btn-success">{{ dut.Status }}</a>
-                                                {% elif dut.Status == 'Unplugged' %}
+                                                {% elif dut.Status == 'UNPLUGGED' %}
                                                     <a class="btn btn-sm btn-info">{{ dut.Status }}</a>
-                                                {% elif dut.Status == 'Busy' %}
+                                                {% elif dut.Status == 'BUSY' %}
                                                     <a class="btn btn-sm btn-danger">{{ dut.Status }}</a>
-                                                {% elif dut.Status == 'Debug' %}
+                                                {% elif dut.Status == 'DEBUG' %}
                                                     <a class="btn btn-sm btn-warning">{{ dut.Status }}</a>
                                                 {% endif %}
                                             </td>
