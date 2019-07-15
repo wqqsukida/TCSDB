@@ -95,9 +95,9 @@
 {#                                </div>#}
 
                                 <div class="col-sm-1">
-                                    <a href="#" data-toggle="modal" data-target="#AddModal" class="btn btn-warning add-btn">
-                                        <i class="fa fa-plus"></i> 创建Package
-                                    </a>
+{#                                    <a href="#" data-toggle="modal" data-target="#AddModal" class="btn btn-warning add-btn">#}
+{#                                        <i class="fa fa-plus"></i> 创建Package#}
+{#                                    </a>#}
                                 </div>
                                 <div class="col-sm-8"></div>
                                 <div class="col-sm-2">
@@ -119,44 +119,37 @@
                                         <th>Pass</th>
                                         <th>Fail</th>
                                         <th>Abort</th>
-                                        <th>Pass</th>
-                                        <th>Pass</th>
-                                        <th>Pass</th>
-                                        <th>路径</th>
-                                        <th>标签</th>
+                                        <th>Skip</th>
+                                        <th>Conditional Pass</th>
+                                        <th>NotRun</th>
+                                        <th>脚本Log的根目录</th>
+                                        <th>FWLog的根目录</th>
                                         <th>操作</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for p in queryset %}
+                                    {% for r in queryset %}
                                         <tr>
                                             <td class="tooltip-demo">
-                                                <a data-toggle="tooltip" data-placement="bottom" title="查看ScriptInfo" class="btn-sm btn-white" href="/monitor/script_list/{{ p.id }}/">
-                                                    {{ p.PkgName }}
+                                                <a data-toggle="tooltip" data-placement="bottom" title="查看Case结果详情" class="btn-sm btn-white" href="/result/func_cases/{{ r.id }}/">
+                                                    {{ r.TRName }}
                                                 </a>
                                             </td>
-                                            <td>{{ p.Project }}</td>
-                                            <td>{{ p.Date | date:'Y-m-d H:i:s'}}</td>
-                                            <td>{{ p.PkgPath }}</td>
-{#                                            <td>#}
-{#                                                {% if tr.Status == "NOTSTART" %}#}
-{#                                                    <a class="alert-btn alert-info">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "FINISHED" %}#}
-{#                                                    <a class="alert-btn alert-success">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "FAILED" %}#}
-{#                                                    <a class="alert-btn alert-danger">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "CANCELED" %}#}
-{#                                                    <a class="alert-btn alert-warning">{{ tr.Status }}</a>#}
-{#                                                {% elif tr.Status == "RUNNING" %}#}
-{#                                                    <a class="alert-btn alert-primary">{{ tr.Status }}</a>#}
-{#                                                {% endif %}#}
-{#                                            </td>#}
-                                            <td>{{ p.Labels }}</td>
+                                            <td>{{ r.TotalCases }}</td>
+                                            <td>{{ r.PassCnt }}</td>
+                                            <td>{{ r.FailCnt }}</td>
+                                            <td>{{ r.AbortCnt }}</td>
+                                            <td>{{ r.SkipCnt }}</td>
+                                            <td>{{ r.CPassCnt }}</td>
+                                            <td>{{ r.NotRunCnt }}</td>
+                                            <td>{{ r.SrtLogRoot }}</td>
+                                            <td>{{ r.FWLogRoot }}</td>
+
                                             <td class="tooltip-demo" style="font-size: 20px">
-                                                <a class="edit-btn" pid={{ p.id }}  data-toggle="modal" data-target="#EditModal" title="更新Package" style="margin-right: 15px">
-                                                    <i class="fa fa-wrench"></i>
-                                                </a>
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/monitor/package_del?pid={{ p.id }}&page={{ page }}" class="del_confirm" title="删除Package" style="margin-right: 15px">
+{#                                                <a class="edit-btn" rid={{ r.id }}  data-toggle="modal" data-target="#EditModal" title="更新Package" style="margin-right: 15px">#}
+{#                                                    <i class="fa fa-wrench"></i>#}
+{#                                                </a>#}
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/result/del_func_res?rid={{ r.id }}&page={{ page }}" class="del_confirm" title="删除" style="margin-right: 15px">
                                                     <i class="fa fa-trash-o"></i>
                                                 </a>
                                             </td>

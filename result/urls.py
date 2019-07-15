@@ -35,4 +35,10 @@ urlpatterns = [
     re_path(r'^api/perf/get_cases/$', api.GetTestRunCases.as_view()),
     re_path(r'^api/perf/get_items/$', api.GetTestRunItems.as_view()),
     re_path(r'^api/perf/get_item_res/$', api.GetItemResult.as_view()),
+
+    re_path(r'^func_res$', views.func_res),
+    re_path(r'^func_cases/(?P<rsid>\d*)/$', views.func_cases),
+    re_path(r'^func_failure$', views.func_failure),
+
+
 ]
