@@ -55,7 +55,7 @@
                     <div class="ibox-title">
                         <ol class="breadcrumb">
                             <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
-                            <li><a href="/result/func_res"><span class="g_nav_font">功能测试任务结果</span></a></li>
+                            <li><a href="/result/perf_res"><span class="g_nav_font">性能测试任务结果</span></a></li>
                             <li class="active">
                                  {{ rs_obj.TRName }}结果详情
                             </li>
@@ -85,7 +85,7 @@
             </div>
         </div>
     </div>
-
+    <!--
     <div class="modal inmodal" id="AddVerMod" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -315,16 +315,7 @@
                                 <input class="form-control" type="text"  name="id" id="mod_id">
                             </div>
                         </div>
-                        <!--
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">Image类型：</label>
-                            <div class="col-sm-8">
-                                <select class="form-control"  name="image_type" id="mod_type">
 
-                                </select>
-                            </div>
-                        </div>
-                        -->
                         <div class="form-group">
                             <label class="col-sm-3 control-label">下载路径：</label>
                             <div class="col-sm-8">
@@ -354,7 +345,22 @@
             </div>
         </div>
     </div>
+    -->
+    <div class="modal inmodal" id="GetDataModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close close_monitor_modal" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">RawData</h4>
+                </div>
+                <div class="panel-body">
+                    <pre id="get-rawdata" style="overflow: auto; height: 380px; line-height: 20px;">
 
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -387,7 +393,7 @@
      window.onload = myfun;
      function myfun() {
          $("#report").bootstrapTable({
-             url: '/result/func_cases/{{ rsid }}/',
+             url: '/result/perf_cases/{{ rsid }}/',
              method: 'post',
              detailView: true,//父子表
              //sidePagination: "server",
@@ -407,11 +413,6 @@
                  field: 'TCName',
                  title: 'TestCase名称',
                  //class:'get-vname',
-                 sortable: true
-             },
-                 {
-                 field: 'Result',
-                 title: '用例结果信息',
                  sortable: true
              },
                  {
@@ -439,6 +440,11 @@
                  title: 'FWLog',
                  sortable: true
              },
+                 {
+                 field: 'StatLog',
+                 title: 'StatLog',
+                 sortable: true
+             },
                  /*
                  {
                  field: 'id',
@@ -464,7 +470,7 @@
      InitSubTable = function (index, row, $detail) {
         var cur_table = $detail.html('<table></table>').find('table');
         $(cur_table).bootstrapTable({
-            url:'/result/func_failure',
+            url:'/result/perf_item',
             methods:'get',
             //detailView: true,//父子表
             queryParams:{cid:row.id},
@@ -480,30 +486,30 @@
                      }
                  },
                 {
-                     field: 'JIRAID',
-                     title: 'JIRAID',
+                     field: 'ItemName',
+                     title: 'TestItem名称',
                      sortable: true,
                  },
                  {
-                     field: 'FailureKept',
-                     title: '是否有保留现场',
+                     field: 'Unit',
+                     title: '度量单位',
                      sortable: true,
                  },
                 {
-                     field: 'DebugLog',
-                     title: 'DebugDumpLog',
+                     field: 'Value',
+                     title: '测量值',
                      sortable: true,
                  },
                 {
-                     field: 'DbgInfo1',
-                     title: '调试信息1',
-                     sortable: true,
+                     field: 'id',
+                     title: '采样数据',
+                     formatter: function(value, row, index){
+                        var a = '<a class="get-rawdata-btn" iid='+row.id+' data-toggle="modal" data-target="#GetDataModal" style="font-size: 20px">' +
+                            '<i class="fa fa-bar-chart-o"></i></a>'  ;
+                        return a
+                     },
                  },
-                {
-                     field: 'DbgInfo2',
-                     title: '调试信息2',
-                     sortable: true,
-                 },
+
                 /*
                  {
                      field: 'id',
@@ -526,7 +532,7 @@
             //    }
         })
      };
-
+    /*
     InitSecSubTable = function (index, row, $detail) {
         var sec_table = $detail.html('<table></table>').find('table');
         $(sec_table).bootstrapTable({
@@ -603,11 +609,12 @@
 
         })
      }
-
+    */
     </script>
 
 
     <script>
+        /*
         $("#add-dev-btn").click(function () {
             $("#get_version_").empty();
             $.bootstrapLoading.start({ loadingTips: "正在获取版本信息，请稍候..." });
@@ -638,7 +645,6 @@
                 }
             })
         });
-
 
         $("#add-img-btn").click(function () {
             $("#get_version").empty();
@@ -752,7 +758,6 @@
            $("#mod_id").val(image_id);
         });
 
-
         $("table").on("click",".image-enabled-btn",function () {
             tag_a = $(this);
             image_id = tag_a.attr('imid');
@@ -782,7 +787,29 @@
                 },
                 complete:function () {$.bootstrapLoading.end();}
             })
-        })
+        });
+
+        */
+
+        $("table").on("click",".get-rawdata-btn",function (){
+            iid = $(this).attr('iid');
+            $("#get-rawdata").empty();
+            $.ajax({
+                url:'/result/perf_item',
+                type:'POST',
+                headers:{"X-CSRFToken": $.cookie('csrftoken')},
+                data:{iid:iid},
+                dataType:'JSON',
+                success:function (arg) {
+                    if(arg){
+                            $("#get-rawdata").append(arg)
+                    }
+                    else{
+
+                    }
+                }
+            })
+        });
     </script>
     <script>
         //$('.del_confirm').click(function(){

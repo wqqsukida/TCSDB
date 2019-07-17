@@ -77,7 +77,7 @@
                         <ol class="breadcrumb">
                             <li><a href="/index_v3/"><span class="g_nav_font">首页</span></a></li>
                             <li class="active">
-                                功能测试任务结果
+                                性能测试任务结果
                               </li>
                             <div class="ibox-tools">
                                 <a onclick="refresh()">
@@ -116,43 +116,34 @@
                                     <tr>
                                         <th>TestRun名称</th>
                                         <th>用例总数</th>
-                                        <th>Pass</th>
-                                        <th>Fail</th>
-                                        <th>Abort</th>
-                                        <th>Skip</th>
-                                        <th>Conditional Pass</th>
-                                        <th>NotRun</th>
-                                        <th>脚本Log的根目录</th>
-                                        <th>FWLog的根目录</th>
+                                        <th>用例项总数</th>
+                                        <th>已经完成用例数</th>
+                                        <th>已经完成项数</th>
+                                        <th>日志根目录</th>
                                         <th>操作</th>
                                     </tr>
                                  </thead>
                                  <tbody>
-                                    {% for r in queryset %}
+                                    {% for rs in queryset %}
                                         <tr>
                                             <td class="tooltip-demo">
-                                                <a data-toggle="tooltip" data-placement="bottom" title="查看Case结果详情" class="btn-sm btn-white" href="/result/func_cases/{{ r.id }}/">
-                                                    {{ r.TRName }}
+                                                <a data-toggle="tooltip" data-placement="bottom" title="查看Case结果详情" class="btn-sm btn-white" href="/result/perf_cases/{{ rs.id }}/">
+                                                    {{ rs.TRName }}
                                                 </a>
                                             </td>
-                                            <td>{{ r.TotalCases }}</td>
-                                            <td>{{ r.PassCnt }}</td>
-                                            <td>{{ r.FailCnt }}</td>
-                                            <td>{{ r.AbortCnt }}</td>
-                                            <td>{{ r.SkipCnt }}</td>
-                                            <td>{{ r.CPassCnt }}</td>
-                                            <td>{{ r.NotRunCnt }}</td>
-                                            <td>{{ r.SrtLogRoot }}</td>
-                                            <td>{{ r.FWLogRoot }}</td>
-
+                                            <td>{{ rs.TotalCases }}</td>
+                                            <td>{{ rs.TotalItems }}</td>
+                                            <td>{{ rs.RunCases }}</td>
+                                            <td>{{ rs.RunItems }}</td>
+                                            <td>{{ rs.LogRoot }}</td>
                                             <td class="tooltip-demo" style="font-size: 20px">
 {#                                                <a class="edit-btn" rid={{ r.id }}  data-toggle="modal" data-target="#EditModal" title="更新Package" style="margin-right: 15px">#}
 {#                                                    <i class="fa fa-wrench"></i>#}
 {#                                                </a>#}
-{#                                                <a data-toggle="tooltip" data-placement="bottom" href="/result/del_func_res?rid={{ r.id }}&page={{ page }}" class="del_confirm" title="删除" style="margin-right: 15px">#}
+{#                                                <a data-toggle="tooltip" data-placement="bottom" href="/result/del_perf_res?rid={{ r.id }}&page={{ page }}" class="del_confirm" title="删除" style="margin-right: 15px">#}
 {#                                                    <i class="fa fa-trash-o"></i>#}
 {#                                                </a>#}
-                                                <a data-toggle="tooltip" data-placement="bottom" href="/result/func_cases/{{ r.id }}/" title="查看Case结果详情" style="margin-right: 15px">
+                                                <a data-toggle="tooltip" data-placement="bottom" href="/result/perf_cases/{{ rs.id }}/" title="查看Case结果详情" style="margin-right: 15px">
                                                     <i class="fa fa-list-alt"></i>
                                                 </a>
                                             </td>

@@ -47,7 +47,12 @@ def func_res(request):
 
 @csrf_exempt
 def func_cases(request,rsid):
-
+    '''
+    功能测试任务case详情
+    :param request:
+    :param rsid:
+    :return:
+    '''
     if request.method == "GET":
         status = request.GET.get("status", "")
         message = request.GET.get("message", "")
@@ -69,9 +74,78 @@ def func_cases(request,rsid):
         return HttpResponse(json.dumps(rep))
 
 def func_failure(request):
+    '''
+    功能测试任务case调试信息
+    :param request:
+    :return:
+    '''
     if request.method == "GET":
         id = request.GET.get("cid")
         query_set = ResultFailure.objects.filter(RRID_id=id)
         rep = [model_to_dict(q) for q in query_set]
 
         return HttpResponse(json.dumps(rep))
+
+def perf_res(request):
+    '''
+    perf test 任务结果列表
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        page = request.GET.get("page")
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        if status.isdigit():
+            result = {"code":int(status),"message":message}
+        search_q = request.GET.get('q','')
+
+        queryset = PerfResultSummary.objects.filter(TRName__contains=search_q).distinct().order_by('-id')
+        queryset, page_html = init_paginaion(request, queryset)
+
+        return render(request,'result/perf_res.html',locals())
+
+@csrf_exempt
+def perf_cases(request,rsid):
+    '''
+    性能测试任务case详情
+    :param request:
+    :param rsid:
+    :return:
+    '''
+    if request.method == "GET":
+        status = request.GET.get("status", "")
+        message = request.GET.get("message", "")
+        rsid = rsid
+        rs_obj = PerfResultSummary.objects.get(id=rsid)
+        if status.isdigit():
+            result = {"code": int(status), "message": message}
+        return render(request, 'result/perf_cases.html', locals())
+
+    elif request.method == "POST":
+        query_set = PerfResultDetail.objects.filter(TRID_id=rsid)
+        rep = []
+        for q in query_set:
+            q_dict = {"id":q.id,"TCName": q.TCName, "StatLog": q.StatLog, "SerialNum": q.SerialNum,
+                      "ScriptLog": q.ScriptLog, "FWLog": q.FWLog}
+            if q.StartTime: q_dict["StartTime"] = q.StartTime.strftime('%Y-%m-%d %H:%m:%s')
+            if q.EndTime: q_dict["EndTime"] = q.EndTime.strftime('%Y-%m-%d %H:%m:%s')
+            rep.append(q_dict)
+        return HttpResponse(json.dumps(rep))
+
+def perf_item(request):
+    '''
+    性能测试任务项
+    :param request:
+    :return:
+    '''
+    if request.method == "GET":
+        id = request.GET.get("cid")
+        query_set = PerfResultItem.objects.filter(RRID_id=id)
+        rep = [model_to_dict(q) for q in query_set]
+        return HttpResponse(json.dumps(rep))
+
+    elif request.method == "POST":
+        iid = request.POST.get("iid")
+        raw_data = PerfResultItem.objects.get(id=iid).RawData
+        return HttpResponse(json.dumps(raw_data))

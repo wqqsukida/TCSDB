@@ -39,6 +39,9 @@ urlpatterns = [
     re_path(r'^func_res$', views.func_res),
     re_path(r'^func_cases/(?P<rsid>\d*)/$', views.func_cases),
     re_path(r'^func_failure$', views.func_failure),
+    re_path(r'^perf_res$', views.perf_res),
+    re_path(r'^perf_cases/(?P<rsid>\d*)/$', views.perf_cases),
+    re_path(r'^perf_item$', views.perf_item),
 
 
 ]
